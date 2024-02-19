@@ -204,7 +204,7 @@ class PlayerData:
         Устанавливает рост игрока в метрах
         
         Args:
-            height (float;integer): Высота игрока в метрах
+            height (integer, float): Высота игрока в метрах
         
         Returns:
             None
@@ -216,7 +216,7 @@ class PlayerData:
         Устанавливает вес игрока в килограммах
         
         Args:
-            weight (float;integer): Вес игрока в килограммах
+            weight (integer, float): Вес игрока в килограммах
         
         Returns:
             None
@@ -255,7 +255,7 @@ class PlayerData:
         Устанавливает здоровье игрока
         
         Args:
-            health (float;integer): Здоровье игрока
+            health (integer, float): Здоровье игрока
         
         Returns:
             None
@@ -267,7 +267,7 @@ class PlayerData:
         Устанавливает силу духа игрока
         
         Args:
-            som (float;integer): Сила духа
+            som (integer, float): Сила духа
         
         Returns:
             None
