@@ -52,7 +52,6 @@ class PlayerData:
         """
         return self.full_name
 
-
     def get_id(self):
         """
         Получение ID игрока
