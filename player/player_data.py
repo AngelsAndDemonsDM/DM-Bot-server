@@ -13,232 +13,314 @@ class PlayerData:
         self.hunger # Голод
         self.thirst # Жажда
         
-        self.characteristics # Характеристики
-    
+        self.characteristics # Характеристика
+
+    def _set_attribute_within_range(self, attribute, value, min_value=None, max_value=None):
+        """
+        Устанавливает значение атрибута игрока в пределах допустимого диапазона.
+
+        Args:
+            attribute (str): Имя атрибута.
+            value (int, float): Значение атрибута.
+            min_value (int, float, None): Минимальное допустимое значение. Если None, то ограничение отсутствует.
+            max_value (int, float, None): Максимальное допустимое значение. Если None, то ограничение отсутствует.
+
+        Raises:
+            TypeError: Если значение атрибута не является целым числом или числом с плавающей точкой.
+        """
+        if isinstance(value, (int, float)):
+            value = float(value)
+            if min_value is not None:
+                value = max(value, min_value)
+            if max_value is not None:
+                value = min(value, max_value)
+            setattr(self, attribute, value)
+        else:
+            raise TypeError(f"{attribute.capitalize()} must be an integer or a float")
+
+
     # Get методы
-    """
-    desc
-    
-    Args:
-        None
-    
-    Returns:
-        None
-    """
     def get_full_name(self):
+        """
+        Получение полного ФИО
+        
+        Args:
+            None
+        
+        Returns:
+            full_name (string): Полное ФИО
+        """
         return self.full_name
 
-    """
-    desc
-    
-    Args:
-        None
-    
-    Returns:
-        None
-    """
+
     def get_id(self):
+        """
+        Получение ID игрока
+        
+        Args:
+            None
+        
+        Returns:
+            id (integer): ID игрока
+        """
         return self.id
 
-    """
-    desc
-    
-    Args:
-        None
-    
-    Returns:
-        None
-    """
     def get_height(self):
+        """
+        Получение высоты игрока в метрах
+        
+        Args:
+            None
+        
+        Returns:
+            height (float): Высота игрока в метрах
+        """
         return self.height
 
-    """
-    desc
-    
-    Args:
-        None
-    
-    Returns:
-        None
-    """
     def get_weight(self):
+        """
+        Получение веса игрока в килограммах
+        
+        Args:
+            None
+        
+        Returns:
+            weight (float): Вес игрока в килограммах
+        """
         return self.weight
     
-    """
-    desc
-    
-    Args:
-        None
-    
-    Returns:
-        None
-    """
     def get_gender(self):
+        """
+        Получение пола игрока
+        
+        Args:
+            None
+        
+        Returns:
+            gender (string): Пола игрока
+        """
         return self.gender
     
-    """
-    desc
-    
-    Args:
-        None
-    
-    Returns:
-        None
-    """
     def get_race(self):
+        """
+        Получение расы игрока
+        
+        Args:
+            None
+        
+        Returns:
+            race (RaceData): Раса игрока
+        """
         return self.race
 
-    """
-    desc
-    
-    Args:
-        None
-    
-    Returns:
-        None
-    """
     def get_health(self):
+        """
+        Получение здоровья игрока
+        
+        Args:
+            None
+        
+        Returns:
+            health (float): Здоровье игрока
+        """
         return self.health
 
-    """
-    desc
-    
-    Args:
-        None
-    
-    Returns:
-        None
-    """
     def get_som(self):
+        """
+        Получение текущей силы духа
+        
+        Args:
+            None
+        
+        Returns:
+            som (float): Сила духа
+        """
         return self.som
     
-    """
-    desc
-    
-    Args:
-        None
-    
-    Returns:
-        None
-    """
     def get_mind(self):
+        """
+        Получение рассудка игрока
+        
+        Args:
+            None
+        
+        Returns:
+            mind (float): Рассудок игрока
+        """
         return self.mind
     
-    """
-    desc
-    
-    Args:
-        None
-    
-    Returns:
-        None
-    """
     def get_hunger(self):
+        """
+        Получение голода игрока
+        
+        Args:
+            None
+        
+        Returns:
+            hunger (float): Голод игрока
+        """
         return self.hunger
     
-    """
-    desc
-    
-    Args:
-        None
-    
-    Returns:
-        None
-    """
     def get_thirst(self):
+        """
+        Получение жажды игрока
+        
+        Args:
+            None
+        
+        Returns:
+            thirst (float): Жажда игрока
+        """
         return self.thirst
     
-    """
-    desc
-    
-    Args:
-        None
-    
-    Returns:
-        None
-    """
     def get_characteristics(self):
+        """
+        Получение характеристики игрока
+        
+        Args:
+            None
+        
+        Returns:
+            characteristics (CharacteristicsData): Характеристика игрока
+        """
         return self.characteristics
     
     # Set методы
     def set_full_name(self, name):
+        """
+        Устанавливает ФИО игрока
+        
+        Args:
+            name (string): ФИО игрока
+        
+        Returns:
+            None
+        """
         self.name = str(name)
     
     # ID - константа для сейв системы.
 
     def set_height(self, height):
-        if isinstance(height, (int, float)):
-            self.height = float(height)
-        else:
-            raise TypeError("Height must be an integer or a float.")
+        """
+        Устанавливает рост игрока в метрах
+        
+        Args:
+            height (float;integer): Высота игрока в метрах
+        
+        Returns:
+            None
+        """
+        self._set_attribute_within_range('height', height, 0, None)
 
     def set_weight(self, weight):
-        if isinstance(weight, (int, float)):
-            if float(weight) < 0:
-                self.weight = 0.0
-            else:
-                self.weight = float(weight)
-        else:
-            raise TypeError("Weight must be an integer or a float.")
+        """
+        Устанавливает вес игрока в килограммах
+        
+        Args:
+            weight (float;integer): Вес игрока в килограммах
+        
+        Returns:
+            None
+        """
+        self._set_attribute_within_range('weight', weight, 0, None)
 
     def set_gender(self, gender):
-        self.gender = gender
+        """
+        Устанавливает пол игрока
+        
+        Args:
+            gender (string): Пол игрока
+        
+        Returns:
+            None
+        """
+        self.gender = str(gender)
 
     def set_race(self, race):
+        """
+        Устанавливает расу игрока
+        
+        Args:
+            race (RaceData): Раса игрока
+        
+        Returns:
+            None
+        """
         if isinstance(race, RaceData):
             self.race = race
         else:
             raise TypeError("Race must be a RaceData class.")
-    
-    def set_health(self, health):
-        if isinstance(health, (int, float)):
-            if float(health) < 0:
-                self.health = 0.0
-            else:
-                self.health = float(health)
-        else:
-            raise TypeError("Health must be an integer or a float.")
-    
-    def set_som(self, som):
-        if isinstance(som, (int, float)):
-            self.som = float(som)
-        else:
-            raise TypeError("Som must be an integer or a float")
-    
-    def set_mind(self, mind):
-        if isinstance(mind, (int, float)):
-            if float(mind) < -100:
-                self.mind = -100.0
-            elif float(mind) > 100:
-                self.mind = 100.0
-            else:
-                self.mind = float(mind)
-        else:
-            raise TypeError("Mind must be an integer or a float")
-    
-    def set_hunger(self, hunger):
-        if isinstance(hunger, (int, float)):
-            if float(hunger) < -100:
-                self.hunger = -100.0
-            elif float(hunger) > 100:
-                self.hunger = 100.0
-            else:
-                self.hunger = float(hunger)
-        else:
-            raise TypeError("Hunger must be an integer or a float")
 
-    def set_thirst(self, thirst):
-        if isinstance(thirst, (int, float)):
-            if float(thirst) < -100:
-                self.thirst = -100.0
-            elif float(thirst) > 100:
-                self.thirst = 100.0
-            else:
-                self.thirst = float(thirst)
-        else:
-            raise TypeError("Thirst must be an integer or a float")
+    def set_health(self, health):
+        """
+        Устанавливает здоровье игрока
         
+        Args:
+            health (float;integer): Здоровье игрока
+        
+        Returns:
+            None
+        """
+        self._set_attribute_within_range('health', health, 0, None)
+
+    def set_som(self, som):
+        """
+        Устанавливает силу духа игрока
+        
+        Args:
+            som (float;integer): Сила духа
+        
+        Returns:
+            None
+        """
+        self._set_attribute_within_range('som', som, None, None)
+
+    def set_mind(self, mind):
+        """
+        Устанавливает рассудок игрока
+        
+        Args:
+            mind (integer;float): Рассудок игрока
+        
+        Returns:
+            None
+        """
+        self._set_attribute_within_range('mind', mind, -100, 100)
+
+    def set_hunger(self, hunger):
+        """
+        Устанавливает голод игрока
+        
+        Args:
+            hunger (integer;float): Голод игрока
+        
+        Returns:
+            None
+        """
+        self._set_attribute_within_range('hunger', hunger, -100, 100)
+    
+    def set_thirst(self, thirst):
+        """
+        Устанавливает жажду игрока
+        
+        Args:
+            thirst (integer;float): Жажда игрока
+        
+        Returns:
+            None
+        """
+        self._set_attribute_within_range('thirst', thirst, -100, 100)
+
     def set_characteristics(self, characteristics):
+        """
+        Устанавливает характеристику игрока
+        
+        Args:
+            characteristics (CharacteristicsData): Характеристика игрока
+        
+        Returns:
+            None
+        """
         if isinstance(characteristics, CharacteristicsData):
             self.characteristics = characteristics
         else:
