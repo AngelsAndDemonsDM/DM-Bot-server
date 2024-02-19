@@ -1,7 +1,3 @@
-import os
-import re
-
-
 class DiscordColorManager:
     def __init__(self):
         pass
