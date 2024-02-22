@@ -1,5 +1,7 @@
+import hashlib
 import os
 import pickle
+
 
 class FileWork:
     def __init__(self, path):
@@ -106,7 +108,3 @@ class FileWork:
         """
         self._save_file()
         self.cached = False
-
-import os
-import pickle
-import hashlib
