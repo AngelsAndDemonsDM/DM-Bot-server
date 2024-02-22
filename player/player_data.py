@@ -6,12 +6,7 @@ class PlayerData:
         self.weight    # Вес
         self.gender    # Пол
         self.race      # Раса
-        
-        self.health # Здоровье
-        self.som    # Сила духа (strength of mind) (аналог маны)
-        self.mind   # Рассудок
-        self.hunger # Голод
-        self.thirst # Жажда
+        self.needs     # Нужды персонажа
         
         self.characteristics # Характеристика
 
@@ -112,66 +107,18 @@ class PlayerData:
         """
         return self.race
 
-    def get_health(self):
+    def get_needs(self):
         """
-        Получение здоровья игрока
+        Получение нужд игрока
         
         Args:
             None
         
         Returns:
-            health (float): Здоровье игрока
+            needs(NeedsData): Нужды игрока
         """
-        return self.health
+        return self.needs
 
-    def get_som(self):
-        """
-        Получение текущей силы духа
-        
-        Args:
-            None
-        
-        Returns:
-            som (float): Сила духа
-        """
-        return self.som
-    
-    def get_mind(self):
-        """
-        Получение рассудка игрока
-        
-        Args:
-            None
-        
-        Returns:
-            mind (float): Рассудок игрока
-        """
-        return self.mind
-    
-    def get_hunger(self):
-        """
-        Получение голода игрока
-        
-        Args:
-            None
-        
-        Returns:
-            hunger (float): Голод игрока
-        """
-        return self.hunger
-    
-    def get_thirst(self):
-        """
-        Получение жажды игрока
-        
-        Args:
-            None
-        
-        Returns:
-            thirst (float): Жажда игрока
-        """
-        return self.thirst
-    
     def get_characteristics(self):
         """
         Получение характеристики игрока
@@ -250,65 +197,7 @@ class PlayerData:
         else:
             raise TypeError("Race must be a RaceData class.")
 
-    def set_health(self, health):
-        """
-        Устанавливает здоровье игрока
-        
-        Args:
-            health (integer, float): Здоровье игрока
-        
-        Returns:
-            None
-        """
-        self._set_attribute_within_range('health', health, 0, None)
-
-    def set_som(self, som):
-        """
-        Устанавливает силу духа игрока
-        
-        Args:
-            som (integer, float): Сила духа
-        
-        Returns:
-            None
-        """
-        self._set_attribute_within_range('som', som, None, None)
-
-    def set_mind(self, mind):
-        """
-        Устанавливает рассудок игрока
-        
-        Args:
-            mind (integer;float): Рассудок игрока
-        
-        Returns:
-            None
-        """
-        self._set_attribute_within_range('mind', mind, -100, 100)
-
-    def set_hunger(self, hunger):
-        """
-        Устанавливает голод игрока
-        
-        Args:
-            hunger (integer;float): Голод игрока
-        
-        Returns:
-            None
-        """
-        self._set_attribute_within_range('hunger', hunger, -100, 100)
-    
-    def set_thirst(self, thirst):
-        """
-        Устанавливает жажду игрока
-        
-        Args:
-            thirst (integer;float): Жажда игрока
-        
-        Returns:
-            None
-        """
-        self._set_attribute_within_range('thirst', thirst, -100, 100)
+    def set_needs(self, )
 
     def set_characteristics(self, characteristics):
         """
