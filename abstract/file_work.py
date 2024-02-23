@@ -1,6 +1,9 @@
+import asyncio
 import hashlib
 import os
 import pickle
+
+import aiofiles
 
 
 class FileWork:
@@ -8,17 +11,18 @@ class FileWork:
         path = os.path.dirname(path)
         self.path = os.path.join(os.getcwd(), '..', 'data', path)
         self.data = None
-        self.cached = False  # Флаг, указывающий, были ли данные кэшированы
-        self.file_hash = None  # Хеш файла
+        self.cached = False
+        self.file_hash = None
+        self.lock = asyncio.Lock()
 
     def __new__(cls, *args, **kwargs):
         if cls is FileWork:
-            raise TypeError("You cannot create an abstract 'FileWork' class. Use inheritanse")
+            raise TypeError("You cannot create an abstract 'FileWork' class. Use inheritance")
         return super().__new__(cls)
-    
-    def create_file(self):
+
+    async def create_file(self):
         """
-        Создание директории и фала если оно не было создано уже
+        Создание директории и файла, если оно не было создано уже
         
         Args:
             None
@@ -28,9 +32,8 @@ class FileWork:
         """
         if not os.path.exists(self.path):
             os.makedirs(self.path)
-    
 
-    def _calculate_file_hash(self):
+    async def _calculate_file_hash(self):
         """
         Рассчитывает хеш файла
         
@@ -41,12 +44,12 @@ class FileWork:
             str: Хеш файла
         """
         hasher = hashlib.sha256()
-        with open(self.path, 'rb') as file:
-            while chunk := file.read(4096):
+        async with aiofiles.open(self.path, 'rb') as file:
+            while chunk := await file.read(4096):
                 hasher.update(chunk)
         return hasher.hexdigest()
 
-    def _load_file(self):
+    async def _load_file(self):
         """
         Загрузка данных с файла
             
@@ -57,13 +60,13 @@ class FileWork:
             data (DataFiles): Загруженный файл данных
         """
         try:
-            with open(self.path, 'rb') as file:
-                return pickle.load(file)
+            async with aiofiles.open(self.path, 'rb') as file:
+                return pickle.loads(await file.read())
         except Exception as e:
             print(f"An error occurred in {self.path}: {e}")
             return None
 
-    def load_data(self):
+    async def load_data(self):
         """
         Загрузка данных с использованием кэширования и проверки хеша файла
         
@@ -73,14 +76,15 @@ class FileWork:
         Returns:
             data (DataFiles): Загруженный файл данных
         """
-        current_hash = self._calculate_file_hash()
-        if not self.cached or self.file_hash != current_hash:
-            self.data = self._load_file()
-            self.cached = True
-            self.file_hash = current_hash
+        async with self.lock:
+            current_hash = await self._calculate_file_hash()
+            if not self.cached or self.file_hash != current_hash:
+                self.data = await self._load_file()
+                self.cached = True
+                self.file_hash = current_hash
         return self.data
 
-    def _save_file(self):
+    async def _save_file(self):
         """
         Сохранение данных на файл
         
@@ -91,12 +95,12 @@ class FileWork:
             None
         """
         if self.data is not None:
-            with open(self.path, 'wb') as file:
-                pickle.dump(self.data, file)
+            async with aiofiles.open(self.path, 'wb') as file:
+                await file.write(pickle.dumps(self.data))
         else:
             print("No data to save.")
 
-    def save_data(self):
+    async def save_data(self):
         """
         Сохранение данных
         
@@ -106,5 +110,6 @@ class FileWork:
         Returns:
             None
         """
-        self._save_file()
-        self.cached = False
+        async with self.lock:
+            await self._save_file()
+            self.cached = False
