@@ -7,9 +7,9 @@ import aiofiles
 
 
 class FileWork:
-    def __init__(self, path):
-        path = os.path.dirname(path)
-        self.path = os.path.join(os.getcwd(), '..', 'data', path)
+    def __init__(self):
+        self.path_add = os.path.dirname(None)
+        self.path = os.path.join(os.getcwd(), '..', 'data', self.path_add)
         self.data = None
         self.cached = False
         self.file_hash = None
