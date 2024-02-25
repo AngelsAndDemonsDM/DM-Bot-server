@@ -7,9 +7,9 @@ import aiofiles
 
 
 class FileWork:
-    def __init__(self):
-        self.path_add = os.path.dirname(None)
-        self.path = os.path.join(os.getcwd(), '..', 'data', self.path_add)
+    def __init__(self, file_path):
+        self.path = os.path.join(os.getcwd(), 'data', file_path)
+        print(self.path)
         self.data = None
         self.cached = False
         self.file_hash = None
@@ -22,30 +22,35 @@ class FileWork:
 
     async def create_file(self):
         """
-        Создание директории и файла, если оно не было создано уже
+        Создание директории и файла, если они не были созданы ранее
         
         Args:
             None
-        
+            
         Returns:
             None
         """
+        directory = os.path.dirname(self.path)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        
         if not os.path.exists(self.path):
-            os.makedirs(self.path)
+            with open(self.path, "wb") as file:
+                pickle.dump({}, file)
 
     async def _calculate_file_hash(self):
         """
         Рассчитывает хеш файла
-        
+            
         Args:
             None
-        
+            
         Returns:
             str: Хеш файла
         """
         hasher = hashlib.sha256()
         async with aiofiles.open(self.path, 'rb') as file:
-            while chunk := await file.read(4096):
+            async for chunk in file:
                 hasher.update(chunk)
         return hasher.hexdigest()
 
@@ -61,7 +66,7 @@ class FileWork:
         """
         try:
             async with aiofiles.open(self.path, 'rb') as file:
-                return pickle.loads(await file.read())
+                return await file.read()
         except Exception as e:
             print(f"An error occurred in {self.path}: {e}")
             return None
@@ -79,9 +84,11 @@ class FileWork:
         async with self.lock:
             current_hash = await self._calculate_file_hash()
             if not self.cached or self.file_hash != current_hash:
-                self.data = await self._load_file()
-                self.cached = True
-                self.file_hash = current_hash
+                file_content = await self._load_file()
+                if file_content is not None:
+                    self.data = pickle.loads(file_content)
+                    self.cached = True
+                    self.file_hash = current_hash
         return self.data
 
     async def _save_file(self):
