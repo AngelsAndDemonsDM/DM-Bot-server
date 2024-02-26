@@ -1,5 +1,4 @@
-from data.tags_data import TagsData
-
+from data.tags_data import TagData
 
 class TagsManager:
     def _check_tag(self, tag):
@@ -14,13 +13,10 @@ class TagsManager:
         self._check_array(arr_tags)
         self._check_tag(tag)
         
-        if tag.get_id() == None:
-            raise ValueError("Tag has empty ID.") # Не уверен, что верная ошибка поднимается
+        if tag.get_id() is None:
+            raise ValueError("Tag has empty ID.")
         
-        if tag in arr_tags:
-            return True
-        else:
-            return False
+        return tag in arr_tags
 
     async def add(self, arr_tags, tag):
         if not await self.find(arr_tags, tag):
@@ -38,5 +34,5 @@ class TagsManager:
         
     async def sort_arr(self, arr_tags):
         self._check_array(arr_tags)
-        arr_tags.sort()
+        arr_tags.sort(key=lambda x: x.get_id())
         return True
