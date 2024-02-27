@@ -9,7 +9,6 @@ import aiofiles
 class FileWork:
     def __init__(self, file_path):
         self.path = os.path.join(os.getcwd(), 'data', file_path)
-        print(self.path)
         self.data = None
         self.cached = False
         self.file_hash = None
@@ -22,7 +21,7 @@ class FileWork:
 
     async def create_file(self):
         """
-        Создание директории и файла, если они не были созданы ранее
+        Создание директории и файл, если они не были созданы ранее
         
         Args:
             None
