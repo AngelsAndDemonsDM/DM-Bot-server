@@ -16,7 +16,7 @@ class FileWork:
 
     def __new__(cls, *args, **kwargs):
         if cls is FileWork:
-            raise TypeError("You cannot create an abstract 'FileWork' class. Use inheritance")
+            raise NotImplementedError("You cannot create an abstract 'FileWork' class. Use inheritance")
         return super().__new__(cls)
 
     async def create_file(self):
