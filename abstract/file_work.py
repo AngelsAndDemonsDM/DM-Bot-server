@@ -8,6 +8,19 @@ import aiofiles
 
 class FileWork:
     def __init__(self, file_path):
+        """
+        Инициализация объекта FileWork.
+
+        Args:
+            file_path (str): Путь к файлу.
+
+        Attributes:
+            path (str): Полный путь к файлу.
+            data (object): Данные файла.
+            cached (bool): Флаг указывающий, кэшированы ли данные.
+            file_hash (str): Хэш файла.
+            lock (asyncio.Lock): Асинхронный замок для обеспечения безопасности при доступе к данным из разных потоков.
+        """
         self.path = os.path.join(os.getcwd(), 'data', file_path)
         self.data = None
         self.cached = False
@@ -15,37 +28,34 @@ class FileWork:
         self.lock = asyncio.Lock()
 
     def __new__(cls, *args, **kwargs):
+        """
+        Метод для создания экземпляра класса.
+
+        Raises:
+            NotImplementedError: Вызывается, если пытаются создать экземпляр абстрактного класса FileWork.
+        """
         if cls is FileWork:
             raise NotImplementedError("You cannot create an abstract 'FileWork' class. Use inheritance")
         return super().__new__(cls)
 
     async def create_file(self):
         """
-        Создание директории и файл, если они не были созданы ранее
-        
-        Args:
-            None
-            
-        Returns:
-            None
+        Создание директории и файла, если они не были созданы ранее.
         """
         directory = os.path.dirname(self.path)
         if not os.path.exists(directory):
             os.makedirs(directory)
-        
+
         if not os.path.exists(self.path):
             with open(self.path, "wb") as file:
                 pickle.dump({}, file)
 
     async def _calculate_file_hash(self):
         """
-        Рассчитывает хеш файла
-            
-        Args:
-            None
-            
+        Рассчитывает хеш файла.
+
         Returns:
-            str: Хеш файла
+            str: Хеш файла.
         """
         hasher = hashlib.sha256()
         async with aiofiles.open(self.path, 'rb') as file:
@@ -55,13 +65,10 @@ class FileWork:
 
     async def _load_file(self):
         """
-        Загрузка данных с файла
-            
-        Args:
-            None
-            
+        Загрузка данных из файла.
+
         Returns:
-            data (DataFiles): Загруженный файл данных
+            object: Данные файла.
         """
         try:
             async with aiofiles.open(self.path, 'rb') as file:
@@ -72,13 +79,10 @@ class FileWork:
 
     async def load_data(self):
         """
-        Загрузка данных с использованием кэширования и проверки хеша файла
-        
-        Args:
-            None
-        
+        Загрузка данных с использованием кэширования и проверки хеша файла.
+
         Returns:
-            data (DataFiles): Загруженный файл данных
+            object: Загруженные данные файла.
         """
         async with self.lock:
             current_hash = await self._calculate_file_hash()
@@ -92,13 +96,7 @@ class FileWork:
 
     async def _save_file(self):
         """
-        Сохранение данных на файл
-        
-        Args:
-            None
-        
-        Returns:
-            None
+        Сохранение данных в файл.
         """
         if self.data is not None:
             async with aiofiles.open(self.path, 'wb') as file:
@@ -108,13 +106,7 @@ class FileWork:
 
     async def save_data(self):
         """
-        Сохранение данных
-        
-        Args:
-            None
-        
-        Returns:
-            None
+        Сохранение данных.
         """
         async with self.lock:
             await self._save_file()
