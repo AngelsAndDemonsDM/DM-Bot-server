@@ -2,9 +2,10 @@ import asyncio
 import os
 import shutil
 
+from logger_manager import LoggerManager
 from tests.test_file_work import test_FileWork
 from tests.test_tag_system import test_TagData, test_TagsManager
-from logger_manager import LoggerManager
+
 
 def del_test_folder(logger):
     test_folder_path = os.path.join(os.getcwd(), 'data', 'test')
