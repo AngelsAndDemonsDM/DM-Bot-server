@@ -7,11 +7,11 @@ class TestFileWork(FileWork):
     def __init__(self):
         super().__init__("test/test_file_work.dat")
 
-async def test_FileWork():
+async def test_FileWork(logger):
     try:
         class_file_work = FileWork("test/test_file_work.dat")
     except Exception as err:
-        print(err)
+        logger.debug(err)
 
     # Создаем экземпляр класса TestFileWork
     file_work = TestFileWork()
@@ -22,9 +22,9 @@ async def test_FileWork():
     # Проверяем, что файл был создан
     file_path = os.path.join(os.getcwd(), 'data', 'test', 'test_file_work.dat')
     if os.path.exists(file_path):
-        print("File successfully created.")
+        logger.debug("File successfully created.")
     else:
-        print("Failed to create file.")
+        logger.error("Failed to create file.")
         return False
     
     # Устанавливаем данные
@@ -38,8 +38,8 @@ async def test_FileWork():
 
     # Проверяем, что загруженные данные соответствуют ожидаемым
     if loaded_data == {"key": "value"}:
-        print("FileWork test successful.")
+        logger.info("FileWork test successful.")
         return True
     else:
-        print("FileWork test failed.")
+        logger.error("FileWork test failed.")
         return False
