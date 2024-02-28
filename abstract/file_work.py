@@ -41,6 +41,9 @@ class FileWork:
     async def create_file(self):
         """
         Создание директории и файла, если они не были созданы ранее.
+        
+        Returns:
+            bool: Возвращает True если файл был создан, иначе False
         """
         directory = os.path.dirname(self.path)
         if not os.path.exists(directory):
@@ -48,7 +51,10 @@ class FileWork:
 
         if not os.path.exists(self.path):
             with open(self.path, "wb") as file:
-                pickle.dump({}, file)
+                pickle.dump(None, file)
+                return True
+        
+        return False
 
     async def _calculate_file_hash(self):
         """
@@ -111,3 +117,21 @@ class FileWork:
         async with self.lock:
             await self._save_file()
             self.cached = False
+    
+    async def get_data(self, data):
+        """
+        Возвращает текущие данные класса
+        
+        Returns:
+            any: Данные, записанные в классе
+        """
+        return self.data
+
+    async def set_data(self, data):
+        """
+        Записывает в data класса кастомные данные
+
+        Args:
+            data (any): Данные для записи в класс
+        """
+        self.data = data

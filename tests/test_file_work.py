@@ -1,5 +1,3 @@
-import os
-
 from abstract.file_work import FileWork
 
 
@@ -16,19 +14,14 @@ async def test_FileWork(logger):
     # Создаем экземпляр класса TestFileWork
     file_work = TestFileWork()
     
-    # Создаем файл и директорию
-    await file_work.create_file()
-    
-    # Проверяем, что файл был создан
-    file_path = os.path.join(os.getcwd(), 'data', 'test', 'test_file_work.dat')
-    if os.path.exists(file_path):
+    if await file_work.create_file():
         logger.debug("File successfully created.")
     else:
         logger.error("Failed to create file.")
         return False
     
     # Устанавливаем данные
-    file_work.data = {"key": "value"}
+    await file_work.set_data({"key": "value"})
     
     # Сохраняем данные
     await file_work.save_data()
