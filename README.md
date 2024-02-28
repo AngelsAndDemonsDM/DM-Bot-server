@@ -11,8 +11,8 @@
 Сделать полностью
 <br>
 
-- [X] player data<br>
-Done
+- [ ] player data<br>
+Сделать полностью 
 <br>
 
 - [ ] race manager<br>
