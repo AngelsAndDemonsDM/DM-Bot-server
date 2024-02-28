@@ -1,5 +1,6 @@
 from data.tags_data import TagData
 
+
 class TagsManager:
     def _check_tag(self, tag):
         """
