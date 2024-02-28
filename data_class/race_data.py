@@ -88,6 +88,7 @@ class Talant:
         if isinstance(id, str):
             self.id = id
             return True
+            
         return False
     
     def set_name(self, name):
@@ -103,6 +104,7 @@ class Talant:
         if isinstance(name, str):
             self.name = name
             return True
+            
         return False
         
     def set_desc(self, desc):
@@ -118,6 +120,7 @@ class Talant:
         if isinstance(desc, str):
             self.desc = desc
             return True
+            
         return False
         
     def set_tags(self, tags):
@@ -133,6 +136,7 @@ class Talant:
         if isinstance(tags, list):
             self.tags = tags
             return True
+            
         return False
 
 # Нужды расы
@@ -182,6 +186,7 @@ class Needs:
         if value is not None:
             if not self.set_value(value):
                 raise ValueError("Failed to set value in Needs.")
+                
         self.count = None
         if count is not None:
             if not self.set_count(count):
