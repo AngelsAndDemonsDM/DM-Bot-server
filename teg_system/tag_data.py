@@ -9,7 +9,6 @@ class TagData:
         Raises:
             TypeError: Если тип переданного идентификатора не поддерживается.
         """
-        self.id
         if id is None:
             self.id = None
         elif not self.set_id(id):
