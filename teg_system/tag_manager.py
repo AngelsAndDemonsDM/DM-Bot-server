@@ -1,4 +1,4 @@
-from data.tags_data import TagData
+from .tag_data import TagData
 
 
 class TagsManager:

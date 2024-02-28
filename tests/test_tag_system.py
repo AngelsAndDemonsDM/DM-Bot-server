@@ -1,5 +1,5 @@
-from data.tags_data import TagData
-from tags_manager import TagsManager
+from teg_system.tag_data import TagData
+from teg_system.tag_manager import TagsManager
 
 
 async def test_TagData():
