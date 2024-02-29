@@ -1,6 +1,5 @@
 # TODO:
 # Влияние на статы
-# Особенности расы
 
 # Таланты расы
 class Talant:
@@ -138,6 +137,164 @@ class Talant:
             return True
             
         return False
+
+# Особенности расы
+class Notable:
+    def __init__(self, id = None, name = None, desc = None, tags = None):
+     """
+        Инициализация объекта Notable.
+
+        Args:
+            id (str, optional): Идентификатор особенности. По умолчанию None.
+            name (str, optional): Наименование особенности. По умолчанию None.
+            desc (str, optional): Описание особенности. По умолчанию None.
+            tags (list, optional): Список тегов для особенности. По умолчанию None.
+
+        Raises:
+            ValueError: Если сеттер не записал значение.
+    """
+        self.id = None
+        if id is not None:
+            if not self.set_id(id):
+                raise ValueError("Failed to set id in Notable")
+                
+        self.name = None
+        if name is not None:
+            if not self.set_name(name):
+                raise ValueError("Failed to set name in Notable")
+                
+        self.desc = None
+        if desc is not None:
+            if not self.set_desc(desc):
+                raise ValueError("Failed to set desc in Notable")
+                
+        self.tags = None
+        if tags is not None:
+            if not self.set_tags(tags):
+                raise ValueError("Failed to set tags in Notable")
+
+    # Get методы
+    def get_id(self):
+        return self.id
+        
+    def get_name(self):
+        return self.name
+        
+    def get_desc(self):
+        return self.desc
+        
+    def get_tags(self):
+        return self.tags
+        
+    # Set методы
+    def set_id(self, id):
+        if isinstance(id, (str, int, float)):
+            self.set = set
+            return True
+            
+    return False
+    
+    def set_name(self, name):
+        if isinstance(name, (str, int, float)):
+            self.name = name
+            return True 
+           
+    return False
+    
+    def set_desc(self, desc):
+        if isinstance(desc, (str, int, float)):
+            self.desc = desc
+            return True
+            
+    return False
+    
+    def set_tags(self, tags):
+        if isinstance(tags, list):
+            self.tags = tags
+            return True
+            
+    return False
+    
+# Влияние на статы
+class Stat:
+    def __init__(self, id = None, name = None, desc = None, bonus = 0)
+    """
+        Инициализация объекта Stat.
+
+        Args:
+            id (str, optional): Идентификатор влияние. По умолчанию None.
+            name (str, optional): Наименование влияние. По умолчанию None.
+            desc (str, optional): Описание влияние. По умолчанию None.
+            bonus (int, optional): Числовое влияние на характеристику. По умолчанию 0.
+            
+        Raises:
+            ValueError: Если сеттер не записал значение.
+    """
+    
+    self.id = None
+    if id is not None:
+        if not self.set_id(id):
+            raise ValueError("Failed to set id in Stat.")
+            
+    self.name = None
+    if name is not None:
+        if not self.set_name(name):
+            raise ValueError("Failed to set name in Stat.")
+            
+    self.desc = None
+    if desc is not None:
+        if not self.set_desc(desc):
+            raise ValueError("Failed to set desc in Stat.")
+            
+    self.bonus = None
+    if bonus is not None:
+        if not self.set_bonus(desc):
+            raise ValueError("Failed to set bonus in Stat.")
+    
+            
+    # Get методы
+    def get_id(self):
+        return(self.id)
+        
+    def get_name(self):
+        return self.name
+        
+    def get_desc(self):
+        return self.name
+        
+    def get_bonus(self):
+        return self.bonus
+        
+    # Set методы
+    def set_id(self, id):
+        if isinstance(id, (str, int, float)):
+            self.id = id
+            return True
+            
+    return False
+    
+    def set_name(self, name):
+        if isinstance(name, (str, int, float)):
+            self.name = name
+            return True
+    
+    return False
+    
+    def set_desc(self, desc):
+        if isinstance(desc, (str, int, float)):
+            self.desc = desc
+            return True
+            
+    return False
+    
+    def set_bonus(self, bonus):
+        if isinstance(bonus, int):
+            self.bonus = bonus
+            return True
+            
+    return False
+
+
 
 # Нужды расы
 class Needs:
