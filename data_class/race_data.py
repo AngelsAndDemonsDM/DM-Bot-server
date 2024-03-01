@@ -294,8 +294,6 @@ class Stat:
             
     return False
 
-
-
 # Нужды расы
 class Needs:
     def __init__(self, id=None, name=None, desc=None, value=0, max=100, min=-100, count=-1):
