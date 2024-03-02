@@ -1,7 +1,7 @@
 # Словарик для понимания пиздеца
 
 [Mind](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/entity/mind.py) - Разум. Это то, что хранит вообще всю информацию с игрока/ИИ
-К mind привязаны такие вещи как: Класс, Тело, Инвентарь
+К mind привязаны такие вещи как тело. Mind - основная связующая часть игрока/ИИ c телом и прочими членами
 
 # TODO
 - [ ] characteristics manager<br>
