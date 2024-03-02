@@ -547,9 +547,9 @@ class Needs:
         Raises:
             TypeError: Если тип параметра number не поддерживается.
         """
-        if isinstance(number, (int, float)):
+        if isinstance(number, int):
             temp = self.value
             temp += int(number)
             self.set_value(temp)
         else:
-            raise TypeError("Number in value_change must be 'Integer' or 'Float' type")
+            raise TypeError("Number in value_change must be 'Integer' type")
