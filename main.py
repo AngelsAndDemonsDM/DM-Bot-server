@@ -17,10 +17,7 @@ async def run_tests(logger):
     """
     Запускает тесты из папки tests.
 
-    Перед запуском тестов проверяет, существует ли папка 'test' в папке 'data'.
-    Если папка существует, она удаляется.
-
-    После запуска тестов проверяетб, существует ли папка 'test' в папке 'data'.
+    Перед и после запуска тестов проверяет, существует ли папка 'test' в папке 'data'.
     Если папка существует, она удаляется.
 
     Returns:
@@ -28,13 +25,26 @@ async def run_tests(logger):
     """
     del_test_folder(logger)
     
-    # Запускаем тесты
     all_tests_passed = True
+    
+    logger.debug("===START TESTS===")
+    
+    logger.debug("="*40)
+    logger.debug("Start test_FileWork")
     all_tests_passed &= await test_FileWork(logger)
+    
+    logger.debug("="*40)
+    logger.debug("Start test_TagData")
     all_tests_passed &= await test_TagData(logger)
+    
+    logger.debug("="*40)
+    logger.debug("Start test_TagsManager")
     all_tests_passed &= await test_TagsManager(logger)
     
+    logger.debug("="*40)
     del_test_folder(logger)
+    
+    logger.debug("===END TESTS===")
     
     return all_tests_passed
 
