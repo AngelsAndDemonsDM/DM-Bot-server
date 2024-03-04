@@ -7,22 +7,22 @@ async def test_TagData(logger):
         tag_data_1 = TagData("test_id")
         tag_data_2 = TagData()  # Проверяем создание объекта без идентификатора
     except Exception as err:
-        logger.error(err)
+        logger.debug(err)
         return False
     
     # Проверяем, что идентификаторы установлены правильно
     if tag_data_1.get_id() == "test_id" and tag_data_2.get_id() is None:
-        logger.info("TagData test successful.")
+        logger.debug("TagData test successful.")
         return True
     else:
-        logger.error("TagData test failed.")
+        logger.debug("TagData test failed.")
         return False
 
 async def test_TagsManager(logger):
     try:
         tags_manager = TagsManager()
     except Exception as err:
-        logger.error(err)
+        logger.debug(err)
         return False
     
     # Создаем несколько объектов TagData для тестирования
@@ -39,7 +39,7 @@ async def test_TagsManager(logger):
     if len(tags_list) == 2 and tag_data_1 in tags_list and tag_data_2 in tags_list:
         logger.debug("TagsManager add test successful.")
     else:
-        logger.error("TagsManager add test failed.")
+        logger.debug("TagsManager add test failed.")
         return False
     
     # Удаляем один из тегов
@@ -49,7 +49,7 @@ async def test_TagsManager(logger):
     if len(tags_list) == 1 and tag_data_2 not in tags_list:
         logger.debug("TagsManager rm test successful.")
     else:
-        logger.error("TagsManager rm test failed.")
+        logger.debug("TagsManager rm test failed.")
         return False
     
     # Сортируем список тегов
@@ -58,8 +58,8 @@ async def test_TagsManager(logger):
     # Проверяем, что список тегов отсортирован по идентификаторам
     sorted_ids = [tag.get_id() for tag in tags_list]
     if sorted_ids == sorted(sorted_ids):
-        logger.info("TagsManager sort_arr test successful.")
+        logger.debug("TagsManager sort_arr test successful.")
         return True
     else:
-        logger.error("TagsManager sort_arr test failed.")
+        logger.debug("TagsManager sort_arr test failed.")
         return False

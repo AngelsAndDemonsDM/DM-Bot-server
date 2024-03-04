@@ -17,7 +17,7 @@ async def test_FileWork(logger):
     if await file_work.create_file():
         logger.debug("File successfully created.")
     else:
-        logger.error("Failed to create file.")
+        logger.debug("Failed to create file.")
         return False
     
     # Устанавливаем данные
@@ -31,8 +31,8 @@ async def test_FileWork(logger):
 
     # Проверяем, что загруженные данные соответствуют ожидаемым
     if loaded_data == {"key": "value"}:
-        logger.info("FileWork test successful.")
+        logger.debug("FileWork test successful.")
         return True
     else:
-        logger.error("FileWork test failed.")
+        logger.debug("FileWork test failed.")
         return False
