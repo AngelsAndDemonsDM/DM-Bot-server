@@ -50,12 +50,17 @@ def show_menu():
             print("Неверное число. Просьба повторить ввод.")
 
 async def main():
-    # Объявление менеджеров
-    logger = LoggerManager()
-    
-    test_result = await run_tests(logger)
-    logger.info(f"All tests passed: {test_result}")
+    # Инициализация дебага
+    while True:
+        debug = input("Debug? (Y/N): ").strip().upper()
+        if debug in {"Y", "N"}:
+            debug = debug == "Y"
+            break
+        else:
+            print("Error. It must be 'Y' or 'N'!")
 
+    # Объявление менеджеров
+    logger = LoggerManager(debug)
 
     # Меню выбора
     while True:
