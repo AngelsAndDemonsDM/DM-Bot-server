@@ -7,9 +7,12 @@ from colorlog import ColoredFormatter
 
 
 class LoggerManager:
-    def __init__(self):
+    def __init__(self, debug = False):
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)        
+        if debug:
+            self.logger.setLevel(logging.DEBUG)        
+        else:
+            self.logger.setLevel(logging.INFO)
         self._setup_console_handler()
 
     def _setup_console_handler(self):
