@@ -72,6 +72,7 @@ async def main():
                 logger.info("Все тесты пройдены удачно")
             else:
                 logger.error("Один из тестов был провален!")
+            continue
         
         if menu == 99: # Выход из программы
             return
