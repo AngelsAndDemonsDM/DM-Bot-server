@@ -38,6 +38,16 @@ async def run_tests(logger):
     
     return all_tests_passed
 
+def show_menu():
+    while True:
+        print("\nМеню выбора:")
+        print("1. Запуск тестов")
+        print("99. Выход")
+        choice = input("Введите число: ")
+        if choice in {"1", "99"}:
+            return int(choice)
+        else:
+            print("Неверное число. Просьба повторить ввод.")
 
 async def main():
     # Объявление менеджеров
@@ -47,5 +57,19 @@ async def main():
     logger.info(f"All tests passed: {test_result}")
 
 
+    # Меню выбора
+    while True:
+        menu = show_menu()
+        
+        if menu == 1: # Запуск тестов
+            anser = await run_tests(logger)
+            if anser:
+                logger.info("Все тесты пройдены удачно")
+            else:
+                logger.error("Один из тестов был провален!")
+        
+        if menu == 99: # Выход из программы
+            return
+    
 if __name__ == "__main__":
     asyncio.run(main())
