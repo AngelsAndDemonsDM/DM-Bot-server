@@ -1,4 +1,4 @@
-from race.race_main import RaceData
+from race.race_data import RaceData
 
 class Body:
     def __init__(self, race = None):
