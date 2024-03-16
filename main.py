@@ -52,9 +52,9 @@ def show_menu():
     while True:
         print("\nМеню выбора:")
         print("1. Запуск тестов")
-        print("99. Выход")
+        print("0. Выход")
         choice = input("Введите число: ")
-        if choice in {"1", "99"}:
+        if choice in {"0", "99"}:
             return int(choice)
         else:
             print("Неверное число. Просьба повторить ввод.")
@@ -84,7 +84,7 @@ async def main():
                 logger.error("Один из тестов был провален!")
             continue
         
-        if menu == 99: # Выход из программы
+        if menu == 0: # Выход из программы
             return
     
 if __name__ == "__main__":
