@@ -1,7 +1,7 @@
 from race.race_data import RaceData
 
 class Body:
-    def __init__(self, race = None, gender = None, specialization = None, stats = None, body_effects = None, body_items = None, body_medical = None):
+    def __init__(self, race = None, gender = None, specialization = None, stats = None):
         self.race = None 
         if race != None:
             if not self.set_race(race):
@@ -37,6 +37,13 @@ class Body:
             
         def get_gender(self):
             return self.gender
+            
+        
+        def get_specialization(self):
+            return self.specialization
+            
+        def get_stats(self):
+            return self.stats
         
         # Set metods
         def set_race(self, race):
@@ -51,4 +58,19 @@ class Body:
                 self.gender = gender
                 return True
         
-        return False
+            return False
+        
+        
+        def set_specialization(self, specialization):
+            if isinstance(specialization, RaceData):
+                self.specialization = specialization
+                return True
+                
+            return False
+        
+        def set_stats(self, stats):
+            if isinstance(stats, RaceData):
+                self.stats = stats
+                return True
+                
+            return False
