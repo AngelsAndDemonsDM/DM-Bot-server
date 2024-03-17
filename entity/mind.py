@@ -16,12 +16,12 @@ class Mind:
         self.id = None
         if id is not None:
             if not self.set_id(id):
-                raise ValueError("Failed to set id in Mind.")
+                raise ValueError(f"Failed to set id in {self.__class__.__name__}.")
         
         self.body = None
         if body is not None:
             if not self.set_body(body):
-                raise ValueError("Failed to set body in Mind.")
+                raise ValueError(f"Failed to set body in {self.__class__.__name__}.")
         
     # Get методы
     def get_id(self):

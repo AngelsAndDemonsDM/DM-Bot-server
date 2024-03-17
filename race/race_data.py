@@ -6,22 +6,22 @@ class RaceData:
         self.name = None
         if name != None:
             if not self.set_name(name):
-                raise ValueError("Failed to set name in RaceData.")
+                raise ValueError(f"Failed to set name in {self.__class__.__name__}..")
             
         self.desc = None
         if desc != None:
             if not self.set_desc(desc):
-                raise ValueError("Failed to set desc in RaceData.")
+                raise ValueError(f"Failed to set desc in {self.__class__.__name__}..")
         
         self.race_characteristics = None
         if race_characteristics != None:
             if not self.set_race_characteristics(race_characteristics):
-                raise ValueError("Failed to set race_characteristics in RaceData.")
+                raise ValueError(f"Failed to set race_characteristics in {self.__class__.__name__}..")
         
         self.effects = None
         if effects != None:
             if not self.set_effects(effects):
-                raise ValueError("Failed to set effects in RaceData.")
+                raise ValueError(f"Failed to set effects in {self.__class__.__name__}..")
         
         # Get metods
         def get_name(self):

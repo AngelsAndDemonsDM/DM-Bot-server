@@ -12,7 +12,7 @@ class TagData:
         if id is None:
             self.id = None
         elif not self.set_id(id):
-            raise TypeError("Tag id in TagData must be a `string` type.")
+            raise TypeError(f"Tag id in {self.__class__.__name__}. must be a `string` type.")
     
     # Get методы
     def get_id(self):

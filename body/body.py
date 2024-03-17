@@ -5,7 +5,7 @@ class Body:
         self.race = None 
         if race != None:
             if not self.set_race(race):
-                raise ValueError("Failed to set race in Body.")
+                raise ValueError(f"Failed to set race in {self.__class__.__name__}.")
         
         self.specialization = None # TODO
         self.stats = None # TODO

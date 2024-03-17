@@ -18,37 +18,37 @@ class Need:
         self.id = None
         if id is not None:
             if not self.set_id(id):
-                raise ValueError("Failed to set id in Need.")
+                raise ValueError(f"Failed to set id in {self.__class__.__name__}.")
         
         self.name = None
         if name is not None:
             if not self.set_name(name):
-                raise ValueError("Failed to set name in Need.")
+                raise ValueError(f"Failed to set name in {self.__class__.__name__}.")
         
         self.desc = None
         if desc is not None:
             if not self.set_desc(desc):
-                raise ValueError("Failed to set desc in Need.")
+                raise ValueError(f"Failed to set desc in {self.__class__.__name__}.")
         
         self.max_value = None
         if max_value is not None:
             if not self.set_max(max_value):
-                raise ValueError("Failed to set max_value in Need.")
+                raise ValueError(f"Failed to set max_value in {self.__class__.__name__}.")
         
         self.min_value = None
         if min_value is not None:
             if not self.set_min(min_value):
-                raise ValueError("Failed to set min_value in Need.")
+                raise ValueError(f"Failed to set min_value in {self.__class__.__name__}.")
         
         self.value = None
         if value is not None:
             if not self.set_value(value):
-                raise ValueError("Failed to set value in Need.")
+                raise ValueError(f"Failed to set value in {self.__class__.__name__}.")
                 
         self.count = None
         if count is not None:
             if not self.set_count(count):
-                raise ValueError("Failed to set count in Need.")
+                raise ValueError(f"Failed to set count in {self.__class__.__name__}.")
 
     # Get методы
     def get_id(self):
