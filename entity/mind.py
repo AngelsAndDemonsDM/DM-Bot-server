@@ -1,4 +1,4 @@
-from .body.body import Body
+from body.body import Body
 
 
 class Mind:
