@@ -54,7 +54,7 @@ def show_menu():
         print("1. Запуск тестов")
         print("0. Выход")
         choice = input("Введите число: ")
-        if choice in {"0", "99"}:
+        if choice in {"0", "1"}:
             return int(choice)
         else:
             print("Неверное число. Просьба повторить ввод.")

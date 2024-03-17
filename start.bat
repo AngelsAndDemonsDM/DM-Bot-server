@@ -5,7 +5,7 @@ cd /d "%PDIR%"
 
 title DM-Bot
 
-python main.py
+python DM-Bot/main.py
 
 for /d /r %%d in (__pycache__) do (
   rmdir /s /q "%%d" 2>nul
