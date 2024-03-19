@@ -1,4 +1,4 @@
-from abstract.file_work import FileWork
+from etc.file_work import FileWork
 
 
 class TestFileWork(FileWork):

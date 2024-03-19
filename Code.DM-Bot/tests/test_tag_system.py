@@ -1,11 +1,10 @@
-from teg_system.tag_data import TagData
-from teg_system.tag_manager import TagsManager
+from etc.tag import Tag, TagsManager
 
 
-async def test_TagData(logger):
+async def test_Tag(logger):
     try:
-        tag_data_1 = TagData("test_id")
-        tag_data_2 = TagData()  # Проверяем создание объекта без идентификатора
+        tag_data_1 = Tag("test_id")
+        tag_data_2 = Tag()  # Проверяем создание объекта без идентификатора
     except Exception as err:
         logger.debug(err)
         return False
@@ -26,9 +25,9 @@ async def test_TagsManager(logger):
         return False
     
     # Создаем несколько объектов TagData для тестирования
-    tag_data_1 = TagData("tag1")
-    tag_data_2 = TagData("tag2")
-    tag_data_3 = TagData("tag3")
+    tag_data_1 = Tag("tag1")
+    tag_data_2 = Tag("tag2")
+    tag_data_3 = Tag("tag3")
     
     # Создаем список тегов и добавляем теги
     tags_list = []

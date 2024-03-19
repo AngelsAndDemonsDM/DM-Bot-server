@@ -2,9 +2,9 @@ import asyncio
 import os
 import shutil
 
-from logger_manager import LoggerManager
+from etc.logger import LoggerManager
 from tests.test_file_work import test_FileWork
-from tests.test_tag_system import test_TagData, test_TagsManager
+from tests.test_tag_system import test_Tag, test_TagsManager
 
 
 def del_test_folder(logger):
@@ -35,7 +35,7 @@ async def run_tests(logger):
     
     logger.debug("="*40)
     logger.debug("Start test_TagData")
-    all_tests_passed &= await test_TagData(logger)
+    all_tests_passed &= await test_Tag(logger)
     
     logger.debug("="*40)
     logger.debug("Start test_TagsManager")

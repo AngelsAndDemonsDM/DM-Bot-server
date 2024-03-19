@@ -1,19 +1,59 @@
-from .tag_data import TagData
+class Tag:
+    def __init__(self, id=None):
+        """
+        Инициализация объекта Tag.
 
+        Args:
+            id (string, optional): Идентификатор тега. По умолчанию None.
+        
+        Raises:
+            TypeError: Если тип переданного идентификатора не поддерживается.
+        """
+        if id is None:
+            self.id = None
+        elif not self.set_id(id):
+            raise TypeError(f"Tag id in {self.__class__.__name__}. must be a `string` type.")
+    
+    # Get методы
+    def get_id(self):
+        """
+        Получение ID тега.
+
+        Returns:
+            id (string): ID тега.
+        """
+        return self.id
+
+    # Set методы
+    def set_id(self, id):
+        """
+        Установка ID тега.
+
+        Args:
+            id (string): ID тега.
+
+        Returns:
+            bool: True, если установка прошла успешно, в противном случае False.
+        """
+        if isinstance(id, (str, int, float)):
+            self.id = str(id)
+            return True
+        
+        return False
 
 class TagsManager:
     def _check_tag(self, tag):
         """
-        Проверяет, является ли объект тега экземпляром класса TagData.
+        Проверяет, является ли объект тега экземпляром класса Tag.
         
         Args:
-            tag (TagData): Объект тега для проверки.
+            tag (Tag): Объект тега для проверки.
         
         Raises:
-            TypeError: Если переданный объект не является экземпляром класса TagData.
+            TypeError: Если переданный объект не является экземпляром класса Tag.
         """
-        if not isinstance(tag, TagData):
-            raise TypeError("Tag in add/rm must be 'TagData' type.")
+        if not isinstance(tag, Tag):
+            raise TypeError("Tag in add/rm must be 'Tag' type.")
     
     def _check_array(self, arr_tags):    
         """
@@ -33,7 +73,7 @@ class TagsManager:
         Проверяет, имеет ли тег непустой идентификатор.
         
         Args:
-            tag (TagData): Объект тега для проверки.
+            tag (Tag): Объект тега для проверки.
         
         Raises:
             ValueError: Если у тега отсутствует идентификатор.
@@ -47,16 +87,16 @@ class TagsManager:
         
         Args:
             arr_tags (list): Список тегов для поиска.
-            tag (TagData or str or int or float): Тег для поиска. Может быть объектом класса TagData или его идентификатором.
+            tag (Tag or str or int or float): Тег для поиска. Может быть объектом класса Tag или его идентификатором.
         
         Returns:
             bool: True, если тег найден, в противном случае False.
         
         Raises:
-            TypeError: Если переданный тег не является объектом TagData или строкой, числом или числом с плавающей точкой.
+            TypeError: Если переданный тег не является объектом Tag или строкой, числом или числом с плавающей точкой.
         """
         self._check_array(arr_tags)
-        if isinstance(tag, TagData):        
+        if isinstance(tag, Tag):        
             self._check_tag_id(tag)
             tag_id = tag.get_id()
             for t in arr_tags:
@@ -68,7 +108,7 @@ class TagsManager:
                 if t.get_id() == tag:
                     return True
         else:
-            raise TypeError("Tag in add/rm/find must be `String` or `TagData' type")
+            raise TypeError("Tag in add/rm/find must be `String` or `Tag' type")
 
         return False
 
@@ -78,13 +118,13 @@ class TagsManager:
         
         Args:
             arr_tags (list): Список тегов, в который нужно добавить тег.
-            tag (TagData or str or int or float): Тег для добавления. Может быть объектом класса TagData или его идентификатором.
+            tag (Tag or str or int or float): Тег для добавления. Может быть объектом класса Tag или его идентификатором.
         
         Returns:
             bool: True, если тег успешно добавлен, в противном случае False.
         
         Raises:
-            TypeError: Если переданный тег не является объектом TagData или строкой, числом или числом с плавающей точкой.
+            TypeError: Если переданный тег не является объектом Tag или строкой, числом или числом с плавающей точкой.
         """
         self._check_tag(tag)
         if not self.find(arr_tags, tag):
@@ -99,13 +139,13 @@ class TagsManager:
         
         Args:
             arr_tags (list): Список тегов, из которого нужно удалить тег.
-            tag (TagData or str or int or float): Тег для удаления. Может быть объектом класса TagData или его идентификатором.
+            tag (Tag or str or int or float): Тег для удаления. Может быть объектом класса Tag или его идентификатором.
         
         Returns:
             bool: True, если тег успешно удален, в противном случае False.
         
         Raises:
-            TypeError: Если переданный тег не является объектом TagData или строкой, числом или числом с плавающей точкой.
+            TypeError: Если переданный тег не является объектом Tag или строкой, числом или числом с плавающей точкой.
         """
         self._check_tag(tag)
         if self.find(arr_tags, tag):
