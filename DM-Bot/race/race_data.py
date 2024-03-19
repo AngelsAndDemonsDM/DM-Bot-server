@@ -1,4 +1,4 @@
-from effects.effects_list import EffectsList # TODO
+from effects.effects_list import EffectsList  # TODO
 
 
 class RaceData:

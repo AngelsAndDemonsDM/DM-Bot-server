@@ -1,5 +1,6 @@
 from .effect import Effect  # Импорт класса Effect из модуля effect
 
+
 class EffectManager:
     def __init__(self):
         """

@@ -1,5 +1,6 @@
 from race.race_data import RaceData
 
+
 class Body:
     def __init__(self, race = None, gender = None, specialization = None, stats = None):
         self.race = None 
