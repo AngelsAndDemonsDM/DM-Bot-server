@@ -11,10 +11,10 @@ async def test_Tag(logger):
     
     # Проверяем, что идентификаторы установлены правильно
     if tag_data_1.get_id() == "test_id" and tag_data_2.get_id() is None:
-        logger.debug("TagData test successful.")
+        logger.debug("Tag test successful.")
         return True
     else:
-        logger.debug("TagData test failed.")
+        logger.debug("Tag test failed.")
         return False
 
 async def test_TagsManager(logger):
