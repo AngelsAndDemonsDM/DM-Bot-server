@@ -1,7 +1,7 @@
 class BloodSystem:
     def __init__(self):
-        pressure_up # 120
-        pressure_down # 80
-        type # От 1 до 4. 1 - О, 2 - A, 3 - B, 4 - AB
-        rhesus_factor # True/False
-        quantity # В милилитрах
+        self.pressure_up # 120
+        self.pressure_down # 80
+        self.blood_type # От 1 до 4. 1 - О, 2 - A, 3 - B, 4 - AB
+        self.rhesus_factor # True/False
+        self.quantity # В милилитрах
