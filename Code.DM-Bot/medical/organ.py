@@ -103,9 +103,13 @@ class Genitalia(Organ):
         return f"{super().__str__()}; gender_type: {self._gender_type}"
 
 class Breast(Organ):
-    def __init__(self, id: str, name: str, description: str, max_health: int, standart_efficiency: int, subtype: str, size: BreastSizeEnum):
+    def __init__(self, id: str, name: str, description: str, max_health: int, standart_efficiency: int, subtype: str, size: BreastSizeEnum, reagent_per_day: int, reagent_per_tick: int, amount_reagent: int):
         super().__init__(id, name, description, max_health, standart_efficiency, subtype)
         self._size = size
+        self._reagent_per_day = reagent_per_day
+        self._reagent_per_tick = reagent_per_tick
+        
+        self._amount_reagent = amount_reagent
 
     def __str__(self):
-        return f"{super().__str__()}; size: {self._size}"
+        return f"{super().__str__()}; size: {self._size}; reagent_per_day: {self._reagent_per_day}; reagent_per_tick: {self._reagent_per_tick}; amount_reagent: {self._amount_reagent}"
