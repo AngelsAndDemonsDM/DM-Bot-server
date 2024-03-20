@@ -1,3 +1,4 @@
 aiofiles
 colorlog
 discord.py
+pyyaml
