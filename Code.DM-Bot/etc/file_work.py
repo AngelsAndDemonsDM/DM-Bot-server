@@ -21,7 +21,7 @@ class FileWork:
             file_hash (str): Хэш файла.
             lock (asyncio.Lock): Асинхронный замок для обеспечения безопасности при доступе к данным из разных потоков.
         """
-        self.path = os.path.join(os.getcwd(), 'data', file_path)
+        self.path = os.path.join(os.getcwd(), 'Data.DM-Bot', file_path)
         self.data = None
         self.cached = False
         self.file_hash = None
