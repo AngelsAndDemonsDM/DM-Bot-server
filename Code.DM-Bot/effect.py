@@ -1,5 +1,7 @@
+from typing import Union 
+
 class Effect:
-    def __init__(self, effect_id=None, power=None, tick=-1):
+    def __init__(self, effect_id: str, power: int, tick: int):
         """
         Инициализация объекта эффекта.
 
@@ -7,24 +9,10 @@ class Effect:
             effect_id (str, optional): Идентификатор эффекта. По умолчанию None.
             power (float, optional): Сила эффекта. По умолчанию None.
             tick (int, optional): Количество тактов до завершения эффекта. По умолчанию -1.
-
-        Raises:
-            ValueError: Если сеттер не смог установить значение.
         """
-        self.effect_id = None
-        if effect_id is not None:
-            if not self.set_effect_id(effect_id):
-                raise ValueError(f"Failed to set effect_id in {self.__class__.__name__} in init.")
-            
-        self.strength = None
-        if power is not None:
-            if not self.set_strength(power):
-                raise ValueError(f"Failed to set strength in {self.__class__.__name__} in init.")
-        
-        self.tick = None
-        if tick != -1:
-            if not self.set_tick(tick):
-                raise ValueError(f"Failed to set tick in {self.__class__.__name__} in init")
+        self._effect_id = effect_id
+        self.strength = power
+        self.tick = tick
     
     def update(self):
         """
@@ -41,36 +29,25 @@ class Effect:
         self.tick -= 1
         return True
     
-    def set_effect_id(self, new_effect_id):
+    def set_effect_id(self, new_effect_id: Union[str, int, float]):
         """
         Установка идентификатора эффекта.
 
         Args:
-            new_effect_id (str): Новый идентификатор эффекта.
-
-        Returns:
-            bool: True, если установка прошла успешно, в противном случае False.
+            new_effect_id (str, int, float): Новый идентификатор эффекта.
         """
         self.effect_id = str(new_effect_id)
-        return True
-    
-    def set_strength(self, new_strength):
+
+    def set_strength(self, new_strength: Union[int, float]):
         """
         Установка силы эффекта.
 
         Args:
-            new_strength (float): Новое значение силы эффекта.
-
-        Returns:
-            bool: True, если установка прошла успешно, в противном случае False.
+            new_strength (int, float): Новое значение силы эффекта.
         """
-        if isinstance(new_strength, (int, float)):
-            self.strength = float(new_strength)
-            return True
-        
-        return False
-    
-    def set_tick(self, new_tick):
+        self.strength = float(new_strength)
+
+    def set_tick(self, new_tick: Union[int, float]):
         """
         Установка количества тактов до завершения эффекта.
 
@@ -80,15 +57,11 @@ class Effect:
         Returns:
             bool: True, если установка прошла успешно, в противном случае False.
         """
-        if isinstance(new_tick, (int, float)):
-            new_tick = int(new_tick)
-            if new_tick < -1:
-                self.tick = -1
-            else:
-                self.tick = new_tick
-            return True
-            
-        return False
+        new_tick = int(new_tick)
+        if new_tick < -1:
+            self.tick = -1
+        else:
+            self.tick = new_tick            
         
     def get_tick(self):
         """
@@ -146,23 +119,16 @@ class EffectManager:
             if not effect.update():
                 del effect
     
-    def f_add_effect(self, new_effect):
+    def f_add_effect(self, new_effect: Effect):
         """
         Добавление нового эффекта в список.
 
         Args:
             new_effect (Effect): Новый эффект для добавления.
-
-        Returns:
-            bool: True, если эффект был успешно добавлен, в противном случае False.
         """
-        if isinstance(new_effect, Effect):
-            self.effect_list.append(new_effect)
-            return True
-        
-        return False
+        self.effect_list.append(new_effect)
     
-    def add_effect(self, new_effect):
+    def add_effect(self, new_effect: Effect):
         """
         Добавление нового эффекта в список, если его effect_id отсутствует.
 
@@ -172,14 +138,13 @@ class EffectManager:
         Returns:
             bool: True, если эффект был успешно добавлен, в противном случае False.
         """
-        if isinstance(new_effect, Effect):
-            if not any(obj.effect_id == new_effect.effect_id for obj in self.effect_list):
-                self.effect_list.append(new_effect)
-                return True
+        if not any(obj.effect_id == new_effect.effect_id for obj in self.effect_list):
+            self.effect_list.append(new_effect)
+            return True
                 
         return False
     
-    def remove_effect(self, effect_id):
+    def remove_effect(self, effect_id: str):
         """
         Удаление эффекта из списка по его effect_id.
 

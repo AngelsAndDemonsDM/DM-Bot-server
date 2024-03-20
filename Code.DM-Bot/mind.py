@@ -1,27 +1,18 @@
+from typing import Union
 from .body import Body
 
 
 class Mind:
-    def __init__(self, id=None, body=None):
+    def __init__(self, id: str, body: Body):
         """
         Инициализация объекта Mind.
 
         Args:
             id (str, optional): Идентификатор разума. По умолчанию None.
             body (Body, optional): TODO. По умолчанию None.
-
-        Raises:
-            ValueError: Если сеттер не записал значение.
         """
-        self.id = None
-        if id is not None:
-            if not self.set_id(id):
-                raise ValueError(f"Failed to set id in {self.__class__.__name__}.")
-        
-        self.body = None
-        if body is not None:
-            if not self.set_body(body):
-                raise ValueError(f"Failed to set body in {self.__class__.__name__}.")
+        self.id = id
+        self.body = body
         
     # Get методы
     def get_id(self):
@@ -39,27 +30,16 @@ class Mind:
         return self.body
     
     # Set методы
-    def set_id(self, id):
+    def set_id(self, id: Union[str, int, float]):
         """
         Установка идентификатора разума.
 
         Args:
-            id (str): Идентификатор разума.
-
-        Returns:
-            bool: True, если установка прошла успешно, в противном случае False.
+            id (str, int, float): Идентификатор разума.
         """
-        if isinstance(id, str):
-            self.id = id
-            return True
+        self.id = id
         
-        return False
-
-    def set_body(self, body):
+    def set_body(self, body: Body):
         """
         """
-        if isinstance(body, Body):
-            self.body = body
-            return True
-        
-        return False
+        self.body = body
