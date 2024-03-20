@@ -62,9 +62,9 @@ def show_menu():
 async def main():
     # Инициализация дебага
     while True:
-        debug = input("Debug? (Y/N): ").strip().upper()
-        if debug in {"Y", "N"}:
-            debug = debug == "Y"
+        debug = input("Debug? (Y/N): ").strip().lower()
+        if debug in {"y", "n"}:
+            debug = debug == "y"
             break
         else:
             print("Error. It must be 'Y' or 'N'!")
