@@ -4,11 +4,12 @@ import shutil
 
 from etc.logger import LoggerManager
 from tests.test_file_work import test_FileWork
-from tests.test_tag_system import test_Tag, test_TagsManager
+from tests.test_organ import *
+from tests.test_tag_system import *
 
 
 def del_test_folder(logger):
-    test_folder_path = os.path.join(os.getcwd(), 'data', 'test')
+    test_folder_path = os.path.join(os.getcwd(), 'Data.DM-Bot', 'test')
     if os.path.exists(test_folder_path):
         shutil.rmtree(test_folder_path)
         logger.debug("Test folder deleted successfully.")    
@@ -42,6 +43,14 @@ async def run_tests(logger):
     all_tests_passed &= await test_TagsManager(logger)
     
     logger.debug("="*40)
+    logger.debug("Start test_Organ")
+    all_tests_passed &= await test_Organ(logger)
+
+    logger.debug("="*40)
+    logger.debug("Start test_OrganPrototype")
+    all_tests_passed &= await test_OrganPrototype(logger)
+
+    logger.debug("="*40)
     del_test_folder(logger)
     
     logger.debug("===END TESTS===")
@@ -50,7 +59,7 @@ async def run_tests(logger):
 
 def show_menu():
     while True:
-        print("\nМеню выбора:")
+        print("Меню выбора:")
         print("1. Запуск тестов")
         print("0. Выход")
         choice = input("Введите число: ")
@@ -58,6 +67,12 @@ def show_menu():
             return int(choice)
         else:
             print("Неверное число. Просьба повторить ввод.")
+
+def clear_consol():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def pause_consol():
+    input("Нажмите Enter для продолжения...")
 
 async def main():
     # Инициализация дебага
@@ -74,6 +89,7 @@ async def main():
 
     # Меню выбора
     while True:
+        clear_consol()
         menu = show_menu()
         
         if menu == 1: # Запуск тестов
@@ -82,6 +98,7 @@ async def main():
                 logger.info("Все тесты пройдены удачно")
             else:
                 logger.error("Один из тестов был провален!")
+            pause_consol()
             continue
         
         if menu == 0: # Выход из программы
