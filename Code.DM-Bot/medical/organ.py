@@ -1,19 +1,28 @@
+from .medical_enums import GenderEnum, BreastSizeEnum
+
 class OrgansSystem:
     def __init__(self):
         self.brain
         self.heart
         self.liver
         self.kidney
-        self.lungs
+        self.lung
         self.stomach
+        self.genitalia
+        self.breast
 
 class Organ:
-    def __init__(self):
-        self.name
-        self.description
-        self.health
-        self.max_health
-        self.standart_efficiency
+    def __init__(self, id: str, name: str, description: str, max_health: int, standart_efficiency: int, subtype: str = None):
+        self._subtype = subtype
+        self._id = id
+        self._name = name
+        self._description = description
+        self._max_health = max_health
+        self._standart_efficiency = standart_efficiency
+        
+        self._efficiency_per_health = standart_efficiency / max_health
+        self._health = max_health
+        self._efficiency = standart_efficiency
     
     def __new__(cls, *args, **kwargs):
         """
@@ -26,8 +35,77 @@ class Organ:
             raise NotImplementedError(f"You cannot create an abstract '{cls.__class__.__name__}' class. Use inheritance")
         return super().__new__(cls)
     
-    def get_health(self):
-        pass
+    def __str__(self):
+        return f"subtype: {self._subtype}; id: {self._id}; name: {self._name}; desc: {self._description}; max_health: {self._max_health}; standart_efficiency: {self._standart_efficiency}; efficiency_per_health: {self._efficiency_per_health}; health: {self._health}; efficiency: {self._efficiency}"
 
+    # Get metods
+    def get_id(self):
+        return self._id
+
+    def get_name(self):
+        return self._name
+
+    def get_description(self):
+        return self._description
+    
     def get_max_health(self):
-        pass
+        return self._max_health
+
+    def get_standart_efficiency(self):
+        return self._standart_efficiency
+    
+    def get_efficiency_per_health(self):
+        return self._efficiency_per_health
+    
+    def get_health(self):
+        return self._health
+    
+    def get_efficiency(self):
+        return self._efficiency
+
+class Brain(Organ):
+    def __init__(self, id: str, name: str, description: str, max_health: int, standart_efficiency: int, subtype: str):
+        super().__init__(id, name, description, max_health, standart_efficiency, subtype)
+
+class Heart(Organ):
+    def __init__(self, id: str, name: str, description: str, max_health: int, standart_efficiency: int, subtype: str):
+        super().__init__(id, name, description, max_health, standart_efficiency, subtype)
+
+class Liver(Organ):    
+    def __init__(self, id: str, name: str, description: str, max_health: int, standart_efficiency: int, subtype: str):
+        super().__init__(id, name, description, max_health, standart_efficiency, subtype)
+
+class Kidney(Organ):
+    def __init__(self, id: str, name: str, description: str, max_health: int, standart_efficiency: int, subtype: str):
+        super().__init__(id, name, description, max_health, standart_efficiency, subtype)
+
+class Lung(Organ):
+    def __init__(self, id: str, name: str, description: str, max_health: int, standart_efficiency: int, subtype: str):
+        super().__init__(id, name, description, max_health, standart_efficiency, subtype)
+        
+    def __str__(self):
+        return f"{super().__str__()};"
+
+class Stomach(Organ):
+    def __init__(self, id: str, name: str, description: str, max_health: int, standart_efficiency: int, subtype: str, volume: float):
+        super().__init__(id, name, description, max_health, standart_efficiency, subtype)
+        self._volume = volume
+
+    def __str__(self):
+        return f"{super().__str__()}; volume: {self._volume}"
+
+class Genitalia(Organ):
+    def __init__(self, id: str, name: str, description: str, max_health: int, standart_efficiency: int, subtype: str, gender_type: GenderEnum):
+        super().__init__(id, name, description, max_health, standart_efficiency, subtype)
+        self._gender_type = gender_type
+
+    def __str__(self):
+        return f"{super().__str__()}; gender_type: {self._gender_type}"
+
+class Breast(Organ):
+    def __init__(self, id: str, name: str, description: str, max_health: int, standart_efficiency: int, subtype: str, size: BreastSizeEnum):
+        super().__init__(id, name, description, max_health, standart_efficiency, subtype)
+        self._size = size
+
+    def __str__(self):
+        return f"{super().__str__()}; size: {self._size}"
