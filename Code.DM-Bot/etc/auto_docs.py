@@ -1,3 +1,4 @@
+import ast
 import os
 import re
 
@@ -12,14 +13,15 @@ def extract_docstrings(file_content):
     Returns:
         dict: Словарь, где ключи - имена методов/атрибутов, значения - их документация.
     """
-    pattern = r"(?:(?:async\s+def|def|class)\s+([^\s\(]+)\s*\([^:]*\):\s*(['\"]{3})(.*?)\2)"
-    matches = re.findall(pattern, file_content, re.MULTILINE | re.DOTALL)
-    
     docstrings = {}
-    for name, _, docstring in matches:
-        docstrings[name] = docstring.strip()
+    tree = ast.parse(file_content)
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            if node.body and isinstance(node.body[0], ast.Expr) and isinstance(node.body[0].value, ast.Str):
+                docstrings[node.name] = node.body[0].value.s.strip()
 
     return docstrings
+
 
 def format_docstring(name, docstring):
     """
