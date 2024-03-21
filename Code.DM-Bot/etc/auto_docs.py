@@ -21,15 +21,15 @@ def extract_docstrings(file_content):
         if isinstance(node, ast.ClassDef):
             current_class = node.name
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            if current_class is not None:
-                if node.body and isinstance(node.body[0], ast.Expr) and isinstance(node.body[0].value, ast.Str):
-                    docstrings[f"{current_class}.{node.name}"] = node.body[0].value.s.strip()
-            else:
-                if node.body and isinstance(node.body[0], ast.Expr) and isinstance(node.body[0].value, ast.Str):
-                    docstrings[node.name] = node.body[0].value.s.strip()
+            if not node.name.startswith('_') or node.name.endswith('__'):
+                if current_class is not None:
+                    if node.body and isinstance(node.body[0], ast.Expr) and isinstance(node.body[0].value, ast.Str):
+                        docstrings[f"{current_class}.{node.name}"] = node.body[0].value.s.strip()
+                else:
+                    if node.body and isinstance(node.body[0], ast.Expr) and isinstance(node.body[0].value, ast.Str):
+                        docstrings[node.name] = node.body[0].value.s.strip()
 
     return docstrings
-
 
 
 def format_docstring(name, docstring):
