@@ -40,7 +40,7 @@ def format_docstring(name, docstring):
         str: Отформатированная документация.
     """
     formatted_docstring = f"## {name}\n{docstring}\n\n"
-    formatted_docstring = re.sub(r'(Args|Returns|Raises):\n', r'**\1:**\n\n', formatted_docstring)
+    formatted_docstring = re.sub(r'(Args|Returns|Raises|Attributes):\n', r'**\1:**\n\n', formatted_docstring)
     return formatted_docstring
 
 def generate_documentation(logger):
