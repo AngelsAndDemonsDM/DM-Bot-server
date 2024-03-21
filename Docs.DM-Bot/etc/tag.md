@@ -4,91 +4,53 @@
 Инициализация объекта Tag.<br>
 <br>
 **Args:**<br>
-id (string, optional): Идентификатор тега. По умолчанию None.<br>
+id (str): Идентификатор тега.<br>
 <br>
-**Raises:**<br>
-TypeError: Если тип переданного идентификатора не поддерживается.<br>
+## `TagsManager.__str__`<br>
+Возвращает строковое представление тега.<br>
 <br>
-## `TagsManager.get_id`<br>
+**Returns:**<br>
+str: Строковое представление тега.<br>
+<br>
+## `TagsManager.id`<br>
 Получение ID тега.<br>
 <br>
 **Returns:**<br>
-id (string): ID тега.<br>
-<br>
-## `TagsManager.set_id`<br>
+str: ID тега.<br>
 Установка ID тега.<br>
 <br>
 **Args:**<br>
-id (string): ID тега.<br>
-<br>
-**Returns:**<br>
-bool: True, если установка прошла успешно, в противном случае False.<br>
-<br>
-## `TagsManager._check_tag`<br>
-Проверяет, является ли объект тега экземпляром класса Tag.<br>
-<br>
-**Args:**<br>
-tag (Tag): Объект тега для проверки.<br>
-<br>
-**Raises:**<br>
-TypeError: Если переданный объект не является экземпляром класса Tag.<br>
-<br>
-## `TagsManager._check_array`<br>
-Проверяет, является ли объект массива списка.<br>
-<br>
-**Args:**<br>
-arr_tags (list): Объект списка для проверки.<br>
-<br>
-**Raises:**<br>
-TypeError: Если переданный объект не является списком.<br>
-<br>
-## `TagsManager._check_tag_id`<br>
-Проверяет, имеет ли тег непустой идентификатор.<br>
-<br>
-**Args:**<br>
-tag (Tag): Объект тега для проверки.<br>
-<br>
-**Raises:**<br>
-ValueError: Если у тега отсутствует идентификатор.<br>
+id (str, int, float): Новый идентификатор тега.<br>
 <br>
 ## `TagsManager.find`<br>
 Ищет тег в списке тегов.<br>
 <br>
 **Args:**<br>
 arr_tags (list): Список тегов для поиска.<br>
-tag (Tag or str or int or float): Тег для поиска. Может быть объектом класса Tag или его идентификатором.<br>
+tag (str): Тег для поиска.<br>
 <br>
 **Returns:**<br>
 bool: True, если тег найден, в противном случае False.<br>
-<br>
-**Raises:**<br>
-TypeError: Если переданный тег не является объектом Tag или строкой, числом или числом с плавающей точкой.<br>
 <br>
 ## `TagsManager.add`<br>
 Добавляет тег в список тегов.<br>
 <br>
 **Args:**<br>
 arr_tags (list): Список тегов, в который нужно добавить тег.<br>
-tag (Tag or str or int or float): Тег для добавления. Может быть объектом класса Tag или его идентификатором.<br>
+tag (Tag): Тег для добавления.<br>
 <br>
 **Returns:**<br>
 bool: True, если тег успешно добавлен, в противном случае False.<br>
 <br>
-**Raises:**<br>
-TypeError: Если переданный тег не является объектом Tag или строкой, числом или числом с плавающей точкой.<br>
-<br>
-## `TagsManager.rm`<br>
+## `TagsManager.remove`<br>
 Удаляет тег из списка тегов.<br>
 <br>
 **Args:**<br>
 arr_tags (list): Список тегов, из которого нужно удалить тег.<br>
-tag (Tag or str or int or float): Тег для удаления. Может быть объектом класса Tag или его идентификатором.<br>
+tag (Tag): Тег для удаления.<br>
 <br>
 **Returns:**<br>
 bool: True, если тег успешно удален, в противном случае False.<br>
-<br>
-**Raises:**<br>
-TypeError: Если переданный тег не является объектом Tag или строкой, числом или числом с плавающей точкой.<br>
 <br>
 ## `TagsManager.sort_arr`<br>
 Сортирует список тегов по их идентификаторам.<br>
