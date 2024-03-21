@@ -3,31 +3,36 @@
 ## debug
 Логгирование сообщения уровня DEBUG.
 
-        Parameters:
+        **Parameters:**
+
             message (str): Сообщение для логирования.
 
 ## info
 Логгирование сообщения уровня INFO.
 
-        Parameters:
+        **Parameters:**
+
             message (str): Сообщение для логирования.
 
 ## warning
 Логгирование сообщения уровня WARNING.
 
-        Parameters:
+        **Parameters:**
+
             message (str): Сообщение для логирования.
 
 ## error
 Логгирование сообщения уровня ERROR.
 
-        Parameters:
+        **Parameters:**
+
             message (str): Сообщение для логирования.
 
 ## critical
 Логгирование сообщения уровня CRITICAL.
 
-        Parameters:
+        **Parameters:**
+
             message (str): Сообщение для логирования.
 
 ## print_separator
