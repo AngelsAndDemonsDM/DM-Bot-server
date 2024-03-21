@@ -1,8 +1,6 @@
 import os
 import re
 
-import re
-
 def extract_docstrings(file_content):
     """
     Извлекает документационные строки из содержимого файла.
@@ -25,6 +23,8 @@ def extract_docstrings(file_content):
             docstrings[def_func_name] = def_docstring.strip()
         elif class_name:
             docstrings[class_name] = class_docstring.strip()
+        else:
+            docstrings[match] = "Документация отсутствует".strip()
 
     return docstrings
 
@@ -39,9 +39,14 @@ def format_docstring(name, docstring):
     Returns:
         str: Отформатированная документация.
     """
-    formatted_docstring = f"## {name}\n{docstring}\n\n"
+    if docstring:
+        formatted_docstring = f"## {name}\n{docstring}\n\n"
+    else:
+        formatted_docstring = f"## {name}\n\n*Документация отсутствует*\n\n"
+
     formatted_docstring = re.sub(r'(Args|Returns|Raises|Attributes):\n', r'**\1:**\n\n', formatted_docstring)
     return formatted_docstring
+
 
 def generate_documentation(logger):
     """
