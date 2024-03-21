@@ -53,7 +53,6 @@ def format_docstring(name, docstring):
 
     return formatted_docstring
 
-
 def generate_documentation(logger):
     """
     Генерирует документацию по файлам в указанной папке.
@@ -69,12 +68,15 @@ def generate_documentation(logger):
             if file.endswith(".py"):
                 module_name = file[:-3]
                 module_path = os.path.join(root, file)
+                relative_folder = os.path.relpath(root, input_folder)
+                doc_folder = os.path.join(output_folder, relative_folder)
+                os.makedirs(doc_folder, exist_ok=True)
                 logger.debug(f"Обработка файла: {module_name}")
                 with open(module_path, "r", encoding="utf-8") as f:
                     module_content = f.read()
                     docstrings = extract_docstrings(module_content)
                     if docstrings:
-                        with open(os.path.join(output_folder, f"{module_name}.md"), "w", encoding="utf-8") as doc_file:
+                        with open(os.path.join(doc_folder, f"{module_name}.md"), "w", encoding="utf-8") as doc_file:
                             doc_file.write(f"# Документация по файлу `{file}`\n\n")
                             for name, docstring in docstrings.items():
                                 formatted_docstring = format_docstring(name, docstring)
