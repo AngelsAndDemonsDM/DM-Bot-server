@@ -21,11 +21,11 @@ class FileWork:
             file_hash (str): Хэш файла.
             lock (asyncio.Lock): Асинхронный замок для обеспечения безопасности при доступе к данным из разных потоков.
         """
-        self.path = os.path.join(os.getcwd(), 'Data.DM-Bot', file_path)
-        self.data = None
-        self.cached = False
-        self.file_hash = None
-        self.lock = asyncio.Lock()
+        self._path = os.path.join(os.getcwd(), 'Data.DM-Bot', file_path)
+        self._data = None
+        self._cached = False
+        self._file_hash = None
+        self._lock = asyncio.Lock()
 
     def __new__(cls, *args, **kwargs):
         """
@@ -45,12 +45,12 @@ class FileWork:
         Returns:
             bool: Возвращает True если файл был создан, иначе False
         """
-        directory = os.path.dirname(self.path)
+        directory = os.path.dirname(self._path)
         if not os.path.exists(directory):
             os.makedirs(directory)
 
-        if not os.path.exists(self.path):
-            with open(self.path, "wb") as file:
+        if not os.path.exists(self._path):
+            with open(self._path, "wb") as file:
                 pickle.dump(None, file)
                 return True
         
@@ -64,7 +64,7 @@ class FileWork:
             str: Хеш файла.
         """
         hasher = hashlib.sha256()
-        async with aiofiles.open(self.path, 'rb') as file:
+        async with aiofiles.open(self._path, 'rb') as file:
             async for chunk in file:
                 hasher.update(chunk)
         return hasher.hexdigest()
@@ -77,10 +77,10 @@ class FileWork:
             object: Данные файла.
         """
         try:
-            async with aiofiles.open(self.path, 'rb') as file:
+            async with aiofiles.open(self._path, 'rb') as file:
                 return await file.read()
         except Exception as e:
-            print(f"An error occurred in {self.path}: {e}")
+            print(f"An error occurred in {self._path}: {e}")
             return None
 
     async def load_data(self):
@@ -90,23 +90,23 @@ class FileWork:
         Returns:
             object: Загруженные данные файла.
         """
-        async with self.lock:
+        async with self._lock:
             current_hash = await self._calculate_file_hash()
-            if not self.cached or self.file_hash != current_hash:
+            if not self._cached or self._file_hash != current_hash:
                 file_content = await self._load_file()
                 if file_content is not None:
-                    self.data = pickle.loads(file_content)
-                    self.cached = True
-                    self.file_hash = current_hash
-        return self.data
+                    self._data = pickle.loads(file_content)
+                    self._cached = True
+                    self._file_hash = current_hash
+        return self._data
 
     async def _save_file(self):
         """
         Сохранение данных в файл.
         """
-        if self.data is not None:
-            async with aiofiles.open(self.path, 'wb') as file:
-                await file.write(pickle.dumps(self.data))
+        if self._data is not None:
+            async with aiofiles.open(self._path, 'wb') as file:
+                await file.write(pickle.dumps(self._data))
         else:
             print("No data to save.")
 
@@ -114,9 +114,9 @@ class FileWork:
         """
         Сохранение данных.
         """
-        async with self.lock:
+        async with self._lock:
             await self._save_file()
-            self.cached = False
+            self._cached = False
     
     @property
     def data(self):
@@ -126,7 +126,7 @@ class FileWork:
         Returns:
             any: Данные, записанные в классе
         """
-        return self.data
+        return self._data
 
     @data.setter
     def data(self, data):
@@ -136,4 +136,4 @@ class FileWork:
         Args:
             data (any): Данные для записи в класс
         """
-        self.data = data
+        self._data = data
