@@ -2,6 +2,7 @@ import asyncio
 import os
 import shutil
 
+from etc.auto_docs import generate_documentation
 from etc.logger import LoggerManager
 from tests.test_file_work import test_FileWork
 from tests.test_organ import *
@@ -62,9 +63,10 @@ def show_menu():
         clear_consol()
         print("Меню выбора:")
         print("1. Запуск тестов")
+        print("2. Создать документацию")
         print("0. Выход")
         choice = input("Введите число: ")
-        if choice in {"0", "1"}:
+        if choice in {"0", "1", "2"}:
             return int(choice)
         else:
             print("Неверное число. Просьба повторить ввод.")
@@ -101,6 +103,10 @@ async def main():
                 logger.error("Один из тестов был провален!")
             pause_consol()
             continue
+            
+        if menu == 2: # Генерация документации
+            generate_documentation(logger)
+            pause_consol()
         
         if menu == 0: # Выход из программы
             return

@@ -11,4 +11,6 @@ for /d /r %%d in (__pycache__) do (
   rmdir /s /q "%%d" 2>nul
 )
 
+pause
+
 exit
