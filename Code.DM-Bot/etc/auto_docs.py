@@ -25,7 +25,7 @@ def extract_docstrings(file_content):
         elif class_name:
             docstrings[class_name] = class_docstring.strip()
         else:
-            docstrings[match] = "Документация отсутствует".strip()
+            pass
 
     return docstrings
 
@@ -47,7 +47,6 @@ def format_docstring(name, docstring):
         formatted_docstring = f"## `{name}`\n{formatted_docstring}\n\n"
     else:
         formatted_docstring = f"## `{name}`\n*Документация отсутствует*\n\n"
-        return formatted_docstring
 
     formatted_docstring = re.sub(r'(Args|Attributes|Parameters|Raises|Returns):\n', r'**\1:**\n', formatted_docstring)
     formatted_docstring = re.sub(r'\n', r'<br>\n', formatted_docstring)
