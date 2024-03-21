@@ -2,27 +2,27 @@
 
 ## `LoggerManager.debug`<br>
 Логгирование сообщения уровня DEBUG.<br>
-**Parameters:**<br>
+<br>**Parameters:**<br>
 message (str): Сообщение для логирования.<br>
 <br>
 ## `LoggerManager.info`<br>
 Логгирование сообщения уровня INFO.<br>
-**Parameters:**<br>
+<br>**Parameters:**<br>
 message (str): Сообщение для логирования.<br>
 <br>
 ## `LoggerManager.warning`<br>
 Логгирование сообщения уровня WARNING.<br>
-**Parameters:**<br>
+<br>**Parameters:**<br>
 message (str): Сообщение для логирования.<br>
 <br>
 ## `LoggerManager.error`<br>
 Логгирование сообщения уровня ERROR.<br>
-**Parameters:**<br>
+<br>**Parameters:**<br>
 message (str): Сообщение для логирования.<br>
 <br>
 ## `LoggerManager.critical`<br>
 Логгирование сообщения уровня CRITICAL.<br>
-**Parameters:**<br>
+<br>**Parameters:**<br>
 message (str): Сообщение для логирования.<br>
 <br>
 ## `LoggerManager.print_separator`<br>
