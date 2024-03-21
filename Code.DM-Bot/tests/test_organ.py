@@ -1,3 +1,4 @@
+from medical.medical_enums import *
 from medical.organ import *
 from prototype_system.organ import *
 
@@ -11,7 +12,7 @@ async def test_Organ(logger):
         logger.debug(Liver(*standart_info))
         logger.debug(Lung(*standart_info))
         logger.debug(Stomach(*standart_info, 54))
-        logger.debug(Genitalia(*standart_info))
+        logger.debug(Genitalia(*standart_info, GenderEnum.FEMALE))
     except Exception as err:
         logger.debug(f"Got exception in 'test_Organ': {err}")
         return False
