@@ -64,7 +64,7 @@ def generate_documentation(logger):
     input_folder = os.path.join(os.getcwd(), 'Code.DM-Bot')
     output_folder = os.path.join(os.getcwd(), 'Docs.DM-Bot')
 
-    for root, dirs, files in os.walk(input_folder):
+    for root, _, files in os.walk(input_folder):
         for file in files:
             if file.endswith(".py"):
                 module_name = file[:-3]
@@ -75,7 +75,7 @@ def generate_documentation(logger):
                     docstrings = extract_docstrings(module_content)
                     if docstrings:
                         with open(os.path.join(output_folder, f"{module_name}.md"), "w", encoding="utf-8") as doc_file:
-                            doc_file.write(f"# Документация по файлу {module_name}\n\n")
+                            doc_file.write(f"# Документация по файлу `{file}`\n\n")
                             for name, docstring in docstrings.items():
                                 formatted_docstring = format_docstring(name, docstring)
                                 doc_file.write(formatted_docstring)
