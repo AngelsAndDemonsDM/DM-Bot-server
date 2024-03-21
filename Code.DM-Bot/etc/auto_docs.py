@@ -1,6 +1,8 @@
 import os
 import re
 
+import re
+
 def extract_docstrings(file_content):
     """
     Извлекает документационные строки из содержимого файла.
@@ -12,25 +14,41 @@ def extract_docstrings(file_content):
         dict: Словарь, где ключи - имена методов/атрибутов, значения - их документация.
     """
     docstrings = {}
-    pattern = r"def\s+([^\s\(]+)\s*\([^:]*\):\s*(['\"]{3})(.*?)\2|class\s+([^\s\(]+)\s*:\s*(['\"]{3})(.*?)\5"
+    pattern = r"(?:async\s+def\s+([^\s\(]+)\s*\([^:]*\):\s*(['\"]{3})(.*?)\2)|(?:def\s+([^\s\(]+)\s*\([^:]*\):\s*(['\"]{3})(.*?)\5)|(?:class\s+([^\s\(]+)\s*:\s*(['\"]{3})(.*?)\7)"
     matches = re.findall(pattern, file_content, re.MULTILINE | re.DOTALL)
 
     for match in matches:
-        function_name, _, docstring, class_name, _, class_docstring = match
-        if function_name and docstring:
-            docstrings[function_name] = docstring.strip()
-        if class_name and class_docstring:
+        async_func_name, async_quote, async_docstring, def_func_name, def_quote, def_docstring, class_name, class_quote, class_docstring = match
+        if async_func_name:
+            docstrings[async_func_name] = async_docstring.strip()
+        elif def_func_name:
+            docstrings[def_func_name] = def_docstring.strip()
+        elif class_name:
             docstrings[class_name] = class_docstring.strip()
 
     return docstrings
+
+def format_docstring(name, docstring):
+    """
+    Форматирует документацию для отображения в файле Markdown.
+
+    Args:
+        name (str): Имя метода/атрибута.
+        docstring (str): Документация.
+
+    Returns:
+        str: Отформатированная документация.
+    """
+    formatted_docstring = f"## {name}\n{docstring}\n\n"
+    formatted_docstring = re.sub(r'(Args|Returns|Raises):\n', r'**\1:**\n\n', formatted_docstring)
+    return formatted_docstring
 
 def generate_documentation(logger):
     """
     Генерирует документацию по файлам в указанной папке.
 
     Args:
-        input_folder (str): Папка с исходными файлами.
-        output_folder (str): Папка для сохранения документации.
+        logger: Логгер для записи информации о процессе генерации документации.
     """
     input_folder = os.path.join(os.getcwd(), 'Code.DM-Bot')
     output_folder = os.path.join(os.getcwd(), 'Docs.DM-Bot')
@@ -46,7 +64,8 @@ def generate_documentation(logger):
                     docstrings = extract_docstrings(module_content)
                     if docstrings:
                         with open(os.path.join(output_folder, f"{module_name}.md"), "w", encoding="utf-8") as doc_file:
-                            doc_file.write("# Документация по файлу {}\n\n".format(module_name))
+                            doc_file.write(f"# Документация по файлу {module_name}\n\n")
                             for name, docstring in docstrings.items():
-                                doc_file.write(f"## {name}\n\n")
-                                doc_file.write(f"{docstring}\n\n")
+                                formatted_docstring = format_docstring(name, docstring)
+                                doc_file.write(formatted_docstring)
+    logger.info("Создание документации завершено")
