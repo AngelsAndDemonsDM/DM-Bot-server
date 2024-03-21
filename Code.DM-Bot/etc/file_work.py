@@ -118,7 +118,8 @@ class FileWork:
             await self._save_file()
             self.cached = False
     
-    async def get_data(self, data):
+    @property
+    def data(self):
         """
         Возвращает текущие данные класса
         
@@ -127,7 +128,8 @@ class FileWork:
         """
         return self.data
 
-    async def set_data(self, data):
+    @data.setter
+    def data(self, data):
         """
         Записывает в data класса кастомные данные
 
