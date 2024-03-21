@@ -39,12 +39,17 @@ def format_docstring(name, docstring):
     Returns:
         str: Отформатированная документация.
     """
-    if docstring:
-        formatted_docstring = f"## {name}\n{docstring}\n\n"
-    else:
-        formatted_docstring = f"## {name}\n\n*Документация отсутствует*\n\n"
+    # Удаление лишних пробелов и отступов
+    formatted_docstring = "\n".join(line.lstrip() for line in docstring.splitlines())
 
-    formatted_docstring = re.sub(r'(Args|Attributes|Parameters|Raises|Returns):\n', r'**\1:**\n\n', formatted_docstring)
+    if formatted_docstring:
+        formatted_docstring = f"## {name}\n{formatted_docstring}\n\n"
+    else:
+        formatted_docstring = f"## {name}\n*Документация отсутствует*\n\n"
+        return formatted_docstring
+
+    formatted_docstring = re.sub(r'(Args|Attributes|Parameters|Raises|Returns):\n', r'**\1:**\n', formatted_docstring)
+
     return formatted_docstring
 
 
