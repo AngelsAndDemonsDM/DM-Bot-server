@@ -43,9 +43,9 @@ def format_docstring(name, docstring):
     formatted_docstring = "\n".join(line.lstrip() for line in docstring.splitlines())
 
     if formatted_docstring:
-        formatted_docstring = f"## {name}\n{formatted_docstring}\n\n"
+        formatted_docstring = f"## `{name}`\n{formatted_docstring}\n\n"
     else:
-        formatted_docstring = f"## {name}\n*Документация отсутствует*\n\n"
+        formatted_docstring = f"## `{name}`\n*Документация отсутствует*\n\n"
         return formatted_docstring
 
     formatted_docstring = re.sub(r'(Args|Attributes|Parameters|Raises|Returns):\n', r'**\1:**\n', formatted_docstring)
