@@ -3,7 +3,7 @@ class DiscordColorManager:
         pass
 
     def get_color(self, text: str, color: int):
-        '''
+        """
         0 - тёмно серый
         1 - красный
         2 - зелёный
@@ -12,7 +12,7 @@ class DiscordColorManager:
         5 - розовый
         6 - бирюзовый
         7 - белый 
-        '''
+        """
         if color == 0:
             return f"[2;30m{text}[0m"
         elif color == 1:
