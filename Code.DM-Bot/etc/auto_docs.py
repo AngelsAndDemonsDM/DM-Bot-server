@@ -44,7 +44,7 @@ def format_docstring(name, docstring):
     else:
         formatted_docstring = f"## {name}\n\n*Документация отсутствует*\n\n"
 
-    formatted_docstring = re.sub(r'(Args|Returns|Raises|Attributes):\n', r'**\1:**\n\n', formatted_docstring)
+    formatted_docstring = re.sub(r'(Args|Attributes|Parameters|Raises|Returns):\n', r'**\1:**\n\n', formatted_docstring)
     return formatted_docstring
 
 
