@@ -2,6 +2,7 @@ import ast
 import os
 import re
 
+
 def extract_docstrings(file_content):
     """
     Извлекает документационные строки из содержимого файла.
@@ -23,14 +24,12 @@ def extract_docstrings(file_content):
             if not node.name.startswith('_') or node.name.endswith('__'):
                 if current_class is not None:
                     if node.body and isinstance(node.body[0], ast.Expr) and isinstance(node.body[0].value, ast.Str):
-                        docstrings.setdefault(f"{current_class}.{node.name}", []).append(node.body[0].value.s.strip())
+                        docstrings.setdefault(f"{current_class}.{node.name}", []).append(node.body[0].value.s)
                 else:
                     if node.body and isinstance(node.body[0], ast.Expr) and isinstance(node.body[0].value, ast.Str):
-                        docstrings.setdefault(node.name, []).append(node.body[0].value.s.strip())
+                        docstrings.setdefault(node.name, []).append(node.body[0].value.s)
 
     return docstrings
-
-import re
 
 def format_docstring(name, docstring):
     """
