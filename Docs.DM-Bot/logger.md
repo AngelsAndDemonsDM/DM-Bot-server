@@ -1,35 +1,35 @@
 # Документация по файлу logger
 
-## debug
-Логгирование сообщения уровня DEBUG.
-
-**Parameters:**
-message (str): Сообщение для логирования.
-
-## info
-Логгирование сообщения уровня INFO.
-
-**Parameters:**
-message (str): Сообщение для логирования.
-
-## warning
-Логгирование сообщения уровня WARNING.
-
-**Parameters:**
-message (str): Сообщение для логирования.
-
-## error
-Логгирование сообщения уровня ERROR.
-
-**Parameters:**
-message (str): Сообщение для логирования.
-
-## critical
-Логгирование сообщения уровня CRITICAL.
-
-**Parameters:**
-message (str): Сообщение для логирования.
-
-## print_separator
-Вывод разделительного сообщения в консоль.
-
+## debug<br>
+Логгирование сообщения уровня DEBUG.<br>
+<br>
+**Parameters:**<br>
+message (str): Сообщение для логирования.<br>
+<br>
+## info<br>
+Логгирование сообщения уровня INFO.<br>
+<br>
+**Parameters:**<br>
+message (str): Сообщение для логирования.<br>
+<br>
+## warning<br>
+Логгирование сообщения уровня WARNING.<br>
+<br>
+**Parameters:**<br>
+message (str): Сообщение для логирования.<br>
+<br>
+## error<br>
+Логгирование сообщения уровня ERROR.<br>
+<br>
+**Parameters:**<br>
+message (str): Сообщение для логирования.<br>
+<br>
+## critical<br>
+Логгирование сообщения уровня CRITICAL.<br>
+<br>
+**Parameters:**<br>
+message (str): Сообщение для логирования.<br>
+<br>
+## print_separator<br>
+Вывод разделительного сообщения в консоль.<br>
+<br>
