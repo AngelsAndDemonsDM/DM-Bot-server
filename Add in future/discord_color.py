@@ -1,7 +1,7 @@
-from enum import enum, auto
+from enum import auto, enum
 
 
-class DiscordColor(enum):
+class DiscordColorEnum(enum):
     """
         0 - тёмно серый
         1 - красный
@@ -25,20 +25,20 @@ class DiscordColorManager:
     def __init__(self):
         pass
 
-    def get_color(self, text: str, color: DiscordColor):
-        if color == DiscordColor.DARK_GREY:
+    def get_color(self, text: str, color: DiscordColorEnum):
+        if color == DiscordColorEnum.DARK_GREY:
             return f"[2;30m{text}[0m"
-        elif color == DiscordColor.RED:
+        elif color == DiscordColorEnum.RED:
             return f"[2;31m{text}[0m"
-        elif color == DiscordColor.GREEN:
+        elif color == DiscordColorEnum.GREEN:
             return f"[2;32m{text}[0m"
-        elif color == DiscordColor.YELLOW:
+        elif color == DiscordColorEnum.YELLOW:
             return f"[2;33m{text}[0m"
-        elif color == DiscordColor.BLUE:
+        elif color == DiscordColorEnum.BLUE:
             return f"[2;34m{text}[0m"
-        elif color == DiscordColor.PINK:
+        elif color == DiscordColorEnum.PINK:
             return f"[2;35m{text}[0m"
-        elif color == DiscordColor.TEAL:
+        elif color == DiscordColorEnum.TEAL:
             return f"[2;36m{text}[0m"
-        elif color == DiscordColor.WHITE:
+        elif color == DiscordColorEnum.WHITE:
             return f"[2;37m{text}[0m"
