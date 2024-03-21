@@ -12,20 +12,12 @@ def extract_docstrings(file_content):
     Returns:
         dict: Словарь, где ключи - имена методов/атрибутов, значения - их документация.
     """
-    docstrings = {}
-    pattern = r"(?:async\s+def\s+([^\s\(]+)\s*\([^:]*\):\s*(['\"]{3})(.*?)\2)|(?:def\s+([^\s\(]+)\s*\([^:]*\):\s*(['\"]{3})(.*?)\5)|(?:class\s+([^\s\(]+)\s*:\s*(['\"]{3})(.*?)\7)"
+    pattern = r"(?:(?:async\s+def|def|class)\s+([^\s\(]+)\s*\([^:]*\):\s*(['\"]{3})(.*?)\2)"
     matches = re.findall(pattern, file_content, re.MULTILINE | re.DOTALL)
-
-    for match in matches:
-        async_func_name, async_quote, async_docstring, def_func_name, def_quote, def_docstring, class_name, class_quote, class_docstring = match
-        if async_func_name:
-            docstrings[async_func_name] = async_docstring.strip()
-        elif def_func_name:
-            docstrings[def_func_name] = def_docstring.strip()
-        elif class_name:
-            docstrings[class_name] = class_docstring.strip()
-        else:
-            pass
+    
+    docstrings = {}
+    for name, _, docstring in matches:
+        docstrings[name] = docstring.strip()
 
     return docstrings
 
