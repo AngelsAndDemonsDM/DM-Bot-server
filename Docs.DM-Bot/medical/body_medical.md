@@ -1,6 +1,6 @@
 # Документация по файлу `body_medical.py`
 
-## `sethealth`<br>
+## `Organ.sethealth`<br>
 Установить текущее здоровье органа.<br>
 <br>
 **Args:**<br>
