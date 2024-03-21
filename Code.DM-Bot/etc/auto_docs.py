@@ -1,6 +1,7 @@
 import os
 import re
 
+
 def extract_docstrings(file_content):
     """
     Извлекает документационные строки из содержимого файла.
