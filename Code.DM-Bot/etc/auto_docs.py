@@ -54,6 +54,7 @@ def format_docstring(name, docstring):
 
     formatted_docstring = re.sub(r'(Args|Attributes|Parameters|Raises|Returns):\n', r'**\1:**\n', formatted_docstring)
     formatted_docstring = re.sub(r'\n', r'<br>\n', formatted_docstring)
+    formatted_docstring = re.sub(r'<br>\n<br>', r'<br>', formatted_docstring)
 
     return formatted_docstring
 
