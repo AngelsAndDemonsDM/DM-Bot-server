@@ -59,6 +59,7 @@ async def run_tests(logger):
 
 def show_menu():
     while True:
+        clear_consol()
         print("Меню выбора:")
         print("1. Запуск тестов")
         print("0. Выход")
@@ -67,6 +68,7 @@ def show_menu():
             return int(choice)
         else:
             print("Неверное число. Просьба повторить ввод.")
+            pause_consol()
 
 def clear_consol():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -89,7 +91,6 @@ async def main():
 
     # Меню выбора
     while True:
-        clear_consol()
         menu = show_menu()
         
         if menu == 1: # Запуск тестов
