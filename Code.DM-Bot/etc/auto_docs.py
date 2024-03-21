@@ -2,7 +2,6 @@ import ast
 import os
 import re
 
-
 def extract_docstrings(file_content):
     """
     Извлекает документационные строки из содержимого файла.
@@ -24,13 +23,14 @@ def extract_docstrings(file_content):
             if not node.name.startswith('_') or node.name.endswith('__'):
                 if current_class is not None:
                     if node.body and isinstance(node.body[0], ast.Expr) and isinstance(node.body[0].value, ast.Str):
-                        docstrings[f"{current_class}.{node.name}"] = node.body[0].value.s.strip()
+                        docstrings.setdefault(f"{current_class}.{node.name}", []).append(node.body[0].value.s.strip())
                 else:
                     if node.body and isinstance(node.body[0], ast.Expr) and isinstance(node.body[0].value, ast.Str):
-                        docstrings[node.name] = node.body[0].value.s.strip()
+                        docstrings.setdefault(node.name, []).append(node.body[0].value.s.strip())
 
     return docstrings
 
+import re
 
 def format_docstring(name, docstring):
     """
@@ -38,12 +38,14 @@ def format_docstring(name, docstring):
 
     Args:
         name (str): Имя метода/атрибута.
-        docstring (str): Документация.
+        docstring (str или list): Документация, представленная в виде строки или списка строк.
 
     Returns:
         str: Отформатированная документация.
     """
-    # Удаление лишних пробелов и отступов
+    if isinstance(docstring, list):
+        docstring = "\n".join(docstring)
+
     formatted_docstring = "\n".join(line.lstrip() for line in docstring.splitlines())
 
     if formatted_docstring:
@@ -55,6 +57,8 @@ def format_docstring(name, docstring):
     formatted_docstring = re.sub(r'\n', r'<br>\n', formatted_docstring)
 
     return formatted_docstring
+
+
 
 def generate_documentation(logger):
     """
