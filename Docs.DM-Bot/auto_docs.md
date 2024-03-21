@@ -1,6 +1,6 @@
 # Документация по файлу auto_docs
 
-## extract_docstrings<br>
+## `extract_docstrings`<br>
 Извлекает документационные строки из содержимого файла.<br>
 <br>
 **Args:**<br>
@@ -9,7 +9,7 @@ file_content (str): Содержимое файла.<br>
 **Returns:**<br>
 dict: Словарь, где ключи - имена методов/атрибутов, значения - их документация.<br>
 <br>
-## format_docstring<br>
+## `format_docstring`<br>
 Форматирует документацию для отображения в файле Markdown.<br>
 <br>
 **Args:**<br>
@@ -19,7 +19,7 @@ docstring (str): Документация.<br>
 **Returns:**<br>
 str: Отформатированная документация.<br>
 <br>
-## generate_documentation<br>
+## `generate_documentation`<br>
 Генерирует документацию по файлам в указанной папке.<br>
 <br>
 **Args:**<br>
