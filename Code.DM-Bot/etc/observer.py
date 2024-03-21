@@ -5,15 +5,15 @@ class Observer:
         """
         self.subscribers = []
 
-    def attach(self, func, num_notifications=float('inf')):
+    def attach(self, func, remaining=-1):
         """
         Подписывает функцию на события.
 
         Args:
             func (callable): Функция-подписчик.
-            num_notifications (float): Количество уведомлений, которые должен получить подписчик (по умолчанию бесконечное количество).
+            remaining (int): Количество уведомлений, которые должен получить подписчик (по умолчанию бесконечное количество).
         """
-        self.subscribers.append({'func': func, 'num_notifications': num_notifications, 'notifications_received': 0})
+        self.subscribers.append({'func': func, 'remaining': remaining})
 
     def detach(self, func):
         """
@@ -22,7 +22,7 @@ class Observer:
         Args:
             func (callable): Функция-подписчик.
         """
-        for subscriber in self.subscribers:
+        for subscriber in self.subscribers[:]:  
             if subscriber['func'] == func:
                 self.subscribers.remove(subscriber)
 
@@ -36,6 +36,7 @@ class Observer:
         """
         for subscriber in self.subscribers[:]:  
             subscriber['func'](*args, **kwargs)
-            subscriber['notifications_received'] += 1
-            if subscriber['notifications_received'] >= subscriber['num_notifications']:
-                self.detach(subscriber['func'])
+            if subscriber['remaining'] != -1:
+                subscriber['remaining'] -= 1
+                if subscriber['remaining'] == 0:
+                    self.detach(subscriber['func'])
