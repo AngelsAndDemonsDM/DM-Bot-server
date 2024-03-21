@@ -1,4 +1,5 @@
 from typing import Union
+
 from .effect import EffectsList
 
 

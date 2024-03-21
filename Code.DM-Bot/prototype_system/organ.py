@@ -1,9 +1,10 @@
 import os
 
 import yaml
+from medical.medical_enums import BreastSizeEnum, GenderEnum
 from medical.organ import (Brain, Breast, Genitalia, Heart, Kidney, Liver,
                            Lung, Stomach)
-from medical.medical_enums import GenderEnum, BreastSizeEnum
+
 
 class OrganPrototypeLoader:
     def __init__(self, file_path):

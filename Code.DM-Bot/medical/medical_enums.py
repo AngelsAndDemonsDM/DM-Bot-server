@@ -1,5 +1,6 @@
 from enum import Enum, auto
 
+
 class GenderEnum(Enum):
     MALE = auto()
     FEMALE = auto()

@@ -1,4 +1,5 @@
-from typing import Union 
+from typing import Union
+
 
 class Effect:
     def __init__(self, effect_id: str, power: int, tick: int):

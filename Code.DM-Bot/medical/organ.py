@@ -1,4 +1,5 @@
-from .medical_enums import GenderEnum, BreastSizeEnum
+from .medical_enums import BreastSizeEnum, GenderEnum
+
 
 class OrgansSystem:
     def __init__(self):
