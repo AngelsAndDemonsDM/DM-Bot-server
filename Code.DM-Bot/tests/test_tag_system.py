@@ -42,7 +42,7 @@ async def test_TagsManager(logger):
         return False
     
     # Удаляем один из тегов
-    tags_manager.rm(tags_list, tag_data_2)
+    tags_manager.remove(tags_list, tag_data_2)
     
     # Проверяем, что тег успешно удален
     if len(tags_list) == 1 and tag_data_2 not in tags_list:
