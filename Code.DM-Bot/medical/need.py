@@ -151,21 +151,15 @@ class Need:
         self._max_value = new_max_value
 
     @min_value.setter 
-    def min_value(self, new_min_value):
+    def min_value(self, new_min_value: int):
         """
         Установка минимального значения потребности.
 
         Args:
             min_value (int): Минимальное значение потребности.
-
-        Returns:
-            bool: True, если установка прошла успешно, в противном случае False.
         """
-        if isinstance(new_min_value, int):
             self._min_value = new_min_value
-            return True
-        
-        return False
+
     
     @count.setter
     def set_count(self, new_count: int):
