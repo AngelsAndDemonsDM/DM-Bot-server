@@ -158,7 +158,7 @@ class Need:
         Args:
             min_value (int): Минимальное значение потребности.
         """
-            self._min_value = new_min_value
+        self._min_value = new_min_value
 
     
     @count.setter
