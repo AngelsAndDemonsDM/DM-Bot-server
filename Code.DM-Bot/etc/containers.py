@@ -1,3 +1,4 @@
+"""
 class Item:
 	def __init__(self, size: int, item_obj):
         self._size = size              # Определяем размер предмета в числовом выражении, что ранее занесено   
@@ -46,4 +47,4 @@ class Item:
             return self._item_obj.id
         except Exception as err:
             return None
-            
+"""
