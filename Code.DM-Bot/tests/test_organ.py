@@ -6,7 +6,7 @@ from medical.organs.kidney import Kidney
 from medical.organs.liver import Liver
 from medical.organs.lung import Lung
 from medical.organs.stomach import Stomach
-
+from prototype_system.organ import OrganPrototypeLoader
 
 async def test_Organ(logger):
     try:
@@ -21,6 +21,8 @@ async def test_Organ(logger):
     except Exception as err:
         logger.debug(f"Got exception in 'test_Organ': {err}")
         return False
+    except NotImplementedError as err:
+        pass
 
     return True
 

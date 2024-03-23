@@ -8,8 +8,10 @@ class TestFileWork(FileWork):
 async def test_FileWork(logger):
     try:
         class_file_work = FileWork("test/test_file_work.dat")
-    except Exception as err:
-        logger.debug(err)
+        if class_file_work is FileWork:
+            return False
+    except Exception:
+        pass
 
     # Создаем экземпляр класса TestFileWork
     file_work = TestFileWork()
@@ -21,7 +23,7 @@ async def test_FileWork(logger):
         return False
     
     # Устанавливаем данные
-    await file_work.set_data({"key": "value"})
+    file_work.data = {"key": "value"}
     
     # Сохраняем данные
     await file_work.save_data()
