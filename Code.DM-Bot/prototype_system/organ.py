@@ -2,8 +2,14 @@ import os
 
 import yaml
 from medical.medical_enums import BreastSizeEnum, GenderEnum
-from medical.organ import (Brain, Breast, Genitalia, Heart, Kidney, Liver,
-                           Lung, Stomach)
+from medical.organs.brain import Brain
+from medical.organs.breast import Breast
+from medical.organs.genitalia import Genitalia
+from medical.organs.heart import Heart
+from medical.organs.kidney import Kidney
+from medical.organs.liver import Liver
+from medical.organs.lung import Lung
+from medical.organs.stomach import Stomach
 
 
 class OrganPrototypeLoader:

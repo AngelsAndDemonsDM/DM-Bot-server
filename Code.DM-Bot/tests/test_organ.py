@@ -1,6 +1,11 @@
 from medical.medical_enums import *
-from medical.organ import *
-from prototype_system.organ import *
+from medical.organs.brain import Brain
+from medical.organs.genitalia import Genitalia
+from medical.organs.heart import Heart
+from medical.organs.kidney import Kidney
+from medical.organs.liver import Liver
+from medical.organs.lung import Lung
+from medical.organs.stomach import Stomach
 
 
 async def test_Organ(logger):
