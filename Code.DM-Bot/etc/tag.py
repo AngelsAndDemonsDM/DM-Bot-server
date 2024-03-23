@@ -71,7 +71,7 @@ class TagsManager:
         Returns:
             bool: True, если тег успешно добавлен, в противном случае False.
         """
-        if not self.find(arr_tags, tag):
+        if tag not in arr_tags:
             arr_tags.append(tag)
             return True
         
@@ -88,7 +88,7 @@ class TagsManager:
         Returns:
             bool: True, если тег успешно удален, в противном случае False.
         """
-        if self.find(arr_tags, tag):
+        if tag in arr_tags:
             arr_tags.remove(tag)
             return True
         
