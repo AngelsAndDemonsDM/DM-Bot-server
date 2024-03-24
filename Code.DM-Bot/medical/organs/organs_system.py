@@ -1,10 +1,10 @@
 class OrgansSystem:
-    def __init__(self):
-        self.brain
-        self.heart
-        self.liver
-        self.kidney
-        self.lung
-        self.stomach
-        self.genitalia
-        self.breast
+    def __init__(self, brain, heart, liver, kidney, stomach, lung, genitalia, breast):
+        self.brain = brain
+        self.heart = heart
+        self.liver = liver
+        self.kidney = kidney
+        self.lung = lung
+        self.stomach = stomach
+        self.genitalia = genitalia
+        self.breast = breast

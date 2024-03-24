@@ -37,59 +37,66 @@ class OrganPrototypeLoader:
                             if creator_func:
                                 prototypes.append(creator_func(config, subtype))
                             else:
-                                raise TypeError(f"Cannot call function {creator_func} in {self.__class__.__name__}. Subtype: {subtype}")
+                                raise TypeError(f"Cannot call function {creator_func} in 'OrganPrototypeLoader'. Subtype: {subtype}")
 
         return prototypes
 
     def _create_organ(func):
         def wrapper(self, config, subtype):
             organ_info = []
-            organ_info.append(str(config.get("id")))
-            organ_info.append(str(config.get("name")))
-            organ_info.append(str(config.get("desc")))
-            organ_info.append(config.get("max_health"))
-            organ_info.append(config.get("standart_efficiency"))
+            id = self._validate_config_param(config, "id")
+            organ_info.append(id)
+            organ_info.append(self._validate_config_param(config, "name", id))
+            organ_info.append(self._validate_config_param(config, "desc", id))
+            organ_info.append(self._validate_config_param(config, "max_health", id))
+            organ_info.append(self._validate_config_param(config, "standart_efficiency", id))
             organ_info.append(subtype)
-            return func(self, config, organ_info)
+            return func(self, config, organ_info, id)
         
         return wrapper
 
+    def _validate_config_param(self,  config, param_name, id="Unknown prototype"):
+        param_value = config.get(param_name)
+        if param_value is None:
+            raise ValueError(f"Parameter '{param_name}' is missing in the prototype: '{id}'.")
+        return param_value
+
     @_create_organ
-    def _create_brain(self, config, organ_info):
+    def _create_brain(self, config, organ_info, id):
         return Brain(*organ_info)
 
     @_create_organ
-    def _create_heart(self, config, organ_info):
+    def _create_heart(self, config, organ_info, id):
         return Heart(*organ_info)
     
     @_create_organ
-    def _create_liver(self, config, organ_info):
+    def _create_liver(self, config, organ_info, id):
         return Liver(*organ_info)
     
     @_create_organ
-    def _create_kidney(self, config, organ_info):
+    def _create_kidney(self, config, organ_info, id):
         return Kidney(*organ_info)
     
     @_create_organ
-    def _create_lung(self, config, organ_info):
+    def _create_lung(self, config, organ_info, id):
         return Lung(*organ_info)
     
     @_create_organ
-    def _create_stomach(self, config, organ_info):
-        organ_info.append(config.get('volume'))
-
+    def _create_stomach(self, config, organ_info, id):
+        organ_info.append(self._validate_config_param(config, 'volume', id))
         return Stomach(*organ_info)
 
     @_create_organ
-    def _create_genitalia(self, config, organ_info):
-        organ_info.append(GenderEnum[str(config.get("gender_type")).upper()])
-
+    def _create_genitalia(self, config, organ_info, id):
+        organ_info.append(GenderEnum[str(self._validate_config_param(config, "gender_type", id)).upper()])
         return Genitalia(*organ_info)
 
     @_create_organ
-    def _create_breast(self, config, organ_info):
-        organ_info.append(BreastSizeEnum[str(config.get("size")).upper()])
-
+    def _create_breast(self, config, organ_info, id):
+        organ_info.append(BreastSizeEnum[str(self._validate_config_param(config, "size", id)).upper()])
+        organ_info.append(self._validate_config_param(config, 'reagent_per_day', id))    
+        organ_info.append(self._validate_config_param(config, 'reagent_per_tick', id))  
+        organ_info.append(self._validate_config_param(config, 'amount_reagent', id))
         return Breast(*organ_info)
 
     def get_prototype(self):

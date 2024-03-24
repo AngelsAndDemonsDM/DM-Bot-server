@@ -4,6 +4,7 @@ import os
 
 from etc.auto_docs import generate_documentation
 from etc.logger import LoggerManager
+from modules.organs_main import organs_main
 from tests.run_tests import run_tests
 
 
@@ -18,9 +19,10 @@ def show_menu():
         print("Меню выбора:")
         print("1. Запуск тестов")
         print("2. Создать документацию")
+        print("3. Тест системы органов")
         print("0. Выход")
         choice = input("Введите число: ")
-        if choice in {"0", "1", "2"}:
+        if choice in {"0", "1", "2", "3"}:
             return int(choice)
         else:
             print("Неверное число. Просьба повторить ввод.")
@@ -55,7 +57,12 @@ async def main():
         if menu == 2: # Генерация документации
             generate_documentation(logger)
             pause_consol()
-        
+            continue
+
+        if menu == 3: # Тест системы органов
+            organs_main()
+            continue
+
         if menu == 0: # Выход из программы
             return
 
