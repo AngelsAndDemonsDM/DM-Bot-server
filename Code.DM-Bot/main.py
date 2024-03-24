@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import os
 
@@ -5,6 +6,10 @@ from etc.auto_docs import generate_documentation
 from etc.logger import LoggerManager
 from tests.run_tests import run_tests
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='DM-Bot')
+    parser.add_argument('--debug', action='store_true', help='Включить режим отладки')
+    return parser.parse_args()
 
 def show_menu():
     while True:
@@ -27,14 +32,8 @@ def pause_consol():
     input("Нажмите Enter для продолжения...")
 
 async def main():
-    # Инициализация дебага
-    while True:
-        debug = input("Debug? (Y/N): ").strip().lower()
-        if debug in {"y", "n"}:
-            debug = debug == "y"
-            break
-        else:
-            print("Error. It must be 'Y' or 'N'!")
+    args = parse_arguments()
+    debug = args.debug
 
     # Объявление менеджеров
     logger = LoggerManager(debug)
