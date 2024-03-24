@@ -35,7 +35,7 @@ class FileWork:
             NotImplementedError: Вызывается, если пытаются создать экземпляр абстрактного класса FileWork.
         """
         if cls is FileWork:
-            raise NotImplementedError(f"You cannot create an abstract '{cls.__class__.__name__}' class. Use inheritance")
+            raise NotImplementedError("You cannot create an abstract 'FileWork' class. Use inheritance")
         return super().__new__(cls)
 
     async def create_file(self):
