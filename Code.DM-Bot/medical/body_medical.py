@@ -1,7 +1,7 @@
 from .blood_system import BloodSystem
 from .limb import LimbsSystem
 from .need import Need
-from .organ import OrgansSystem
+from organs.organs_system import OrgansSystem
 
 
 class BodyMedical:
