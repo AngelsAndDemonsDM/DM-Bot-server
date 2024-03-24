@@ -4,7 +4,7 @@
 Инициализация объекта Mind.<br>
 <br>**Args:**<br>
 id (str, optional): Идентификатор разума. По умолчанию None.<br>
-body (Body, optional): TODO. По умолчанию None.<br>
+body (Body, optional): По умолчанию None.<br>
 <br>
 ## `Mind.get_id`<br>
 Получение идентификатора разума.<br>
