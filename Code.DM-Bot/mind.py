@@ -3,14 +3,14 @@ from typing import Union
 from .body import Body
 
 
-class Mind:
+class Mind: # ПЕРЕДЕЛАТЬ
     def __init__(self, id: str, body: Body):
         """
         Инициализация объекта Mind.
 
         Args:
             id (str, optional): Идентификатор разума. По умолчанию None.
-            body (Body, optional): TODO. По умолчанию None.
+            body (Body, optional): По умолчанию None.
         """
         self.id = id
         self.body = body

@@ -1,7 +1,7 @@
 from .race import Race
 
 
-class Body:
+class Body: # ПЕРЕДЕЛАТЬ
     def __init__(self, race = None, gender = None, specialization = None, stats = None):
         self.race = None 
         if race != None:

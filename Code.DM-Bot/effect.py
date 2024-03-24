@@ -1,7 +1,7 @@
 from typing import Union
 
 
-class Effect:
+class Effect: # ПЕРЕДЕЛАТЬ
     def __init__(self, effect_id: str, power: int, tick: int):
         """
         Инициализация объекта эффекта.

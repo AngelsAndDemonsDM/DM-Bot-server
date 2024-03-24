@@ -3,7 +3,7 @@ from typing import Union
 from .effect import EffectsList
 
 
-class Race:
+class Race: # ПЕРЕДЕЛАТЬ
     def __init__(self, name: str, desc: str, race_characteristics: list, effects: EffectsList):
         self.name = name
         self.desc = desc
