@@ -8,6 +8,7 @@ from medical.organs.lung import Lung
 from medical.organs.stomach import Stomach
 from prototype_system.organ import OrganPrototypeLoader
 
+
 async def test_Organ(logger):
     try:
         standart_info = ["1", "name", "description", 500, 100, None]

@@ -6,6 +6,7 @@ from etc.auto_docs import generate_documentation
 from etc.logger import LoggerManager
 from tests.run_tests import run_tests
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='DM-Bot')
     parser.add_argument('--debug', action='store_true', help='Включить режим отладки')
