@@ -2,6 +2,17 @@ import os
 import yaml
 
 class PrototypeLoader:
+    def __new__(cls, *args, **kwargs):
+        """
+        Метод для создания экземпляра класса.
+
+        Raises:
+            NotImplementedError: Вызывается, если пытаются создать экземпляр абстрактного класса PrototypeLoader.
+        """
+        if cls is PrototypeLoader:
+            raise NotImplementedError("You cannot create an abstract 'PrototypeLoader' class. Use inheritance")
+        return super().__new__(cls)
+
     def __init__(self, file_path, type: str = None):
         directory_path = os.path.join(os.getcwd(), 'Prototype.DM-Bot', file_path)
 
