@@ -51,14 +51,14 @@ def organs_main():
     organ_list = proto.get_prototype()
 
     r_l = []
-    r_l.append(next((organ for organ in organ_list if organ.id == "brain"), None))
-    r_l.append(next((organ for organ in organ_list if organ.id == "heart"), None))
-    r_l.append(next((organ for organ in organ_list if organ.id == "liver"), None))
-    r_l.append(next((organ for organ in organ_list if organ.id == "kidney"), None))
-    r_l.append(next((organ for organ in organ_list if organ.id == "lung"), None))
-    r_l.append(next((organ for organ in organ_list if organ.id == "stomach"), None))
-    r_l.append(next((organ for organ in organ_list if organ.id == "genitalia"), None))
-    r_l.append(next((organ for organ in organ_list if organ.id == "breast"), None))
+    r_l.append(organ_list["brain"])
+    r_l.append(organ_list["heart"])
+    r_l.append(organ_list["liver"])
+    r_l.append(organ_list["kidney"])
+    r_l.append(organ_list["lung"])
+    r_l.append(organ_list["stomach"])
+    r_l.append(organ_list["genitalia"])
+    r_l.append(organ_list["breast"])
     osys = OrgansSystem(*r_l)
 
     while (True):
