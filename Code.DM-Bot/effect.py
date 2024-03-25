@@ -100,7 +100,7 @@ class Effect: # ПЕРЕДЕЛАТЬ
         """
         return [self.effect_id, self.strength]
 
-class EffectManager:
+class EffectManager: # ПЕРЕДЕЛАТЬ
     def __init__(self):
         """
         Инициализация менеджера эффектов.
