@@ -7,6 +7,17 @@ import aiofiles
 
 
 class FileWork:
+    def __new__(cls, *args, **kwargs):
+        """
+        Метод для создания экземпляра класса.
+
+        Raises:
+            NotImplementedError: Вызывается, если пытаются создать экземпляр абстрактного класса FileWork.
+        """
+        if cls is FileWork:
+            raise NotImplementedError("You cannot create an abstract 'FileWork' class. Use inheritance")
+        return super().__new__(cls)
+
     def __init__(self, file_path):
         """
         Инициализация объекта FileWork.
@@ -26,17 +37,6 @@ class FileWork:
         self._cached = False
         self._file_hash = None
         self._lock = asyncio.Lock()
-
-    def __new__(cls, *args, **kwargs):
-        """
-        Метод для создания экземпляра класса.
-
-        Raises:
-            NotImplementedError: Вызывается, если пытаются создать экземпляр абстрактного класса FileWork.
-        """
-        if cls is FileWork:
-            raise NotImplementedError("You cannot create an abstract 'FileWork' class. Use inheritance")
-        return super().__new__(cls)
 
     async def create_file(self):
         """
