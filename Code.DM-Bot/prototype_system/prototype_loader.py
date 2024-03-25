@@ -19,7 +19,7 @@ class PrototypeLoader:
         if type is None:
             raise NotImplementedError(f"{self.__class__.__name__} does not have an established prototype type to read")
 
-        self._id_set = set(organ.id for organ in self._prototypes)
+        self._id_set = set()
         self._prototypes = self._load_prototypes(directory_path, type.lower())
 
     def _load_prototypes(self, directory_path, type):
