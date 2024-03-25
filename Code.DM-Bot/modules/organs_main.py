@@ -48,17 +48,16 @@ def show_menu():
 
 def organs_main():
     proto = OrganPrototypeLoader("for_tests")
-    organ_list = proto.get_prototype()
 
     r_l = []
-    r_l.append(organ_list["brain"])
-    r_l.append(organ_list["heart"])
-    r_l.append(organ_list["liver"])
-    r_l.append(organ_list["kidney"])
-    r_l.append(organ_list["lung"])
-    r_l.append(organ_list["stomach"])
-    r_l.append(organ_list["genitalia"])
-    r_l.append(organ_list["breast"])
+    r_l.append(proto["brain"])
+    r_l.append(proto["heart"])
+    r_l.append(proto["liver"])
+    r_l.append(proto["kidney"])
+    r_l.append(proto["lung"])
+    r_l.append(proto["stomach"])
+    r_l.append(proto["genitalia"])
+    r_l.append(proto["breast"])
     osys = OrgansSystem(*r_l)
 
     while (True):
