@@ -30,7 +30,7 @@ async def test_Organ(logger):
 async def test_OrganPrototype(logger):
     try:
         prototypes = OrganPrototypeLoader("for_tests")
-        for proto in prototypes.get_prototype():
+        for proto in prototypes.prototypes:
             logger.debug(proto)
     except Exception as err:
         logger.debug(f"Got exception in 'test_OrganPrototype': {err}")
