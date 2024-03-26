@@ -50,7 +50,7 @@ class PrototypeLoader:
         return prototypes
     
     def _get_func(self, config):
-        raise NotImplementedError(f"_get_func in {self.__class__.__name__} is not overloaded")
+        raise NotImplementedError(f"The method '_get_func' in class '{self.__class__.__name__}' must be overridden.")
 
     def _validate_config_param(self, config, param_name, id="Unknown prototype"):
         param_value = config.get(param_name)
