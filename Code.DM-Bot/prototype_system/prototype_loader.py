@@ -1,5 +1,7 @@
 import os
+
 import yaml
+
 
 class PrototypeLoader:
     def __new__(cls, *args, **kwargs):
