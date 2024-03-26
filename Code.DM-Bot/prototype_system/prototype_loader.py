@@ -36,20 +36,22 @@ class PrototypeLoader:
                             if str(config.get('type')).lower() != type:
                                 continue
 
-                            subtype = str(config.get('subtype')).lower()
-                            creator_func = getattr(self, f"_create_{subtype}", None)
+                            creator_func = self._get_func(config)
 
                             if creator_func:
-                                organ = creator_func(config, subtype)
-                                if organ.id in self._id_set:
-                                    raise ValueError(f"Duplicate id '{organ.id}' found.")
-                                prototypes.append(organ)
-                                self._id_set.add(organ.id)
+                                proto = creator_func(config)
+                                if proto.id in self._id_set:
+                                    raise ValueError(f"Duplicate id '{proto.id}' found.")
+                                prototypes.append(proto)
+                                self._id_set.add(proto.id)
                             else:
-                                raise TypeError(f"Cannot call function {creator_func} in '{self.__class__.__name__}'. Subtype: {subtype}")
+                                raise TypeError(f"Cannot call function {creator_func} in '{self.__class__.__name__}'")
 
         return prototypes
     
+    def _get_func(self, config):
+        raise NotImplementedError(f"_get_func in {self.__class__.__name__} is not overloaded")
+
     def _validate_config_param(self, config, param_name, id="Unknown prototype"):
         param_value = config.get(param_name)
 
@@ -59,9 +61,9 @@ class PrototypeLoader:
         return param_value
 
     def __getitem__(self, key: str):
-        for organ in self._prototypes:
-            if organ.id == key:
-                return organ
+        for prototype in self._prototypes:
+            if prototype.id == key:
+                return prototype
         
         return None
 

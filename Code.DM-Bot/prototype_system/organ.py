@@ -15,7 +15,7 @@ class OrganPrototypeLoader(PrototypeLoader):
         super().__init__(file_path, "Organ")
 
     def _create_organ(func):
-        def wrapper(self, config, subtype):
+        def wrapper(self, config):
             organ_info = []
             id = self._validate_config_param(config, "id")
             organ_info.append(id)
@@ -23,10 +23,14 @@ class OrganPrototypeLoader(PrototypeLoader):
             organ_info.append(self._validate_config_param(config, "desc", id))
             organ_info.append(self._validate_config_param(config, "max_health", id))
             organ_info.append(self._validate_config_param(config, "standart_efficiency", id))
-            organ_info.append(subtype)
+            organ_info.append(self._validate_config_oaram(config, "subtype", id))
             return func(self, config, organ_info, id)
         
         return wrapper
+
+    def _get_func(self, config):
+        subtype = str(config.get('subtype')).lower()
+        return getattr(self, f"_create_{subtype}", None)
 
     @_create_organ
     def _create_brain(self, config, organ_info, id):
