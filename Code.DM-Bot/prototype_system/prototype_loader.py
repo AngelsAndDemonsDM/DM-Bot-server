@@ -18,11 +18,11 @@ class PrototypeLoader:
 
         if type is None:
             raise NotImplementedError(f"{self.__class__.__name__} does not have an established prototype type to read")
-
+        self._type = type.lower()
         self._id_set = set()
-        self._prototypes = self._load_prototypes(directory_path, type.lower())
+        self._prototypes = self._load_prototypes(directory_path)
 
-    def _load_prototypes(self, directory_path, type):
+    def _load_prototypes(self, directory_path):
         prototypes = []
 
         for root, dirs, files in os.walk(directory_path):
@@ -33,7 +33,7 @@ class PrototypeLoader:
                         prototypes_config = yaml.safe_load(file)
 
                         for config in prototypes_config:
-                            if str(config.get('type')).lower() != type:
+                            if str(config.get('type')).lower() != self._type:
                                 continue
 
                             creator_func = self._get_func(config)
