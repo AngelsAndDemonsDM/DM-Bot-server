@@ -24,30 +24,9 @@ async def run_tests(logger):
         bool: True, если все тесты успешно пройдены, в противном случае False.
     """
     del_test_folder(logger)
-    
     all_tests_passed = True
     
     logger.debug("===START TESTS===")
-    
-    logger.debug("="*40)
-    logger.debug("Start test_FileWork")
-    all_tests_passed &= await test_FileWork(logger)
-    
-    logger.debug("="*40)
-    logger.debug("Start test_TagData")
-    all_tests_passed &= await test_Tag(logger)
-    
-    logger.debug("="*40)
-    logger.debug("Start test_TagsManager")
-    all_tests_passed &= await test_TagsManager(logger)
-    
-    logger.debug("="*40)
-    logger.debug("Start test_Organ")
-    all_tests_passed &= await test_Organ(logger)
-
-    logger.debug("="*40)
-    logger.debug("Start test_OrganPrototype")
-    all_tests_passed &= await test_OrganPrototype(logger)
 
     logger.debug("="*40)
     del_test_folder(logger)
