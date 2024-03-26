@@ -2,11 +2,6 @@ import asyncio
 import os
 import shutil
 
-from tests.test_file_work import test_FileWork
-from tests.test_organ import test_Organ, test_OrganPrototype
-from tests.test_tag_system import test_Tag, test_TagsManager
-
-
 def del_test_folder(logger): 
     test_folder_path = os.path.join(os.getcwd(), 'Data.DM-Bot', 'test')
     if os.path.exists(test_folder_path):
