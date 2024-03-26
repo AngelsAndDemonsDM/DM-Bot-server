@@ -22,8 +22,6 @@ async def test_Organ(logger):
     except Exception as err:
         logger.debug(f"Got exception in 'test_Organ': {err}")
         return False
-    except NotImplementedError as err:
-        pass
 
     return True
 
