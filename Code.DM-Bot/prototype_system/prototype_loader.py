@@ -19,11 +19,12 @@ class PrototypeLoader:
         if type is None:
             raise NotImplementedError(f"{self.__class__.__name__} does not have an established prototype type to read")
         self._type = type.lower()
+        
         self._id_set = set()
         self._prototypes = self._load_prototypes(directory_path)
 
     def _load_prototypes(self, directory_path):
-        prototypes = []
+        prototypes_list = []
 
         for root, dirs, files in os.walk(directory_path):
             for file_name in files:
@@ -42,12 +43,12 @@ class PrototypeLoader:
                                 proto = creator_func(config)
                                 if proto.id in self._id_set:
                                     raise ValueError(f"Duplicate id '{proto.id}' found.")
-                                prototypes.append(proto)
+                                prototypes_list.append(proto)
                                 self._id_set.add(proto.id)
                             else:
                                 raise TypeError(f"Cannot call function {creator_func} in '{self.__class__.__name__}'")
 
-        return prototypes
+        return prototypes_list
     
     def _get_func(self, config):
         raise NotImplementedError(f"The method '_get_func' in class '{self.__class__.__name__}' must be overridden.")
