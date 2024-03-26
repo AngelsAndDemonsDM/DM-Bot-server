@@ -1,0 +1,14 @@
+- type: Reagent
+  id: water
+  name: water
+  desc: |
+    ---
+  available_states: [solid, liquid, gas]
+  boiling: 273
+  crystal: 0
+  solid:
+    - pass
+  liquid:
+    - pass
+  gas:
+    - pass
