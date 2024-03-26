@@ -1,4 +1,3 @@
-from .prototype_loader import PrototypeLoader
 from medical.medical_enums import BreastSizeEnum, GenderEnum
 from medical.organs.brain import Brain
 from medical.organs.breast import Breast
@@ -8,6 +7,8 @@ from medical.organs.kidney import Kidney
 from medical.organs.liver import Liver
 from medical.organs.lung import Lung
 from medical.organs.stomach import Stomach
+
+from .prototype_loader import PrototypeLoader
 
 
 class OrganPrototypeLoader(PrototypeLoader):
@@ -23,7 +24,7 @@ class OrganPrototypeLoader(PrototypeLoader):
             organ_info.append(self._validate_config_param(config, "desc", id))
             organ_info.append(self._validate_config_param(config, "max_health", id))
             organ_info.append(self._validate_config_param(config, "standart_efficiency", id))
-            organ_info.append(self._validate_config_oaram(config, "subtype", id))
+            organ_info.append(self._validate_config_param(config, "subtype", id))
             return func(self, config, organ_info, id)
         
         return wrapper
