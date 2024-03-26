@@ -1,0 +1,5 @@
+- type: Effect
+  id: test_effect
+  name: "Тестовый эффект"
+  desc: "Тестовое описание"
+  strength: 5
