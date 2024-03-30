@@ -132,3 +132,6 @@ data/*
 
 # VS
 .vs/*
+
+# Build exe
+*.exe

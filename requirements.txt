@@ -1,4 +1,7 @@
 aiofiles
 colorlog
 discord.py
+imageio
+isort
+nuitka
 pyyaml
