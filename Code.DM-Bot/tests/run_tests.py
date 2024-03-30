@@ -2,6 +2,7 @@ import asyncio
 import os
 import shutil
 
+
 def del_test_folder(logger): 
     test_folder_path = os.path.join(os.getcwd(), 'Data.DM-Bot', 'test')
     if os.path.exists(test_folder_path):

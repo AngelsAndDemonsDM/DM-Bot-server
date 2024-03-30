@@ -1,5 +1,7 @@
-from .prototype_loader import PrototypeLoader
 from effect import Effect
+
+from .prototype_loader import PrototypeLoader
+
 
 class EffectPrototypeLoader(PrototypeLoader):
     def __init__(self, file_path):
