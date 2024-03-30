@@ -1,4 +1,7 @@
 import copy
+
+from physics.reagent import Reagent
+
 from .prototype_loader import PrototypeLoader
 
 
@@ -12,31 +15,11 @@ class ReagentPrototypeLoader(PrototypeLoader):
     
     def _create_reagent(self, config):
         reagent_info = []
-        solid_effect = []
-        liquid_effect = []
-        gas_effect = []
 
         id = self._validate_config_param(config, "id")
 
         reagent_info.append(self._validate_config_param(config, "name", id))
         reagent_info.append(self._validate_config_param(config, "desc", id))
-        available_states = self._validate_config_param(config, "available_states", id)
-        
-        for state in available_states:
-            if state == "solid":
-                solid_effect = self._get_effect_list(config, state, id)
-            elif state == "liquid":
-                liquid_effect = self._get_effect_list(config, state, id)
-            elif state == "gas":
-                gas_effect = self._get_effect_list(config, state, id)
-            else:
-                raise ValueError(f"'{state}' not invluded in the list of avaliable states. reagent:{id}")
-        
-        reagent_info.append(solid_effect)
-
-        reagent_info.append(liquid_effect)
-
-        reagent_info.append(gas_effect)
 
         return Reagent(*reagent_info)
 
