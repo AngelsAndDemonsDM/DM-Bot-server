@@ -79,7 +79,7 @@ def print_table(version, created_by):
 def show_menu():
     while True:
         clear_consol()
-        print_table("███", ["Многоликий демон - код", "Verggrey - Помощь с кодом и оформление"])
+        print_table("███", ["Многоликий демон - Код", "Vergrey - Оформление, помощь с кодом"])
         print("А ничего не готово для резил билда.\n")
         print("Меню выбора:")
         print("0. Выход")
