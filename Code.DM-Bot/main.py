@@ -5,7 +5,6 @@ import os
 from etc.auto_docs import generate_documentation
 from etc.logger import LoggerManager
 from main_vars import VERSION_STR
-from modules.organs_main import organs_main
 from tests.run_tests import run_tests
 
 
