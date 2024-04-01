@@ -1,6 +1,7 @@
 from .reagent_state.base_reagent_state import BaseReagentState
 from .reagent_state.reagent_enum import ReagentEnum
 
+
 class Reagent:
     def __init__(self, id: str, name: str, description: str, boiling_temp: float, crystal_temp: float, temp: float, action: list[BaseReagentState] = None):
         self._id = id
