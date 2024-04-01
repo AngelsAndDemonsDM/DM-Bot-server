@@ -26,10 +26,9 @@ def show_menu_debug():
         print("Меню выбора:")
         print("1. Запуск тестов")
         print("2. Создать документацию")
-        print("3. Тест системы органов")
         print("0. Выход")
         choice = input("Введите число: ")
-        if choice in {"0", "1", "2", "3"}:
+        if choice in {"0", "1", "2"}:
             return int(choice)
         else:
             print("Неверное число. Просьба повторить ввод.")
@@ -55,10 +54,6 @@ async def main_debug():
         if menu == 2: # Генерация документации
             generate_documentation(logger)
             pause_consol()
-            continue
-
-        if menu == 3: # Тест системы органов
-            organs_main()
             continue
 
         if menu == 0: # Выход из программы
@@ -98,24 +93,6 @@ async def main():
     while True:
         menu = show_menu()
         
-        if menu == 1: # Запуск тестов
-            anser = await run_tests(logger)
-            if anser:
-                logger.info("Все тесты пройдены удачно")
-            else:
-                logger.error("Один из тестов был провален!")
-            pause_consol()
-            continue
-            
-        if menu == 2: # Генерация документации
-            generate_documentation(logger)
-            pause_consol()
-            continue
-
-        if menu == 3: # Тест системы органов
-            organs_main()
-            continue
-
         if menu == 0: # Выход из программы
             return
 
