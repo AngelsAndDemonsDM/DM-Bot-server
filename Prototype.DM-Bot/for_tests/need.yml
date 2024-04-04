@@ -1,0 +1,7 @@
+- type: Need
+  id: test_Hungry
+  name: Голод
+  desc: Cookies!
+  max_value: 100
+  min_value: 0
+  count: -1
