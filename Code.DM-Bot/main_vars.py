@@ -1,2 +1,2 @@
-VERSION_STR: str = "███"
-VERSION_INT: int = 0
+VERSION: str = "███"
+SERVER_INFO_ID: str = "1_Ytb9xGDPerlInZmWtPrC06MKSglF_8g"
