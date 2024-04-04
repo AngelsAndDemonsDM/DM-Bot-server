@@ -1,4 +1,5 @@
 import ast
+import logging
 import os
 import re
 
@@ -60,7 +61,7 @@ def format_docstring(name, docstring):
 
 
 
-def generate_documentation(logger):
+def generate_documentation():
     """
     Генерирует документацию по файлам в указанной папке.
 
@@ -78,7 +79,7 @@ def generate_documentation(logger):
                 relative_folder = os.path.relpath(root, input_folder)
                 doc_folder = os.path.join(output_folder, relative_folder)
                 os.makedirs(doc_folder, exist_ok=True)
-                logger.debug(f"Обработка файла: {module_name}")
+                logging.debug(f"Обработка файла: {module_name}")
                 with open(module_path, "r", encoding="utf-8") as f:
                     module_content = f.read()
                     docstrings = extract_docstrings(module_content)
@@ -88,4 +89,4 @@ def generate_documentation(logger):
                             for name, docstring in docstrings.items():
                                 formatted_docstring = format_docstring(name, docstring)
                                 doc_file.write(formatted_docstring)
-    logger.info("Создание документации завершено")
+    logging.info("Создание документации завершено")

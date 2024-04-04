@@ -1,9 +1,10 @@
 import argparse
 import asyncio
+import logging
 import os
 
+from colorlog import ColoredFormatter
 from etc.auto_docs import generate_documentation
-from etc.logger import LoggerManager
 from main_vars import VERSION
 from tests.run_tests import run_tests
 
@@ -35,24 +36,21 @@ def show_menu_debug():
             pause_consol()
 
 async def main_debug():
-    # Объявление менеджеров
-    logger = LoggerManager(True)
-
     # Меню выбора
     while True:
         menu = show_menu_debug()
         
         if menu == 1: # Запуск тестов
-            anser = await run_tests(logger)
+            anser = await run_tests()
             if anser:
-                logger.info("Все тесты пройдены удачно")
+                logging.info("Все тесты пройдены удачно")
             else:
-                logger.error("Один из тестов был провален!")
+                logging.error("Один из тестов был провален!")
             pause_consol()
             continue
             
         if menu == 2: # Генерация документации
-            generate_documentation(logger)
+            generate_documentation()
             pause_consol()
             continue
 
@@ -86,9 +84,6 @@ def show_menu():
 
 
 async def main():
-    # Объявление менеджеров
-    logger = LoggerManager(False)
-
     # Меню выбора
     while True:
         menu = show_menu()
@@ -96,11 +91,35 @@ async def main():
         if menu == 0: # Выход из программы
             return
 
-
 if __name__ == "__main__":
     args = parse_arguments()
     debug = args.debug
-    if debug:  
+
+    logger = logging.getLogger()
+    if debug:
+        logger.setLevel(logging.DEBUG)        
+    else:
+        logger.setLevel(logging.INFO)
+    
+    console_handler = logging.StreamHandler()
+    formatter = ColoredFormatter(
+        "[%(asctime)s] [%(log_color)s%(levelname)s%(reset)s] - %(message)s",
+        datefmt=None,
+        reset=True,
+        log_colors={
+            'DEBUG': 'cyan',
+            'INFO': 'green',
+            'WARNING': 'yellow',
+            'ERROR': 'red',
+            'CRITICAL': 'purple',
+        },
+        secondary_log_colors={},
+        style='%'
+    )
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+    if debug:
         asyncio.run(main_debug())
     else:
         asyncio.run(main())
