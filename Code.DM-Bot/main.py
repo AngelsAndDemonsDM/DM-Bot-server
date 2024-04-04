@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import logging
 import os
+import sys
 
 from colorlog import ColoredFormatter
 from etc.auto_docs import generate_documentation
@@ -18,6 +19,7 @@ def pause_consol():
 def parse_arguments():
     parser = argparse.ArgumentParser(description='DM-Bot')
     parser.add_argument('--debug', action='store_true', help='Включить режим отладки')
+    parser.add_argument('--version', action='store_true', help='Возвращает версию приложения')
     return parser.parse_args()
 
 def show_menu_debug():
@@ -72,7 +74,6 @@ def show_menu():
     while True:
         clear_consol()
         print_table(VERSION, ["Многоликий демон - Код", "Vergrey - Оформление, помощь с кодом"])
-        print("А ничего не готово для резил билда.\n")
         print("Меню выбора:")
         print("0. Выход")
         choice = input("Введите число: ")
@@ -93,6 +94,11 @@ async def main():
 
 if __name__ == "__main__":
     args = parse_arguments()
+    version = args.version
+    if version:
+        print(VERSION)
+        sys.exit()
+    
     debug = args.debug
 
     logger = logging.getLogger()
