@@ -145,8 +145,9 @@ def update() -> None:
             zip_file.write(encrypted_zip_content)
         logging.info("Архив сохранён!")
 
-        logging.info("Удаление старого файла DM-Bot.exe")
-        os.remove(exe_filename)
+        if os.path.exists(exe_filename):
+            logging.info("Удаление старого файла DM-Bot.exe")
+            os.remove(exe_filename)
          
         logging.info("Начало распаковки...")
         with zipfile.ZipFile(encrypted_zip_path, 'r') as zip_ref:
