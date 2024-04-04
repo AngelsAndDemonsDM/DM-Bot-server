@@ -4,7 +4,7 @@ import os
 
 from etc.auto_docs import generate_documentation
 from etc.logger import LoggerManager
-from main_vars import VERSION_STR
+from main_vars import VERSION
 from tests.run_tests import run_tests
 
 
@@ -73,7 +73,7 @@ def print_table(version, created_by):
 def show_menu():
     while True:
         clear_consol()
-        print_table(VERSION_STR, ["Многоликий демон - Код", "Vergrey - Оформление, помощь с кодом"])
+        print_table(VERSION, ["Многоликий демон - Код", "Vergrey - Оформление, помощь с кодом"])
         print("А ничего не готово для резил билда.\n")
         print("Меню выбора:")
         print("0. Выход")

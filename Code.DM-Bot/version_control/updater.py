@@ -3,16 +3,14 @@ import sys
 import tempfile
 
 import requests
-from main_vars import SERVER_INFO_ID, VERSION
+from main_vars import VERSION
 from requests.exceptions import RequestException
+from version_control.server_info import ServerInfo
 
 
-class Updater:
+class Updater(ServerInfo):
     def __init__(self) -> None:
-        pass
-    
-    def _get_url(self, id) -> str:
-        return f"https://drive.google.com/uc?export=download&id={id}"
+        super().__init__()
 
     def compare_versions(self, version1, version2) -> int:
         """
@@ -39,23 +37,25 @@ class Updater:
                 return -1
         return 0
     
-    def get_json_info(self):
-        response = requests.get(self._get_url(SERVER_INFO_ID))
-        if response.status_code == 200:
-            return response.json()
-        else:
-            raise RequestException("Error when requesting new version")
-    
-    def is_new_version(self, json_data) -> bool:
-        if not 'version' in json_data 
-            raise ValueError("\"version\" not found in json_data")
+    def is_new_version(self) -> bool:
+        if not 'version' in self._info_json:
+            raise ValueError("\"version\" not found on server")
         
-        if self.compare_versions(json_data['version'], VERSION) == 1:
+        if self.compare_versions(self._info_json['version'], VERSION) == 1:
             return True
         return False
 
-    def replace_current_file(self, new_file_content):
-        current_file_path = sys.executable
+    def download_new_exe(self):
+        if not 'exe_id' in self._info_json:
+            raise ValueError("\"exe_id\" not found in json_data")
+        
+        response = requests.get(self._url(self._info_json['exe_id']))
+        if response.status_code == 200:
+            return response.content
+        else:
+            raise RequestException("Error when download new version from server")
+
+    def replace_current_file(self, new_file_content) -> None:
         try:
             # Создаем временный файл для новой версии
             with tempfile.NamedTemporaryFile(delete=False) as temp_file:
@@ -65,13 +65,3 @@ class Updater:
             os.execv(temp_file_path, sys.argv)
         except Exception as e:
             sys.exit(1) # I'll suck from this later
-    
-    def download_new_exe(self, json_data):
-        if not 'exe_id' in json_data:
-            raise ValueError("\"exe_id\" not found in json_data")
-        
-        response = requests.get(self._get_url(json_data['exe_id']))
-        if response.status_code == 200:
-            return response.content
-        else:
-            raise RequestException("Error when download new version")

@@ -5,3 +5,4 @@ imageio
 isort
 nuitka
 pyyaml
+requests
