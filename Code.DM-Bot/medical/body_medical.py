@@ -5,18 +5,18 @@ class BodyMedical:
 
         # Stats
         self._body_stats = {
-            "consciousness": self.consciousness, #сознание
+            "cognitive": self.cognitive, # сознание
             "pain": self.pain, # боль
             "vision": self.vision, # зрение
             "hearing": self.hearing, # слух
-            "sense_of_smell": self.sense_of_smell, # обоняние
-            "job": self.job, # работа
+            "scent": self.scent, # обоняние
+            "productivity": self.productivity, # работа
             "movement": self.movement, # передвижение
-            "fertility": self.consciousness, # фертильность
+            "fertility": self.fertility, # фертильность
         }
     
     @property
-    def consciousness(self):
+    def cognitive(self):
         ...
     
     @property
@@ -32,11 +32,11 @@ class BodyMedical:
         ...
 
     @property
-    def sense_of_smell(self):
+    def scent(self):
         ...
 
     @property
-    def job(self):
+    def productivity(self):
         ...
 
     @property

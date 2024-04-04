@@ -32,7 +32,7 @@ def extract_docstrings(file_content):
 
     return docstrings
 
-def format_docstring(name, docstring):
+def format_docstring(name, docstring) -> str:
     """
     Форматирует документацию для отображения в файле Markdown.
 
@@ -64,9 +64,6 @@ def format_docstring(name, docstring):
 def generate_documentation():
     """
     Генерирует документацию по файлам в указанной папке.
-
-    Args:
-        logger: Логгер для записи информации о процессе генерации документации.
     """
     input_folder = os.path.join(os.getcwd(), 'Code.DM-Bot')
     output_folder = os.path.join(os.getcwd(), 'Docs.DM-Bot')

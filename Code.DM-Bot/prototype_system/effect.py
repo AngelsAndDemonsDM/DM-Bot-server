@@ -17,6 +17,6 @@ class EffectPrototypeLoader(PrototypeLoader):
         effect_info.append(id)
         effect_info.append(self._validate_config_param(config, "name", id))
         effect_info.append(self._validate_config_param(config, "desc", id))
-        effect_info.append(self._validate_config_param(config, "strength", id))
+        effect_info.append(0)
 
         return Effect(*effect_info)

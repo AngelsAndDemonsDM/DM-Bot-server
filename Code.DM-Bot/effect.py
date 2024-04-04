@@ -6,7 +6,7 @@ class Effect:
         Args:
             id (str, optional): Идентификатор эффекта. По умолчанию None.
             power (float, optional): Сила эффекта. По умолчанию None.
-            tick (int, optional): Количество тактов до завершения эффекта. По умолчанию -1.
+            tick (int, optional): Количество тиков до завершения эффекта. По умолчанию -1.
         """
         self._id = id
         self._name = name
