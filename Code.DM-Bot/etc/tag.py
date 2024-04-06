@@ -1,101 +1,60 @@
-class Tag:
-    def __init__(self, id: str):
-        """
-        Инициализация объекта Tag.
-
-        Args:
-            id (str): Идентификатор тега.
-        """
-        self._id = id
-    
-    def __str__(self):
-        """
-        Возвращает строковое представление тега.
-
-        Returns:
-            str: Строковое представление тега.
-        """
-        return self._id
-
-    # Get методы
-    @property
-    def id(self):
-        """
-        Получение ID тега.
-
-        Returns:
-            str: ID тега.
-        """
-        return self._id
-
-    # Set методы
-    @id.setter
-    def id(self, id: str):
-        """
-        Установка ID тега.
-
-        Args:
-            id str: Новый идентификатор тега.
-        """
-        self._id = id
-
 class TagsManager:
-    def find(self, arr_tags: list, tag: str):
+    def __init__(self):
         """
-        Ищет тег в списке тегов.
+        Инициализирует новый объект TagsManager.
+
+        Attributes:
+            _ids (list): List ID.
+        """
+        self._ids = []
+
+    def find(self, id: str) -> bool:
+        """
+        Проверяет, существует ли id ID в списке ID.
 
         Args:
-            arr_tags (list): Список тегов для поиска.
-            tag (str): Тег для поиска.
+            id (str): Id, который нужно проверить.
 
         Returns:
-            bool: True, если тег найден, в противном случае False.
+            bool: True если ID существует, False в противном случае.
         """
-        for t in arr_tags:
-            if str(t) == tag:
+        for t in self._ids:
+            if t == id:
                 return True
-        
         return False
 
-    def add(self, arr_tags: list, tag: Tag):
+    def add(self, id: str) -> bool:
         """
-        Добавляет тег в список тегов.
+        Добавляет новый ID в список ID.
 
         Args:
-            arr_tags (list): Список тегов, в который нужно добавить тег.
-            tag (Tag): Тег для добавления.
+            id (str): ID, который нужно добавить.
 
         Returns:
-            bool: True, если тег успешно добавлен, в противном случае False.
+            bool: True если ID был добавлен, False в противном случае
         """
-        if tag not in arr_tags:
-            arr_tags.append(tag)
+        if id not in self._ids:
+            self._ids.append(id)
             return True
-        
         return False
-        
-    def remove(self, arr_tags: list, tag: Tag):
+
+    def remove(self, id: id) -> bool:
         """
-        Удаляет тег из списка тегов.
+        Удаляет ID из списка ID.
 
         Args:
-            arr_tags (list): Список тегов, из которого нужно удалить тег.
-            tag (Tag): Тег для удаления.
+            id (str): ID, который нужно удалить.
 
         Returns:
-            bool: True, если тег успешно удален, в противном случае False.
+            bool: True если ID был удален, False в противном случае.
         """
-        if tag in arr_tags:
-            arr_tags.remove(tag)
+        if id in self._ids:
+            self._ids.remove(id)
             return True
-        
         return False
-        
-    def sort_arr(self, arr_tags: list):
-        """
-        Сортирует список тегов по их идентификаторам.
 
-        Args:
-            arr_tags (list): Список тегов для сортировки.
+    def sort(self) -> None:
         """
-        arr_tags.sort(key=lambda x: x.id)
+        Сортирует list ID в алфавитном порядке.
+        """
+        self._ids = sorted(self._ids)
