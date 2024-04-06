@@ -4,6 +4,7 @@ import unittest
 
 from .test_file_work import TestFileWork
 from .test_observer import TestObserver
+from .test_tag import TestTagsManager
 
 
 def del_test_folder(): 
@@ -23,6 +24,7 @@ def run_tests() -> None:
     suite = unittest.TestSuite()
     suite.addTests(loader.loadTestsFromTestCase(TestObserver))
     suite.addTests(loader.loadTestsFromTestCase(TestFileWork))
+    suite.addTests(loader.loadTestsFromTestCase(TestTagsManager))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)
