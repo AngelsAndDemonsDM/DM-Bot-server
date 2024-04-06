@@ -1,50 +1,31 @@
 # Документация по файлу `tag.py`
 
 ## `TagsManager.__init__`<br>
-Инициализация объекта Tag.<br>
-<br>**Args:**<br>
-id (str): Идентификатор тега.<br>
-<br>
-## `TagsManager.__str__`<br>
-Возвращает строковое представление тега.<br>
-<br>**Returns:**<br>
-str: Строковое представление тега.<br>
-<br>
-## `TagsManager.id`<br>
-Получение ID тега.<br>
-<br>**Returns:**<br>
-str: ID тега.<br>
-<br>
-Установка ID тега.<br>
-<br>**Args:**<br>
-id str: Новый идентификатор тега.<br>
+Инициализирует новый объект TagsManager.<br>
+<br>**Attributes:**<br>
+_ids (list): List ID.<br>
 <br>
 ## `TagsManager.find`<br>
-Ищет тег в списке тегов.<br>
+Проверяет, существует ли id ID в списке ID.<br>
 <br>**Args:**<br>
-arr_tags (list): Список тегов для поиска.<br>
-tag (str): Тег для поиска.<br>
+id (str): Id, который нужно проверить.<br>
 <br>**Returns:**<br>
-bool: True, если тег найден, в противном случае False.<br>
+bool: True если ID существует, False в противном случае.<br>
 <br>
 ## `TagsManager.add`<br>
-Добавляет тег в список тегов.<br>
+Добавляет новый ID в список ID.<br>
 <br>**Args:**<br>
-arr_tags (list): Список тегов, в который нужно добавить тег.<br>
-tag (Tag): Тег для добавления.<br>
+id (str): ID, который нужно добавить.<br>
 <br>**Returns:**<br>
-bool: True, если тег успешно добавлен, в противном случае False.<br>
+bool: True если ID был добавлен, False в противном случае<br>
 <br>
 ## `TagsManager.remove`<br>
-Удаляет тег из списка тегов.<br>
+Удаляет ID из списка ID.<br>
 <br>**Args:**<br>
-arr_tags (list): Список тегов, из которого нужно удалить тег.<br>
-tag (Tag): Тег для удаления.<br>
+id (str): ID, который нужно удалить.<br>
 <br>**Returns:**<br>
-bool: True, если тег успешно удален, в противном случае False.<br>
+bool: True если ID был удален, False в противном случае.<br>
 <br>
-## `TagsManager.sort_arr`<br>
-Сортирует список тегов по их идентификаторам.<br>
-<br>**Args:**<br>
-arr_tags (list): Список тегов для сортировки.<br>
+## `TagsManager.sort`<br>
+Сортирует list ID в алфавитном порядке.<br>
 <br>
