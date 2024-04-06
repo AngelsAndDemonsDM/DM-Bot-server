@@ -1,5 +1,7 @@
 import unittest
+
 from etc.observer import Observer
+
 
 class TestObserver(unittest.TestCase):
     def setUp(self):
