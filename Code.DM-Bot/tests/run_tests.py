@@ -3,6 +3,7 @@ import os
 import shutil
 import unittest
 
+from .test_file_work import TestFileWork
 from .test_observer import TestObserver
 
 
@@ -22,6 +23,7 @@ def run_tests() -> None:
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
     suite.addTests(loader.loadTestsFromTestCase(TestObserver))
+    suite.addTests(loader.loadTestsFromTestCase(TestFileWork))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)
