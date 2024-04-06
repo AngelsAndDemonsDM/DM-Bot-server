@@ -1,9 +1,7 @@
-import asyncio
 import hashlib
+import logging
 import os
 import pickle
-
-import aiofiles
 
 
 class FileWork:
@@ -18,7 +16,7 @@ class FileWork:
             raise NotImplementedError("You cannot create an abstract 'FileWork' class. Use inheritance")
         return super().__new__(cls)
 
-    def __init__(self, file_path):
+    def __init__(self, file_path) -> None:
         """
         Инициализация объекта FileWork.
 
@@ -36,9 +34,8 @@ class FileWork:
         self._data = None
         self._cached = False
         self._file_hash = None
-        self._lock = asyncio.Lock()
 
-    async def create_file(self):
+    def create_file(self) -> bool:
         """
         Создание директории и файла, если они не были созданы ранее.
         
@@ -53,10 +50,9 @@ class FileWork:
             with open(self._path, "wb") as file:
                 pickle.dump(None, file)
                 return True
-        
         return False
 
-    async def _calculate_file_hash(self):
+    def _calculate_file_hash(self) -> str:
         """
         Рассчитывает хеш файла.
 
@@ -64,12 +60,14 @@ class FileWork:
             str: Хеш файла.
         """
         hasher = hashlib.sha256()
-        async with aiofiles.open(self._path, 'rb') as file:
-            async for chunk in file:
+        with open(self._path, 'rb') as file:
+            chunk = file.read(8192)
+            while chunk:
                 hasher.update(chunk)
+                chunk = file.read(8192)
         return hasher.hexdigest()
 
-    async def _load_file(self):
+    def _load_file(self) -> bytes:
         """
         Загрузка данных из файла.
 
@@ -77,49 +75,45 @@ class FileWork:
             object: Данные файла.
         """
         try:
-            async with aiofiles.open(self._path, 'rb') as file:
-                return await file.read()
+            with open(self._path, 'rb') as file:
+                return file.read()
         except Exception as e:
-            print(f"An error occurred in {self._path}: {e}")
+            logging.error(f"An error occurred in {self._path}: {e}")
             return None
 
-    async def load_data(self):
+    def load_data(self) -> object:
         """
         Загрузка данных с использованием кэширования и проверки хеша файла.
 
         Returns:
             object: Загруженные данные файла.
         """
-        async with self._lock:
-            current_hash = await self._calculate_file_hash()
-            if not self._cached or self._file_hash != current_hash:
-                file_content = await self._load_file()
-                if file_content is not None:
-                    self._data = pickle.loads(file_content)
-                    self._cached = True
-                    self._file_hash = current_hash
+        current_hash = self._calculate_file_hash()
+        if not self._cached or self._file_hash != current_hash:
+            file_content = self._load_file()
+            if file_content is not None:
+                self._data = pickle.loads(file_content)
+                self._cached = True
+                self._file_hash = current_hash
         return self._data
 
-    async def _save_file(self):
+    def _save_file(self) -> None:
         """
         Сохранение данных в файл.
         """
         if self._data is not None:
-            async with aiofiles.open(self._path, 'wb') as file:
-                await file.write(pickle.dumps(self._data))
-        else:
-            print("No data to save.")
+            with open(self._path, 'wb') as file:
+                file.write(pickle.dumps(self._data))
 
-    async def save_data(self):
+    def save_data(self) -> None:
         """
         Сохранение данных.
         """
-        async with self._lock:
-            await self._save_file()
-            self._cached = False
+        self._save_file()
+        self._cached = False
     
     @property
-    def data(self):
+    def data(self) -> object:
         """
         Возвращает текущие данные класса
         
@@ -129,7 +123,7 @@ class FileWork:
         return self._data
 
     @data.setter
-    def data(self, data):
+    def data(self, data) -> None:
         """
         Записывает в data класса кастомные данные
 
