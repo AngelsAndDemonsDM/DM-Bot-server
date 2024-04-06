@@ -11,12 +11,8 @@ class EffectPrototypeLoader(PrototypeLoader):
         return self._create_effect
     
     def _create_effect(self, config):
-        effect_info = []
-
         id = self._validate_config_param(config, "id")
-        effect_info.append(id)
-        effect_info.append(self._validate_config_param(config, "name", id))
-        effect_info.append(self._validate_config_param(config, "desc", id))
-        effect_info.append(0)
+        name = self._validate_config_param(config, "name", id)
+        desc = self._validate_config_param(config, "desc", id)
 
-        return Effect(*effect_info)
+        return Effect(id, name, desc, 0)

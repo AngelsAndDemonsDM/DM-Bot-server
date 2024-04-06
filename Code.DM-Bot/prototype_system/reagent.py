@@ -17,7 +17,7 @@ class ReagentPrototypeLoader(PrototypeLoader):
         reagent_info = []
 
         id = self._validate_config_param(config, "id")
-
+        
         reagent_info.append(self._validate_config_param(config, "name", id))
         reagent_info.append(self._validate_config_param(config, "desc", id))
 
