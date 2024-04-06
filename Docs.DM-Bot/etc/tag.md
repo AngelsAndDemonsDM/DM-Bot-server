@@ -17,7 +17,7 @@ str: ID тега.<br>
 <br>
 Установка ID тега.<br>
 <br>**Args:**<br>
-id (str, int, float): Новый идентификатор тега.<br>
+id str: Новый идентификатор тега.<br>
 <br>
 ## `TagsManager.find`<br>
 Ищет тег в списке тегов.<br>
