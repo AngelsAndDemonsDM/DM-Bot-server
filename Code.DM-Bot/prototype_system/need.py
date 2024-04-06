@@ -4,14 +4,13 @@ from .prototype_loader import PrototypeLoader
 
 class NeedPrototypeLoader(PrototypeLoader):
     def __init__(self, file_path):
-        super().__init__(file_path, "Need"):
-            
+        super().__init__(file_path, "Need")
     
     def _get_func(self, config):
         return self._create_need
         
     def _create_need(self, config):
-        need_info[]
+        need_info = []
         
         id = self._validate_config_param(config, "id")
         need_info.append(id)
