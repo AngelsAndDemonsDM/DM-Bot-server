@@ -6,16 +6,26 @@ import yaml
 class PrototypeLoader:
     def __new__(cls, *args, **kwargs):
         """
-        Метод для создания экземпляра класса.
+        Создаёт новый экземпляр класса. Этот метод переопределяется для предотвращения создания экземпляров абстрактного класса PrototypeLoader.
 
         Raises:
-            NotImplementedError: Вызывается, если пытаются создать экземпляр абстрактного класса PrototypeLoader.
+            NotImplementedError: Ошибка возникает в случае попытки создания экземпляра абстрактного класса.
         """
         if cls is PrototypeLoader:
             raise NotImplementedError("You cannot create an abstract 'PrototypeLoader' class. Use inheritance")
         return super().__new__(cls)
 
     def __init__(self, file_path, type: str = None):
+        """
+        Инициализатор класса PrototypeLoader.
+
+        Args:
+            file_path (str): Путь к каталогу с прототипами.
+            type (str, optional): Тип прототипа для загрузки. Если не указан, вызывается исключение.
+
+        Raises:
+            NotImplementedError: Если тип прототипа не указан.
+        """
         directory_path = os.path.join(os.getcwd(), 'Prototype.DM-Bot', file_path)
 
         if type is None:
@@ -26,6 +36,19 @@ class PrototypeLoader:
         self._prototypes = self._load_prototypes(directory_path)
 
     def _load_prototypes(self, directory_path):
+        """
+        Загружает прототипы из файлов в указанной директории.
+
+        Args:
+            directory_path (str): Путь к директории с файлами прототипов.
+
+        Returns:
+            list: Список загруженных прототипов.
+
+        Raises:
+            ValueError: Если найдены дубликаты ID прототипов.
+            TypeError: Если невозможно вызвать функцию создания прототипа.
+        """
         prototypes_list = []
 
         for root, dirs, files in os.walk(directory_path):
@@ -53,9 +76,32 @@ class PrototypeLoader:
         return prototypes_list
     
     def _get_func(self, config):
+        """
+        Возвращает функцию для создания прототипа. Этот метод должен быть переопределён в дочерних классах.
+
+        Args:
+            config (dict): Конфигурация прототипа.
+
+        Raises:
+            NotImplementedError: Если метод не переопределён.
+        """
         raise NotImplementedError(f"The method '_get_func' in class '{self.__class__.__name__}' must be overridden.")
 
     def _validate_config_param(self, config, param_name, id="Unknown prototype"):
+        """
+        Проверяет наличие и возвращает значение указанного параметра в конфигурации прототипа.
+
+        Args:
+            config (dict): Конфигурация прототипа.
+            param_name (str): Имя параметра для проверки.
+            id (str, optional): Идентификатор прототипа. Используется для сообщений об ошибках.
+
+        Returns:
+            Any: Значение параметра.
+
+        Raises:
+            ValueError: Если параметр отсутствует в конфигурации.
+        """
         param_value = config.get(param_name)
 
         if param_value is None:
@@ -64,6 +110,15 @@ class PrototypeLoader:
         return param_value
 
     def __getitem__(self, key: str):
+        """
+        Возвращает прототип по его идентификатору.
+
+        Args:
+            key (str): Идентификатор прототипа.
+
+        Returns:
+            Prototype or None: Возвращает прототип, если найден; в противном случае возвращает None.
+        """
         for prototype in self._prototypes:
             if prototype.id == key:
                 return prototype
@@ -72,4 +127,10 @@ class PrototypeLoader:
 
     @property
     def prototypes(self) -> list:
+        """
+        Свойство для получения списка всех прототипов.
+
+        Returns:
+            list: Список прототипов.
+        """
         return self._prototypes
