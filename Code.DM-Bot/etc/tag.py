@@ -1,6 +1,3 @@
-from typing import Union
-
-
 class Tag:
     def __init__(self, id: str):
         """
@@ -33,14 +30,14 @@ class Tag:
 
     # Set методы
     @id.setter
-    def id(self, id: Union[str, int, float]):
+    def id(self, id: str):
         """
         Установка ID тега.
 
         Args:
-            id (str, int, float): Новый идентификатор тега.
+            id str: Новый идентификатор тега.
         """
-        self._id = str(id)
+        self._id = id
 
 class TagsManager:
     def find(self, arr_tags: list, tag: str):

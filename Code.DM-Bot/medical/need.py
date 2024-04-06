@@ -1,6 +1,3 @@
-from typing import Union
-
-
 class Need:
     def __init__(self, id: str, name: str, description: str, max_value: int, value: int, min_value: int, count: int = -1):
         """
@@ -180,15 +177,13 @@ class Need:
         temp += self._count
         self.value = temp
         
-    def value_change(self, number: Union[int, float]):
+    def value_change(self, number: int):
         """
         Изменение текущего значения потребности на указанное число.
 
         Args:
-            number (int, float): Число, на которое изменяется текущее значение потребности.
+            number int: Число, на которое изменяется текущее значение потребности.
         """
-        number = int(number)
-
         temp = self._value
         temp += number
         self.value = temp
