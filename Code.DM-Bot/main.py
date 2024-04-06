@@ -43,11 +43,7 @@ async def main_debug():
         menu = show_menu_debug()
         
         if menu == 1: # Запуск тестов
-            anser = await run_tests()
-            if anser:
-                logging.info("Все тесты пройдены удачно")
-            else:
-                logging.error("Один из тестов был провален!")
+            run_tests()
             pause_consol()
             continue
             
