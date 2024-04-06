@@ -14,6 +14,10 @@ class BodyMedical:
             "movement": self.movement, # передвижение
             "fertility": self.fertility, # фертильность
         }
+
+        # Needs
+        # TODO
+        
     
     @property
     def cognitive(self):
