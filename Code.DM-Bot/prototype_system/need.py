@@ -2,6 +2,7 @@ from need import Need
 
 from .prototype_loader import PrototypeLoader
 
+
 class NeedPrototypeLoader(PrototypeLoader):
     def __init__(self, file_path):
         super().__init__(file_path, "Need")
