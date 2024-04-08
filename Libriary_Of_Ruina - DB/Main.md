@@ -53,7 +53,7 @@
 		
 
 ---
-<p align="center"> <img alt="Banner" width="500" height="154" src="https://codeberg.org/themanyfaceddemon/DM-Bot/src/commit/ca5148299b0615630710facebcf2d7359fb8eba7/Sprites.DM-Bot/in_process_banner.png" /></p>
+<p align="center"> <img alt="Banner" width="500" height="154" src="https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Sprites.DM-Bot/in_process_banner.png" /></p>
 
 ~~## Психологические заболевания~~
 ~~В отличии от остальных заболеваний данные - самые проблемные. Лечить их сложно, долго.~~
