@@ -53,7 +53,7 @@
 		
 
 ---
-<p align="center"> <img alt="Space Station 14" width="500" height="154" src="" /></p>
+<p align="center"> <img alt="Banner" width="500" height="154" src="" /></p>
 ~~~
 ## Психологические заболевания
 В отличии от остальных заболеваний данные - самые проблемные. Лечить их сложно, долго.
