@@ -2,11 +2,11 @@
 В данной библиотеке будут указаны основные дополнительные статусы и эффекты, которые могут появиться у игрока.
 Мы рассмотрим как **излечимые**, так и **неизлечимые**
 Распределение будет следующее:
-- Органы (Organ.md)
-	- Заболевания органов (Organ_diases.md)
-- Заболевания (Diseases.md)
-- Психологические заболевания (Psychological.md)
-- Эффекты/Баффы и дебаффы (Buffs.md)
+- [Органы (Organ.md)](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Libriary_Of_Ruina%20-%20DB/Organ.md)
+	- [Заболевания органов (Organ_diases.md)](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Libriary_Of_Ruina%20-%20DB/Organ_diases.md)
+- [Заболевания (Diseases.md)](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Libriary_Of_Ruina%20-%20DB/Diseases.md)
+- [Психологические заболевания (Psychological.md)](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Libriary_Of_Ruina%20-%20DB/Psychological.md)
+- [Эффекты/Баффы и дебаффы (Buffs.md)](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Libriary_Of_Ruina%20-%20DB/Buffs.md)
 	
 ---
 
