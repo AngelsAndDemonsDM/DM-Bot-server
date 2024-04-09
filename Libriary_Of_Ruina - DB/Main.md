@@ -58,7 +58,7 @@
 Если у вас появился вопрос, а в чем отличие *заболевание органов* и *заболеваний* это нормально. В нашей системы заболевания Органов это физические повреждения, которые явно или неявно, но заметны. В свою очередь Заболевания это различные вирусы, организмы, которые внутри. Проще объяснить вряд ли возможно.	
 
 ---
-<p align="center"> <img alt="Banner" width="1070" height="110" src="https://codeberg.org/themanyfaceddemon/DM-Bot/raw/branch/master/Sprites.DM-Bot/in_process_banner2.png" /></p>
+<p align="center"> <img alt="Banner" width="1128" height="110" src="https://codeberg.org/themanyfaceddemon/DM-Bot/raw/branch/master/Sprites.DM-Bot/in_process_banner2.png" /></p>
 
 ~~## Психологические заболевания~~
 ~~В отличии от остальных заболеваний данные - самые проблемные. Лечить их сложно, долго.~~
