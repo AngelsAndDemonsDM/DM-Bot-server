@@ -42,18 +42,16 @@ async def main_debug():
     while True:
         menu = show_menu_debug()
         
-        if menu == 1: # Запуск тестов
-            run_tests()
-            pause_consol()
-            continue
-            
-        if menu == 2: # Генерация документации
-            generate_documentation()
-            pause_consol()
-            continue
+        match menu:
+            case 1: # Запуск тестов
+                run_tests()
+                pause_consol()
+            case 2: # Генерация документации
+                generate_documentation()
+                pause_consol()
+            case 0: # Выход из программы
+                return
 
-        if menu == 0: # Выход из программы
-            return
 
 def print_table(version, created_by):
     max_created_by_length = max(len(item) for item in created_by)
@@ -85,8 +83,10 @@ async def main():
     while True:
         menu = show_menu()
         
-        if menu == 0: # Выход из программы
-            return
+        match menu:
+            case 0: # Выход из программы
+                return
+
 
 if __name__ == "__main__":
     args = parse_arguments()

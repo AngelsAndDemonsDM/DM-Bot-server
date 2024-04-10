@@ -48,35 +48,31 @@ def main() -> None:
         clear_consol()
         menu = show_menu()
 
-        if menu == 1:
-            clear_consol()
-            update()
-            pause_consol()
-            continue
-
-        if menu == 2:
-            clear_consol()
-            logging.info("Запрос ченджлога с сервера...")
-            cl = Changelog()
-            try:
-                cl_data = cl.get_changelog()
-            except Exception as err:
-                logging.error(f"Произошла ошибка при получении ченджлога: {err}")
-            print_changelog(cl_data)
-            pause_consol()
-            continue
-        
-        if menu == 3:
-            clear_consol()
-            if os.path.exists("DM-Bot\\DM-Bot.exe"):
-                subprocess.Popen("DM-Bot\\DM-Bot.exe")
-                return
-            else:
-                logging.error("Файл программы не обнаружен, просьба обновить программу!")
+        match menu:
+            case 1: # Обновить программу
+                clear_consol()
+                update()
                 pause_consol()
-
-        if menu == 0:
-            return
+            case 2: # Просмотр ченджлога
+                clear_consol()
+                logging.info("Запрос ченджлога с сервера...")
+                cl = Changelog()
+                try:
+                    cl_data = cl.get_changelog()
+                except Exception as err:
+                    logging.error(f"Произошла ошибка при получении ченджлога: {err}")
+                print_changelog(cl_data)
+                pause_consol()
+            case 3: # Запуск программы
+                clear_consol()
+                if os.path.exists("DM-Bot\\DM-Bot.exe"):
+                    subprocess.Popen("DM-Bot\\DM-Bot.exe")
+                    return
+                else:
+                    logging.error("Файл программы не обнаружен, просьба обновить программу!")
+                    pause_consol()
+            case 0:
+                return
 
 if __name__ == "__main__":
     logger = logging.getLogger()
