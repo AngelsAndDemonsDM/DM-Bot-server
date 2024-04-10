@@ -8,6 +8,7 @@
 - [Психологические заболевания (Psychological.md)](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Libriary_Of_Ruina%20-%20DB/Psychological.md)
 - [Эффекты/Баффы и дебаффы (Buffs.md)](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Libriary_Of_Ruina%20-%20DB/Buffs.md)
 
+---
 Также отмечу, что мы распределяем болезни по тяжести. Кровопотеря может быть легкая, средняя, тяжелая, как самый легкий и понятный пример. Далеко не каждая болезнь будет проходить "заметно", к примеру грипп всегда "легкий", но если вы его Абсолютно не лечили, в один момент вы обнаружите, что он стал "тяжелым" и вам очень плохо.
 ---
 
