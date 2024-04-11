@@ -3,9 +3,12 @@
 Мы рассмотрим как **излечимые**, так и **неизлечимые**
 Распределение будет следующее:
 - [Органы (Organ.md)](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Libriary_Of_Ruina%20-%20DB/Organ.md)
-	- [Заболевания органов (Organ_diases.md)](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Libriary_Of_Ruina%20-%20DB/Organ_diases.md)
+- [Конечности(Libms.md)](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Libriary_Of_Ruina%20-%20DB/Limbs.md)<br>
+<br>
+- [Заболевания органов (Organ_diases.md)](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Libriary_Of_Ruina%20-%20DB/Organ_diases.md)
 - [Заболевания (Diseases.md)](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Libriary_Of_Ruina%20-%20DB/Diseases.md)
-- [Психологические заболевания (Psychological.md)](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Libriary_Of_Ruina%20-%20DB/Psychological.md)
+- [Психологические заболевания (Psychological.md)](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Libriary_Of_Ruina%20-%20DB/Psychological.md)<br>
+<br>
 - [Эффекты/Баффы и дебаффы (Buffs.md)](https://codeberg.org/themanyfaceddemon/DM-Bot/src/branch/master/Libriary_Of_Ruina%20-%20DB/Buffs.md)
 
 ---
@@ -22,18 +25,23 @@
 - Описание
 - Базовая эффективность
 	- Макс HP. Минимальное всегда равно 0
-
+<br>
+<br>
 ## Конечности
 Пока что все будут двуногими, двурукими, человеками. Значит у нас будет:
 - Название
 - Описание
 - Базовая эффективность
 	- Макс HP. Минимальное всегда равно 0
+<br>
+<br>
 
 Мы не будем разделять легкие, почки на две части одного и того же. Пока что.
 Здесь также появится разделение на *всегда имеющиеся* и *дополнительные*. Что такое *дополнительные*? 
 Далеко не у каждого существа есть хвост, крылья и так далее. Зачастую данное свойственно расам, отличающихся от человеческой. Это касается и органов и конечостей.
 Пока что дополнительные вне времени и пространства
+<br>
+<br>
 ## Заболевания 
 Каждые из данных *заболеваний* будут содержать следующее:
 - Название
