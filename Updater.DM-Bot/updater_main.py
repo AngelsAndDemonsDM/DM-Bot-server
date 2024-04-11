@@ -2,9 +2,8 @@ import logging
 import os
 import subprocess
 
-from colorlog import ColoredFormatter
-
 from changelog import Changelog, print_changelog
+from colorlog import ColoredFormatter
 from updater import get_version, update
 
 
