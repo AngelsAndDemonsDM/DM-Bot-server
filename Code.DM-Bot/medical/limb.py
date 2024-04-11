@@ -1,5 +1,6 @@
-from .organ import Organ
 from .disease import Disease
+from .organ import Organ
+
 
 class Limb:
     def __init__(self) -> None:
