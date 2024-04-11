@@ -121,3 +121,42 @@ class Limb:
                     return True
                 
                 return False
+
+    def add_disease(self, value: Disease, check_by_id: bool) -> bool:
+        match check_by_id:
+            case True:
+                flag: bool = True
+                for disease in self._diseases:
+                    if disease.id == value.id:
+                        flag = False
+                        break
+                
+                if flag:
+                    self._diseases.append(value)
+                    return True
+                else:
+                    return False
+            
+            case False:
+                if value not in self._diseases:
+                    self._diseases.append(value)
+                    return True
+                
+                return False
+    
+    def rm_disease(self, value: Disease, check_by_id: bool) -> bool:
+        match check_by_id:
+            case True:
+                for disease in self._diseases:
+                    if disease.id == value.id:
+                        self._diseases.remove(disease)
+                        return True
+                
+                return False
+            
+            case False:
+                if value in self._diseases:
+                    self._diseases.remove(value)
+                    return True
+                
+                return False
