@@ -59,8 +59,6 @@ def format_docstring(name, docstring) -> str:
 
     return formatted_docstring
 
-
-
 def generate_documentation():
     """
     Генерирует документацию по файлам в указанной папке.
