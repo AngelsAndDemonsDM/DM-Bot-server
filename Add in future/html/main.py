@@ -15,8 +15,8 @@ def home():
 
 @socketio.on('increment_score')
 def handle_increment_score():
-    game_state['score'] += 1
-    socketio.emit('update_score', game_state['score'])
+    game_state["score"] += 1
+    socketio.emit('update_score', game_state["score"])
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
