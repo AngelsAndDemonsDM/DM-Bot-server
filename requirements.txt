@@ -1,6 +1,7 @@
 aiofiles
 colorlog
 discord.py
+flask
 imageio
 isort
 nuitka
