@@ -2,6 +2,7 @@ aiofiles
 colorlog
 discord.py
 flask
+flask-socketio
 imageio
 isort
 nuitka
