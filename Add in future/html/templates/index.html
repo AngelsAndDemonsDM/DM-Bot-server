@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Меню приложения</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
 
 <body>
@@ -15,11 +16,28 @@
     </div>
 
     <h1>Main html</h1>
-    <button class="btn">Кнопка</button>
+    <h1>Счет: <span id="score">{{ game_state['score'] }}</span></h1>
+    <p>{{ game_state['message'] }}</p>
+
+    <button class="btn" onclick="incrementScore()">Увеличить счет</button>
+
+
 </body>
 
 <div class="footer">
     <p>DM-Bot</p>
 </div>
+
+<script type="text/javascript">
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    socket.on('update_score', function(score) {
+        document.getElementById('score').textContent = score;
+    });
+
+    function incrementScore() {
+        socket.emit('increment_score');
+    }
+</script>
 
 </html>
