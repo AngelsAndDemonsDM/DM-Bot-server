@@ -18,7 +18,6 @@
 
     <h1>Кнопки управления ботом</h1>
     <button class="btn" onclick="startBot()">Запуск бота</button>
-    <button class="btn" onclick="shutdownBot()">Выключение бота</button>
     <br><br>
     <button class="btn" onclick="statusBot()">Проверить статус бота</button>
 </body>
@@ -36,10 +35,6 @@
 
     function startBot() {
         socket.emit('start_bot');
-    }
-
-    function shutdownBot() {
-        socket.emit('shutdown_bot');
     }
 
     function statusBot() {
