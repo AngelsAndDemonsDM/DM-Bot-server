@@ -3,8 +3,7 @@
 ## `Effect.__init__`<br>
 Инициализация объекта эффекта.<br>
 <br>**Args:**<br>
-id (str, optional): Идентификатор эффекта. По умолчанию None.<br>
-power (float, optional): Сила эффекта. По умолчанию None.<br>
+power (float): Сила эффекта.<br>
 tick (int, optional): Количество тиков до завершения эффекта. По умолчанию -1.<br>
 <br>
 ## `Effect.update`<br>

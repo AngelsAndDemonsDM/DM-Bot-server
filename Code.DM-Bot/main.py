@@ -5,7 +5,7 @@ import os
 import sys
 
 from colorlog import ColoredFormatter
-from etc.auto_docs import generate_documentation
+from etc.auto_docs import AutoDocs
 from main_vars import VERSION
 from tests.run_tests import run_tests
 
@@ -25,12 +25,15 @@ def parse_arguments():
 def show_menu_debug():
     while True:
         clear_consol()
+        
         print("DEBUG MODE!\n")
         print("Меню выбора:")
         print("1. Запуск тестов")
         print("2. Создать документацию")
         print("0. Выход")
+        
         choice = input("Введите число: ")
+        
         if choice in {"0", "1", "2"}:
             return int(choice)
         else:
@@ -46,9 +49,11 @@ async def main_debug():
             case 1: # Запуск тестов
                 run_tests()
                 pause_consol()
+
             case 2: # Генерация документации
-                generate_documentation()
+                AutoDocs().generate_documentation()
                 pause_consol()
+
             case 0: # Выход из программы
                 return
 
@@ -57,20 +62,26 @@ def print_table(version, created_by):
     max_created_by_length = max(len(item) for item in created_by)
     version_length = len(version)
     top_bottom_line_width = max(version_length, max_created_by_length) + 15
+    
     print("*" + "-" * (top_bottom_line_width) + "*")
     print("| Version -", version, " " * (top_bottom_line_width - version_length - 13), "|")
     print("*" + "-" * (top_bottom_line_width) + "*")
+    
     for creator in created_by:
         print("| Created by:", creator, " " * (top_bottom_line_width - len(creator) - 15), "|")
+    
     print("*" + "-" * (top_bottom_line_width) + "*\n")
 
 def show_menu():
     while True:
         clear_consol()
+        
         print_table(VERSION, ["Многоликий демон - Код", "Vergrey - Оформление, помощь с кодом"])
         print("Меню выбора:")
         print("0. Выход")
+
         choice = input("Введите число: ")
+
         if choice in {"0"}:
             return int(choice)
         else:
@@ -91,6 +102,7 @@ async def main():
 if __name__ == "__main__":
     args = parse_arguments()
     version = args.version
+    
     if version:
         print(VERSION)
         sys.exit()
@@ -98,6 +110,7 @@ if __name__ == "__main__":
     debug = args.debug
 
     logger = logging.getLogger()
+    
     if debug:
         logger.setLevel(logging.DEBUG)        
     else:

@@ -5,17 +5,6 @@ import pickle
 
 
 class FileWork:
-    def __new__(cls, *args, **kwargs):
-        """
-        Метод для создания экземпляра класса.
-
-        Raises:
-            NotImplementedError: Вызывается, если пытаются создать экземпляр абстрактного класса FileWork.
-        """
-        if cls is FileWork:
-            raise NotImplementedError("You cannot create an abstract 'FileWork' class. Use inheritance")
-        return super().__new__(cls)
-
     def __init__(self, file_path) -> None:
         """
         Инициализация объекта FileWork.
