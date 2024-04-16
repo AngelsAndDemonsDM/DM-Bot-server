@@ -13,7 +13,7 @@ class AutoDocs:
             self._input_folder = os.path.join(os.getcwd(), input_folder)
         
         if output_folder is None:
-            self._output_folder = os.path.join(os.getcwd(), 'Code.DM-Bot')
+            self._output_folder = os.path.join(os.getcwd(), 'Docs.DM-Bot')
         else:
             self._output_folder = os.path.join(os.getcwd(), output_folder)
         
