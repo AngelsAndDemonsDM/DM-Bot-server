@@ -5,11 +5,9 @@ class Need(BaseObject):
     def __init__(self, id: str, name: str, description: str, max_value: int, value: int, min_value: int, count: int = -1):
         """
         Инициализация объекта Need.
+        Наследуется от BaseObject.
 
-        Args:
-            id (str): Идентификатор потребности. 
-            name (str): Наименование потребности. 
-            desc (str): Описание потребности. 
+        Attributes:
             value (int): Текущее значение потребности. 
             max_value (int): Максимальное значение потребности. 
             min_value (int): Минимальное значение потребности.
@@ -109,7 +107,7 @@ class Need(BaseObject):
         """
         self._count = new_count
     
-    # Методы класса
+    # Class metods
     def update(self):
         """
         Изменение текущего значения потребности на значение дельты изменения за ход/тик.
@@ -118,13 +116,13 @@ class Need(BaseObject):
         temp += self._count
         self.value = temp
         
-    def value_change(self, number: int):
+    def value_change(self, value: int):
         """
         Изменение текущего значения потребности на указанное число.
 
         Args:
-            number int: Число, на которое изменяется текущее значение потребности.
+            value (int): Число, на которое изменяется текущее значение потребности.
         """
         temp = self._value
-        temp += number
+        temp += value
         self.value = temp
