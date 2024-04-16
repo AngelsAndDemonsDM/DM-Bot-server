@@ -12,7 +12,7 @@ class BaseObject:
         self._name: str = name
         self._description: str = description
     
-    # get metods
+    # Get metods
     @property
     def id(self) -> str:
         """
@@ -40,7 +40,7 @@ class BaseObject:
         """
         return self._description
 
-    # set metods
+    # Set metods
     @id.setter
     def id(self, value: str):
         self._id = value
