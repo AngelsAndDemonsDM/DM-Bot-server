@@ -8,6 +8,6 @@ del DM-Bot.exe /q
 python -m nuitka --remove-output --jobs=4 --standalone --onefile --no-pyi-file --windows-icon-from-ico=Sprites.DM-Bot/icons/exe-main-icon.png Code.DM-Bot/main.py
 ren main.exe DM-Bot.exe
 
-python create_zip.py --file1=DM-Bot.exe --output=DM-Bot
+python pack.py --file1=DM-Bot.exe --output=DM-Bot
 
 exit
