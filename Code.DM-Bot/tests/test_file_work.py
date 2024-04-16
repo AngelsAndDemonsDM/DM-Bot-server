@@ -1,8 +1,7 @@
 import os
 import unittest
 
-from etc.file_work import FileWork
-
+from base_classes.file_work import FileWork
 
 class TestClassFileWork(FileWork):
     pass
