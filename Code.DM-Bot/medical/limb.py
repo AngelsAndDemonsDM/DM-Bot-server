@@ -1,7 +1,9 @@
+from base_classes.base_object import BaseObject
+
 from .disease import Disease
-from .organ import Organ
 from .implant import Implant
-from etc.base_classes.base_object import BaseObject
+from .organ import Organ
+
 
 class Limb(BaseObject):
     def __init__(self, id: str, name: str, description: str) -> None:

@@ -1,5 +1,6 @@
+from base_classes.base_object import BaseObject
 from effect import Effect
-from etc.base_classes.base_object import BaseObject
+
 
 class Disease(BaseObject):
     def __init__(self, id: str, name: str, description: str) -> None:
