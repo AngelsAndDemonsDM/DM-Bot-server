@@ -1,6 +1,8 @@
+from etc.base_classes import BaseObject
+
 from .reagent_state.base_reagent_state import BaseReagentState
 from .reagent_state.reagent_enum import ReagentEnum
-from etc.base_classes import BaseObject
+
 
 class Reagent(BaseObject):
     def __init__(self, id: str, name: str, description: str, boiling_temp: float, crystal_temp: float, temp: float, action: list[BaseReagentState] = None) -> None:
