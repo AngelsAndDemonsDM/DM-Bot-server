@@ -1,5 +1,5 @@
 from base_classes.base_object import BaseObject
-from effect import Effect
+from etc.effect import Effect
 
 
 class Disease(BaseObject):
