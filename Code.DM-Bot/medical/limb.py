@@ -14,6 +14,7 @@ class Limb:
         self._diseases: list[Disease]
 
         self._cur_hp: float
+        self._cur_efficiency: float
 
     # get metods
     @property
@@ -32,6 +33,10 @@ class Limb:
     def efficiency_type(self) -> str:
         return self._efficiency_type
     
+    @property
+    def efficiency(self) -> float:
+        return self._cur_efficiency
+
     @property
     def max_hp(self) -> float:
         return self._max_hp
@@ -161,3 +166,6 @@ class Limb:
                     return True
                 
                 return False
+
+    def update_efficiency(self) -> None:
+        ...
