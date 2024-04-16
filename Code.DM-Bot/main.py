@@ -5,7 +5,7 @@ import os
 import sys
 
 from colorlog import ColoredFormatter
-from etc.auto_docs import generate_documentation
+from etc.auto_docs import AutoDocs
 from main_vars import VERSION
 from tests.run_tests import run_tests
 
@@ -47,7 +47,7 @@ async def main_debug():
                 run_tests()
                 pause_consol()
             case 2: # Генерация документации
-                generate_documentation()
+                AutoDocs().generate_documentation()
                 pause_consol()
             case 0: # Выход из программы
                 return

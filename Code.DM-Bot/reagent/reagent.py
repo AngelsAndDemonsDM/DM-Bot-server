@@ -1,12 +1,22 @@
+from etc.base_classes.base_object import BaseObject
+
 from .reagent_state.base_reagent_state import BaseReagentState
 from .reagent_state.reagent_enum import ReagentEnum
 
 
-class Reagent:
-    def __init__(self, id: str, name: str, description: str, boiling_temp: float, crystal_temp: float, temp: float, action: list[BaseReagentState] = None):
-        self._id = id
-        self._name = name
-        self._description = description
+class Reagent(BaseObject):
+    def __init__(self, id: str, name: str, description: str, boiling_temp: float, crystal_temp: float, temp: float, action: list[BaseReagentState] = None) -> None:
+        """
+        Инициализация объекта Reagent.
+        Наследуется от BaseObject.
+
+        Attributes:
+            boiling_temp (float): Температура кипения.
+            crystal_temp (float): Температура кристализации.
+            temp (float): Текущая температура
+            action (list[BaseReagentState], optional): Бля. По умолчанию None. (Я не помню)
+        """
+        super().__init__(id, name, description)
         
         self._boiling_temp = boiling_temp
         self._crystal_temp = crystal_temp
@@ -16,18 +26,7 @@ class Reagent:
         self._action: list[BaseReagentState] = action if action is not None else [] 
         self.update_state()
 
-    @property
-    def id(self) -> str:
-        return self._id
-    
-    @property
-    def name(self) -> str:
-        return self._name
-    
-    @property
-    def description(self) -> str:
-        return self._description
-
+    # Get metods
     @property
     def boiling_temp(self) -> float:
         return self._boiling_temp
@@ -40,7 +39,7 @@ class Reagent:
     def state(self) -> ReagentEnum:
         return self._state
 
-
+    # Class metods
     def delta_temp(self, value: float) -> None:
         self._temp += value
 

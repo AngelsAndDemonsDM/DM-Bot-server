@@ -1,56 +1,25 @@
-class Need:
+from etc.base_classes.base_object import BaseObject
+
+
+class Need(BaseObject):
     def __init__(self, id: str, name: str, description: str, max_value: int, value: int, min_value: int, count: int = -1):
         """
         Инициализация объекта Need.
+        Наследуется от BaseObject.
 
-        Args:
-            id (str): Идентификатор потребности. 
-            name (str): Наименование потребности. 
-            desc (str): Описание потребности. 
+        Attributes:
             value (int): Текущее значение потребности. 
             max_value (int): Максимальное значение потребности. 
             min_value (int): Минимальное значение потребности.
             count (int, optional): Дельта изменения за ход/тик. По умолчанию -1.
         """
-        self._id = id
-        self._name = name
-        self._description = description
+        super().__init__(id, name, description)
         self._max_value = max_value
         self._value = value
         self._min_value = min_value
         self._count = count
 
     # Get методы
-    @property
-    def id(self) -> str:
-        """
-        Получение идентификатора потребности.
-
-        Returns:
-            str: Идентификатор потребности.
-        """
-        return self._id
-    
-    @property
-    def name(self) -> str:
-        """
-        Получение наименования потребности.
-
-        Returns:
-            str: Наименование потребности.
-        """
-        return self._name
-    
-    @property
-    def description(self) -> str:
-        """
-        Получение описания потребности.
-
-        Returns:
-            str: Описание потребности.
-        """
-        return self._description
-    
     @property
     def value(self) -> int:
         """
@@ -92,36 +61,6 @@ class Need:
         return self._count
     
     # Set методы
-    @id.setter
-    def id(self, new_id: str):
-        """
-        Установка идентификатора потребности.
-
-        Args:
-            id (str): Идентификатор потребности.
-        """
-        self._id = str(new_id)
-    
-    @name.setter
-    def name(self, new_name: str):
-        """
-        Установка наименования потребности.
-
-        Args:
-            name (str): Наименование потребности.
-        """
-        self._name = str(new_name)
-    
-    @description.setter
-    def description(self, new_description):
-        """
-        Установка описания потребности.
-
-        Args:
-            desc (str): Описание потребности.
-        """
-        self._description = new_description
-    
     @value.setter
     def value(self, new_value: int):
         """
@@ -168,7 +107,7 @@ class Need:
         """
         self._count = new_count
     
-    # Методы класса
+    # Class metods
     def update(self):
         """
         Изменение текущего значения потребности на значение дельты изменения за ход/тик.
@@ -177,13 +116,13 @@ class Need:
         temp += self._count
         self.value = temp
         
-    def value_change(self, number: int):
+    def value_change(self, value: int):
         """
         Изменение текущего значения потребности на указанное число.
 
         Args:
-            number int: Число, на которое изменяется текущее значение потребности.
+            value (int): Число, на которое изменяется текущее значение потребности.
         """
         temp = self._value
-        temp += number
+        temp += value
         self.value = temp
