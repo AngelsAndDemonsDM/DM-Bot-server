@@ -1,11 +1,9 @@
 from effect import Effect
+from etc.base_classes.base_object import BaseObject
 
-
-class Disease:
-    def __init__(self) -> None:
-        self._id: str
-        self._name: str
-        self._description: str
+class Disease(BaseObject):
+    def __init__(self, id: str, name: str, description: str) -> None:
+        super().__init__(id, name, description)
         self._effect: list[Effect]
         self._max_stage: int
         self._tick_per_stage: int
