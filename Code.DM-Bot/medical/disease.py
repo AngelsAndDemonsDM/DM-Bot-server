@@ -11,6 +11,11 @@ class Disease(BaseObject):
         self._cur_stage: int
         self._cur_tick: int
     
+    # Get metods
+    @property
+    def effect(self) -> list[Effect]:
+        return self._effect
+
     def update(self):
         self._cur_tick += 1
         if self._cur_tick >= self._tick_per_stage:
