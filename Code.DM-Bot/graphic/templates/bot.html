@@ -9,49 +9,65 @@
 </head>
 
 <body>
-    <div>
-        <ul>
-            <li><a href="/">Главная</a></li>
-            <li><a href="/bot">Управление ботом</a></li>
-        </ul>
+    <ul>
+        <li><a href="/">Главная</a></li>
+        <li><a href="/bot">Управление ботом</a></li>
+    </ul>
+
+    <div class="card">
+        <div class="card-content">
+            <h1>Кнопки управления ботом</h1>
+            <button class="btn" onclick="startBot()">Запуск бота</button>
+            <br><br>
+            <form method="post" autocomplete="off" onsubmit="saveToken()">
+                <label for="token">Ввести токен:</label>
+                <input type="text" id="token" name="token" required class="btn">
+                <input class="btn" type="submit" value="Set Token">
+            </form>
+        </div>
     </div>
 
-    <h1>Кнопки управления ботом</h1>
-    <button class="btn" onclick="startBot()">Запуск бота</button>
-    <br><br>
-    <button class="btn" onclick="statusBot()">Проверить статус бота</button>
-    <br><br>
-    <form method="post">
-        <label for="token">Ввести токен:</label>
-        <input type="text" id="token" name="token" required>
-        <input class ="btn" type="submit" value="Set Token">
-    </form>
+    <div class="footer">
+        <p>Статус: <span id="bot_status">{{ bot_status|safe }}</span></p>
+        <p>Токен: <span id="bot_create">{{ bot_create|safe }}</span></p>
+    </div>
+
+    <script type="text/javascript">
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        // Загрузка сохраненного токена при загрузке страницы
+        window.onload = function() {
+            var savedToken = localStorage.getItem('savedToken');
+            if (savedToken) {
+                document.getElementById('token').value = savedToken;
+            }
+        }
+
+        socket.on('update_bot_status', function(bot_status) {
+            document.getElementById('bot_status').innerHTML = bot_status;
+        });
+
+        // Сохранение токена в localStorage
+        function saveToken() {
+            var token = document.getElementById('token').value;
+            localStorage.setItem('savedToken', token);
+        }
+
+        setInterval(statusBot, 5000);
+
+        function startBot() {
+            socket.emit('start_bot');
+        }
+
+        function shutdownBot() {
+            socket.emit('shutdown_bot');
+        }
+
+        function statusBot() {
+            socket.emit('status_bot');
+        }
+    </script>
 
 </body>
-
-<div class="footer">
-    <p>Статус: <span id="bot_status">{{ bot_status|safe }}</p>
-    <p>Токен: {{ bot_create|safe }}</p>
-</div>
-
-<script type="text/javascript">
-    var socket = io.connect('http://' + document.domain + ':' + location.port);
-
-    socket.on('update_bot_status', function(bot_status) {
-        document.getElementById('bot_status').innerHTML = bot_status
-    });
-
-    function startBot() {
-        socket.emit('start_bot');
-    }
-
-    function shutdownBot() {
-        socket.emit('shutdown_bot');
-    }
-
-    function statusBot() {
-        socket.emit('status_bot');
-    }
-</script>
 
 </html>
