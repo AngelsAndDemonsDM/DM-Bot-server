@@ -1,4 +1,4 @@
-from etc.base_classes.base_object import BaseObject
+from base_classes.base_object import BaseObject
 
 
 class Effect(BaseObject):

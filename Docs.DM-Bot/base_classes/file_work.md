@@ -1,10 +1,5 @@
 # Документация по файлу `file_work.py`
 
-## `FileWork.__new__`<br>
-Метод для создания экземпляра класса.<br>
-<br>**Raises:**<br>
-NotImplementedError: Вызывается, если пытаются создать экземпляр абстрактного класса FileWork.<br>
-<br>
 ## `FileWork.__init__`<br>
 Инициализация объекта FileWork.<br>
 <br>**Args:**<br>

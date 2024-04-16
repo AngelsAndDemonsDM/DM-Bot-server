@@ -1,4 +1,4 @@
-from etc.base_classes.base_object import BaseObject
+from base_classes.base_object import BaseObject
 
 from .reagent_state.base_reagent_state import BaseReagentState
 from .reagent_state.reagent_enum import ReagentEnum
