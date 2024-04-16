@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import logging
 import os
+import subprocess
 import sys
 
 from colorlog import ColoredFormatter
@@ -30,11 +31,12 @@ def show_menu_debug():
         print("Меню выбора:")
         print("1. Запуск тестов")
         print("2. Создать документацию")
+        print("3. Запустить UI")
         print("0. Выход")
         
         choice = input("Введите число: ")
         
-        if choice in {"0", "1", "2"}:
+        if choice in {"0", "1", "2", "3"}:
             return int(choice)
         else:
             print("Неверное число. Просьба повторить ввод.")
@@ -52,6 +54,10 @@ async def main_debug():
 
             case 2: # Генерация документации
                 AutoDocs().generate_documentation()
+                pause_consol()
+
+            case 3: # Запуск UI
+                subprocess.Popen("start cmd /k python Code.DM-Bot/graphic/server_start.py --debug & exit", shell=True)
                 pause_consol()
 
             case 0: # Выход из программы
