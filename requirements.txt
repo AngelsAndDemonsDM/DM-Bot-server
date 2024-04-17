@@ -6,6 +6,6 @@ flask-socketio
 imageio
 isort
 nuitka
-pyminizip
+pyzipper
 pyyaml
 requests

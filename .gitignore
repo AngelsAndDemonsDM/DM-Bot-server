@@ -133,5 +133,8 @@ data/*
 # VS
 .vs/*
 
-# Build exe
+# Build
 *.exe
+DM-Bot/*
+DM-Bot.zip
+
