@@ -36,7 +36,7 @@ if __name__ == "__main__":
     
     if version:
         print(VERSION)
-        sys.exit()
+        sys.exit(0)
     
     logger = logging.getLogger()
     if debug:
