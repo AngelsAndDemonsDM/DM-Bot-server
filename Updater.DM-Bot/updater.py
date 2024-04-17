@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import subprocess
 import zipfile
 
@@ -76,15 +77,16 @@ def check_or_create_directory(directory):
 def get_version(directory: str = "DM-Bot", filename: str = "DM-Bot.exe") -> str:
     version: str = "0.0.-1"
     check_or_create_directory(directory)
+
     if check_file_in_directory(directory, filename):
         result = subprocess.run([f"{directory}/{filename}", "--version"], capture_output=True, text=True)
         if result.returncode == 0:
             version = result.stdout.strip()
+
     return version
 
 def update() -> None:
-    directory = "DM-Bot"
-    exe_filename = "DM-Bot.exe"
+    destination_folder = "DM-Bot"
     zip_filename = "DM-Bot.zip"
 
     version = get_version()
@@ -105,23 +107,22 @@ def update() -> None:
         logging.info("Начинаю скачивать зашифрованный архив с сервера...")
         encrypted_zip_content = updater.download_new_exe()
 
-        encrypted_zip_path = os.path.join(directory, zip_filename)
-        with open(encrypted_zip_path, 'wb') as zip_file:
+        with open(zip_filename, 'wb') as zip_file:
             zip_file.write(encrypted_zip_content)
         logging.info("Архив сохранён!")
 
-        if os.path.exists(exe_filename):
-            logging.info("Удаление старого файла DM-Bot.exe")
-            os.remove(exe_filename)
-         
+        if os.path.exists(destination_folder):
+            logging.info("Удаление старой версии")
+            shutil.rmtree(destination_folder)
+        
         logging.info("Начало распаковки...")
-        with zipfile.ZipFile(encrypted_zip_path, 'r') as zip_ref:
-            zip_ref.extractall(directory, pwd=b"1Ei2ttDIBadNmDHqh3HRIWpipnxh7DwNM")
+        with zipfile.ZipFile(zip_filename, 'r') as zip_ref:
+            zip_ref.extractall(destination_folder, pwd=b"1Ei2ttDIBadNmDHqh3HRIWpipnxh7DwNM")
 
         logging.info("Архив распакован!")
-        os.remove(encrypted_zip_path)
+        os.remove(zip_filename)
 
-        logging.info("Файл DM-Bot.exe успешно обновлен.")
+        logging.info("Программа успешно обновлена")
     except Exception as err:
         logging.error(f"Получена ошибка при попытке обновления: {err}")
         return
