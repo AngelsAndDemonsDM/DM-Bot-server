@@ -61,6 +61,8 @@ if __name__ == "__main__":
     )
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
-
-    webbrowser.open("http://127.0.0.1:5000")
+    
+    if not debug:
+        webbrowser.open("http://127.0.0.1:5000")
+    
     socketio.run(app, debug=debug, allow_unsafe_werkzeug=True)
