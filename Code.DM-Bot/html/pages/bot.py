@@ -1,5 +1,6 @@
-from flask import render_template
 from html.init_socketio import socketio
+
+from flask import render_template
 
 
 def bot_main_page():

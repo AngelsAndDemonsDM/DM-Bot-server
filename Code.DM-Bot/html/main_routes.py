@@ -1,4 +1,5 @@
 from flask import Blueprint
+
 from .pages.about import about
 from .pages.bot import bot_main_page
 from .pages.index import index

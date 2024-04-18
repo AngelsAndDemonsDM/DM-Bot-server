@@ -2,12 +2,12 @@ import argparse
 import logging
 import sys
 import webbrowser
+from html.init_socketio import socketio
+from html.main_routes import main_bp
 
 from colorlog import ColoredFormatter
 from flask import Flask
 from main_vars import VERSION
-from html.main_routes import main_bp
-from html.init_socketio import socketio
 
 app = Flask(__name__)
 
