@@ -5,28 +5,23 @@ import webbrowser
 
 from colorlog import ColoredFormatter
 from flask import Flask
-from flask_socketio import SocketIO
 from main_vars import VERSION
-from pages.about import about
-from pages.index import index
+from html.main_routes import main_bp
+from html.init_socketio import socketio
 
 app = Flask(__name__)
-socketio = SocketIO(app)
 
+socketio.init_app(app)
+
+# Blueprint
+app.register_blueprint(main_bp)
+
+# Argument parsing
 def parse_arguments():
     parser = argparse.ArgumentParser(description='DM-Bot')
     parser.add_argument('--debug', action='store_true', help='Включить режим отладки')
     parser.add_argument('--version', action='store_true', help='Возвращает версию приложения')
     return parser.parse_args()
-
-# Pages
-@app.route('/')
-def home_page():
-    return index()
-
-@app.route('/about')
-def about_page():
-    return about()
 
 # Start program
 if __name__ == "__main__":
