@@ -74,14 +74,19 @@
 <script type="text/javascript">
     var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-    // Обновление статуса бота
-    setInterval(statusBot, 5000); // Фактически обновление каждые 5 секунд
-    
-    function statusBot() {
+    // Обновление статуса бота //
+    document.addEventListener("DOMContentLoaded", onPageLoad);
+
+    function onPageLoad() { // Создаём цикл обновлений на каждые 5 секунд
+        setInterval(statusBot, 5000);
+        statusBot();
+    }
+
+    function statusBot() { // Функция запроса статуса
         socket.emit('requestBotStatus');
     }
 
-    socket.on('getBotStatus', function(data) {
+    socket.on('getBotStatus', function(data) { // Обработка статуса
         var botStatusElement = document.getElementById("botStatus");
 
         if (data == true) {
@@ -95,13 +100,14 @@
         }
     })
 
-    // Настройка токена для бота
-    function sendToken() {
+    // Настройка токена для бота //
+    function sendToken() { // Отправка даты на обработку для кода
         var botToken = document.getElementById("botToken").value;
         socket.emit('sendToken', botToken);
     }
 
-    socket.on('anserFromPy', function(data) {
+    // Связь бота с пользователем //
+    socket.on('anserFromPy', function(data) { // Обновляем поле и говорим что хотели
         document.getElementById("anserFromPy").textContent = data;
     });
 </script>
