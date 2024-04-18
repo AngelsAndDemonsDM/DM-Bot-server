@@ -11,21 +11,38 @@ from server_info import ServerInfo
 
 class Updater(ServerInfo):
     def __init__(self) -> None:
+        """
+        Инициализация объекта класса Updater.
+        Вызывает конструктор родительского класса ServerInfo и устанавливает текущую версию программы.
+        """
         super().__init__()
         self._version = self.get_version()
 
     @property
     def version(self) -> str:
+        """
+        Возвращает текущую версию программы.
+        """
         return self._version
 
     def compare_versions(self, version1: str, version2: str) -> int:
-        if not version1 and not version2:
+        """
+        Сравнивает две версии и возвращает результат сравнения.
+
+        Args:
+            version1 (str): Первая версия для сравнения.
+            version2 (str): Вторая версия для сравнения.
+
+        Returns:
+            int: 1, если version1 > version2; -1, если version1 < version2; 0, если version1 == version2.
+        """
+        if version1 is None and version2 is None:
             return 0
         
-        if not version1:
+        if version1 is None:
             return -1
         
-        if not version2:
+        if version2 is None:
             return 1
         
         parts1 = [int(part) for part in version1.split('.')]
@@ -45,6 +62,15 @@ class Updater(ServerInfo):
         return 0
     
     def is_new_version(self) -> bool:
+        """
+        Проверяет, является ли версия на сервере новее текущей.
+
+        Raises:
+            ValueError: Если 'version' отсутствует в _info_json.
+
+        Returns:
+            bool: True, если есть новая версия; False, если версия актуальна.
+        """
         if 'version' not in self._info_json:
             raise ValueError("\"version\" not found on server")
         
@@ -53,6 +79,21 @@ class Updater(ServerInfo):
         return False
 
     def download(self, file_name, chunk_size=8192, retries=3, timeout=30):
+        """
+        Скачивает файл с сервера.
+
+        Args:
+            file_name (str): Имя файла для сохранения.
+            chunk_size (int): Размер части для скачивания.
+            retries (int): Количество попыток скачивания.
+            timeout (int): Время ожидания ответа сервера.
+
+        Raises:
+            RequestException: Если скачивание не удалось после всех попыток.
+
+        Returns:
+            str: Имя скачанного файла.
+        """
         if 'download' not in self._info_json:
             raise ValueError("\"download\" not found in json_data")
         
@@ -76,10 +117,15 @@ class Updater(ServerInfo):
         raise RequestException(f"Failed to download after {retries} retries.")
 
     def update(self):
+        """
+        Обновляет программу до новой версии.
+
+        Обновляет программу, скачивая архив с сервера, распаковывая его и удаляя старую версию.
+        """
         destination_folder = "DM-Bot"
         zip_filename = "DM-Bot.zip"
 
-        self._version = self.get_version
+        self._version = self.get_version()
 
         try:
             is_new = self.is_new_version()
@@ -96,7 +142,7 @@ class Updater(ServerInfo):
                 logging.info("Удаление старой версии")
                 shutil.rmtree(destination_folder)
 
-            logging.info("Начинаю скачивать зашифрованный архив с сервера...")
+            logging.info("Начинаю скачивать архив с сервера...")
             self.download(file_name=zip_filename)
             
             logging.info("Начало распаковки...")
@@ -114,6 +160,16 @@ class Updater(ServerInfo):
 
     @staticmethod
     def check_file_in_directory(directory, filename):
+        """
+        Проверяет наличие файла в указанной директории.
+
+        Args:
+            directory (str): Директория для поиска файла.
+            filename (str): Имя файла для проверки.
+
+        Returns:
+            bool: True, если файл существует; False, если файла нет.
+        """
         file_path = os.path.join(directory, filename)
         if os.path.exists(file_path):
             return True
@@ -121,6 +177,16 @@ class Updater(ServerInfo):
 
     @staticmethod
     def get_version(directory: str = "DM-Bot", filename: str = "main.exe") -> str:
+        """
+        Получает версию программы из указанного файла.
+
+        Args:
+            directory (str): Директория, где находится файл.
+            filename (str): Имя файла, из которого нужно получить версию.
+
+        Returns:
+            str: Версия программы, полученная из файла.
+        """
         version = None
 
         if Updater.check_file_in_directory(directory, filename):

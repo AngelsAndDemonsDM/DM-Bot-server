@@ -8,9 +8,23 @@ from server_info import ServerInfo
 
 class Changelog(ServerInfo):
     def __init__(self) -> None:
+        """
+        Инициализация объекта класса Changelog.
+        Вызывает конструктор родительского класса ServerInfo.
+        """
         super().__init__()
     
-    def get_changelog(self):
+    def get_changelog(self) -> dict:
+        """
+        Получает changelog с сервера и возвращает его в формате словаря.
+
+        Raises:
+            ValueError: Если 'changelog_id' отсутствует в _info_json.
+            RequestException: Если возникает ошибка при загрузке changelog.
+
+        Returns:
+            dict: Словарь с информацией из changelog.
+        """
         if 'changelog_id' not in self._info_json:
             raise ValueError("\"changelog_id\" not found on server")
         
@@ -30,7 +44,21 @@ class Changelog(ServerInfo):
         else:
             raise RequestException("Error when downloading changelog")
 
-    def print_changelog(self):
+    def print_changelog(self) -> None:
+        """
+        Выводит changelog на экран, разбивая на страницы по 10 версий.
+        
+        Выводит информацию о версиях, датах и изменениях в формате:
+            Версия: [version]
+            Дата: [date]
+            Изменения:
+                - [change1]
+                - [change2]
+                ...
+        
+        Если changelog отсутствует или пользователь решит не продолжать просмотр,
+        выводится соответствующее сообщение.
+        """
         changelog_info = self.get_changelog()
         changelog_list = changelog_info.get('changelog', [])
         
