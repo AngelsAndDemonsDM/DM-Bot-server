@@ -2,30 +2,35 @@ import logging
 import os
 import shutil
 import subprocess
-import zipfile
 
+import pyzipper
 import requests
 from requests.exceptions import RequestException
 from server_info import ServerInfo
 
 
 class Updater(ServerInfo):
-    def __init__(self, version: str) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self._version = version
+        self._version = self.get_version()
 
-    def compare_versions(self, version1, version2) -> int:
-        """
-        Сравнивает две строки версий.
-        Возвращает 1, если version1 > version2,
-                   -1, если version1 < version2,
-                   0, если version1 == version2.
-        """
-        # Разбиваем версии на части и преобразуем их в целые числа
+    @property
+    def version(self) -> str:
+        return self._version
+
+    def compare_versions(self, version1: str, version2: str) -> int:
+        if not version1 and not version2:
+            return 0
+        
+        if not version1:
+            return -1
+        
+        if not version2:
+            return 1
+        
         parts1 = [int(part) for part in version1.split('.')]
         parts2 = [int(part) for part in version2.split('.')]
         
-        # Дополняем более короткий список нулями (для случаев 1.2 и 1.2.0)
         len_diff = len(parts1) - len(parts2)
         if len_diff > 0:
             parts2 += [0] * len_diff
@@ -40,89 +45,87 @@ class Updater(ServerInfo):
         return 0
     
     def is_new_version(self) -> bool:
-        if not 'version' in self._info_json:
+        if 'version' not in self._info_json:
             raise ValueError("\"version\" not found on server")
         
         if self.compare_versions(self._info_json['version'], self._version) == 1:
             return True
         return False
 
-    def download_new_exe(self):
-        if not 'exe_id' in self._info_json:
-            raise ValueError("\"exe_id\" not found in json_data")
+    def download(self, file_name, chunk_size=8192, retries=3, timeout=30):
+        if 'download' not in self._info_json:
+            raise ValueError("\"download\" not found in json_data")
         
-        response = requests.get(self._url(self._info_json['exe_id']))
-        if response.status_code == 200:
-            return response.content
-        else:
-            raise RequestException("Error when download new version from server")
-
-def check_file_in_directory(directory, filename):
-    """
-    Проверяет наличие файла в директории.
-    """
-    file_path = os.path.join(directory, filename)
-    if os.path.exists(file_path):
-        return True
-    return False
-
-def check_or_create_directory(directory):
-    """
-    Проверяет наличие директории.
-    Если директория не существует, создает ее.
-    """
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-def get_version(directory: str = "DM-Bot", filename: str = "DM-Bot.exe") -> str:
-    version: str = "0.0.-1"
-    check_or_create_directory(directory)
-
-    if check_file_in_directory(directory, filename):
-        result = subprocess.run([f"{directory}/{filename}", "--version"], capture_output=True, text=True)
-        if result.returncode == 0:
-            version = result.stdout.strip()
-
-    return version
-
-def update() -> None:
-    destination_folder = "DM-Bot"
-    zip_filename = "DM-Bot.zip"
-
-    version = get_version()
-    logging.info(f"Текущая версия приложения {version}.")
-
-    updater = Updater(version)
-    try:
-        is_new: bool = updater.is_new_version()
-    except Exception as err:
-        logging.error(f"Получена ошибка при попытке считать новую версию с сервера: {err}")
-        return
-
-    if not is_new:
-        logging.info("Обновлений не обнаружено. У вас самая новая версия DM-Bot.")
-        return
-
-    try:
-        logging.info("Начинаю скачивать зашифрованный архив с сервера...")
-        encrypted_zip_content = updater.download_new_exe()
-
-        with open(zip_filename, 'wb') as zip_file:
-            zip_file.write(encrypted_zip_content)
-        logging.info("Архив сохранён!")
-
-        if os.path.exists(destination_folder):
-            logging.info("Удаление старой версии")
-            shutil.rmtree(destination_folder)
+        for _ in range(retries):
+            try:
+                with requests.get(self._url(self._info_json['download']), stream=True, timeout=timeout) as response:
+                    response.raise_for_status()
+                    
+                    with open(file_name, 'wb') as file:
+                        for chunk in response.iter_content(chunk_size=chunk_size):
+                            if chunk:
+                                file.write(chunk)
+                
+                return file_name
+            
+            except requests.Timeout:
+                print(f"Timeout occurred during download. Retrying ({retries} retries left).")
+            except requests.RequestException as e:
+                print(f"Error during download: {e}. Retrying ({retries} retries left).")
         
-        logging.info("Начало распаковки...")
-        with zipfile.ZipFile(zip_filename, 'r') as zip_ref:
-            zip_ref.extractall(destination_folder, pwd=b"1Ei2ttDIBadNmDHqh3HRIWpipnxh7DwNM")
+        raise RequestException(f"Failed to download after {retries} retries.")
 
-        logging.info("Архив распакован!")
-        os.remove(zip_filename)
+    def update(self):
+        destination_folder = "DM-Bot"
+        zip_filename = "DM-Bot.zip"
 
-        logging.info("Программа успешно обновлена")
-    except Exception as err:
-        logging.error(f"Получена ошибка при попытке обновления: {err}")
-        return
+        self._version = self.get_version
+
+        try:
+            is_new = self.is_new_version()
+        except Exception as err:
+            logging.error(f"Получена ошибка при попытке считать новую версию с сервера: {err}")
+            return
+
+        if not is_new:
+            logging.info("Обновлений не обнаружено. У вас самая новая версия DM-Bot.")
+            return
+
+        try:
+            if os.path.exists(destination_folder):
+                logging.info("Удаление старой версии")
+                shutil.rmtree(destination_folder)
+
+            logging.info("Начинаю скачивать зашифрованный архив с сервера...")
+            self.download(file_name=zip_filename)
+            
+            logging.info("Начало распаковки...")
+            with pyzipper.AESZipFile(zip_filename, 'r') as zip_ref:
+                zip_ref.setpassword(b"1Ei2ttDIBadNmDHqh3HRIWpipnxh7DwNM")
+                zip_ref.extractall(os.getcwd())
+
+            logging.info("Архив распакован!")
+            os.remove(zip_filename)
+
+            logging.info("Программа успешно обновлена")
+        except Exception as err:
+            logging.error(f"Получена ошибка при попытке обновления: {err}")
+            return
+
+    @staticmethod
+    def check_file_in_directory(directory, filename):
+        file_path = os.path.join(directory, filename)
+        if os.path.exists(file_path):
+            return True
+        return False
+
+    @staticmethod
+    def get_version(directory: str = "DM-Bot", filename: str = "main.exe") -> str:
+        version = None
+
+        if Updater.check_file_in_directory(directory, filename):
+            result = subprocess.run([f"{directory}/{filename}", "--version"], capture_output=True, text=True)
+            if result.returncode == 0:
+                version = result.stdout.strip()
+
+        return version
