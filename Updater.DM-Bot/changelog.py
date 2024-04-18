@@ -1,3 +1,5 @@
+import logging
+import os
 import tempfile
 
 import requests
@@ -14,35 +16,43 @@ class Changelog(ServerInfo):
         """
         super().__init__()
     
-    def get_changelog(self) -> dict:
+    def download_changelog(self, file_name="changelog.yaml", chunk_size=8192, retries=3, timeout=30):
         """
-        Получает changelog с сервера и возвращает его в формате словаря.
+        Скачивает ченджлог с сервера.
+
+        Args:
+            file_name (str): Имя файла для сохранения ченджлога.
+            chunk_size (int): Размер части для скачивания.
+            retries (int): Количество попыток скачивания.
+            timeout (int): Время ожидания ответа сервера.
 
         Raises:
-            ValueError: Если 'changelog_id' отсутствует в _info_json.
-            RequestException: Если возникает ошибка при загрузке changelog.
+            RequestException: Если скачивание ченджлога не удалось после всех попыток.
 
         Returns:
-            dict: Словарь с информацией из changelog.
+            str: Имя скачанного файла ченджлога.
         """
         if 'changelog_id' not in self._info_json:
-            raise ValueError("\"changelog_id\" not found on server")
+            raise ValueError("\"changelog_id\" not found in json_data")
         
-        response = requests.get(self._url(self._info_json['changelog_id']), stream=True)
-        if response.status_code == 200:
-            with tempfile.NamedTemporaryFile(delete=False, mode='w', encoding='utf-8') as temp_file:
-                for line in response.iter_lines(decode_unicode=True):
-                    if line:
-                        temp_file.write(line + '\n')
-                temp_filename = temp_file.name
+        for _ in range(retries):
+            try:
+                with requests.get(self._url(self._info_json['changelog_id']), stream=True, timeout=timeout) as response:
+                    response.raise_for_status()
+                    
+                    with open(file_name, 'wb') as file:
+                        for chunk in response.iter_content(chunk_size=chunk_size):
+                            if chunk:
+                                file.write(chunk)
+                
+                return file_name
             
-            with open(temp_filename, 'r', encoding='utf-8') as file:
-                changelog_text = file.read()
-            
-            changelog_data = yaml.safe_load(changelog_text)
-            return changelog_data
-        else:
-            raise RequestException("Error when downloading changelog")
+            except requests.Timeout:
+                print(f"Timeout occurred during changelog download. Retrying ({retries} retries left).")
+            except requests.RequestException as e:
+                print(f"Error during changelog download: {e}. Retrying ({retries} retries left).")
+        
+        raise RequestException(f"Failed to download changelog after {retries} retries.")
 
     def print_changelog(self) -> None:
         """
@@ -59,35 +69,45 @@ class Changelog(ServerInfo):
         Если changelog отсутствует или пользователь решит не продолжать просмотр,
         выводится соответствующее сообщение.
         """
-        changelog_info = self.get_changelog()
-        changelog_list = changelog_info.get('changelog', [])
-        
-        if not changelog_list:
-            print("Не найдено изменений в ченджлоге")
-            return
+        try:
+            file_name = self.download_changelog()
+            with open(file_name, 'r', encoding='utf-8') as file:
+                changelog_data = yaml.safe_load(file)
+            
+            changelog_list = changelog_data.get('changelog', [])
+            
+            if not changelog_list:
+                logging.error("Не найдено изменений в ченджлоге")
+                return
 
-        total_versions = len(changelog_list)
-        start_index = 0
-        
-        while start_index < total_versions:
-            end_index = min(start_index + 10, total_versions)
-            for version_info in changelog_list[start_index:end_index]:
-                version = version_info.get('version', '█.█.█')
-                date = version_info.get('date', '████-██-██')
-                changes = version_info.get('changes', [])
-                
-                print(f"Версия: {version}")
-                print(f"Дата: {date}")
-                print("Изменения:")
-                
-                for change in changes:
-                    print(f"  - {change}")
-                
-                print()
+            total_versions = len(changelog_list)
+            start_index = 0
             
-            if end_index < total_versions:
-                choice = input("Хотите продолжить просмотр? (да/нет): ")
-                if choice.lower() != "да":
-                    break
-            
-            start_index += 10
+            while start_index < total_versions:
+                end_index = min(start_index + 10, total_versions)
+                for version_info in changelog_list[start_index:end_index]:
+                    version = version_info.get('version', '█.█.█')
+                    date = version_info.get('date', '████-██-██')
+                    changes = version_info.get('changes', [])
+                    
+                    print(f"Версия: {version}")
+                    print(f"Дата: {date}")
+                    print("Изменения:")
+                    
+                    for change in changes:
+                        print(f"  - {change}")
+                    
+                    print("─" * 40)
+                
+                if end_index < total_versions:
+                    choice = input("Хотите продолжить просмотр? (да/нет): ")
+                    if choice.lower() != "да":
+                        break
+                
+                start_index += 10
+
+        except Exception as e:
+            logging.error(f"Ошибка при выводе ченджлога: {e}")
+        finally:
+            if os.path.exists(file_name):
+                os.remove(file_name)

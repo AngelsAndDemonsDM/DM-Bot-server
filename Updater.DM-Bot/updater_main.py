@@ -16,13 +16,13 @@ def pause_consol():
 def show_menu(version) -> int:
     while True:
         clear_consol()
-        print("Автоматический лаунчер обновлений для DM-Bot")
+        
         print_table(version, ["Многоликий демон - Код", "Vergrey - Оформление, помощь с кодом"])
-        print("Меню выбора:")
+        print("Меню выбора:\n")
         print("1. Обновить программу")
         print("2. Просмотр ченджлога")
         print("3. Запуск программы")
-        print("0. Выход")
+        print("0. Выход\n\n")
         choice = input("Введите число: ")
         if choice in {"0", "1", "2", "3"}:
             return int(choice)
@@ -33,19 +33,38 @@ def show_menu(version) -> int:
 def print_table(version, created_by):
     if not version:
         version = "None"
+    # Именованные константы для заголовка, маржи, меток версии и создателей
+    HEADER_TITLE = "Автоматический лаунчер обновлений для DM-Bot"
+    HEADER_MARGIN = 4
+    VERSION_LABEL = "Version -"
+    CREATED_BY_LABEL = "Created by:"
 
-    max_created_by_length = max(len(item) for item in created_by)
+    # Вычисляем длины
+    max_created_by_length = max(len(item) + len("Created by:") for item in created_by)
     version_length = len(version)
-    top_bottom_line_width = max(version_length, max_created_by_length) + 15
+    const_length = len(HEADER_TITLE)
     
-    print("*" + "-" * (top_bottom_line_width) + "*")
-    print("| Version -", version, " " * (top_bottom_line_width - version_length - 13), "|")
-    print("*" + "-" * (top_bottom_line_width) + "*")
+    # Вычисляем ширину верхней и нижней линий
+    top_bottom_line_width = max(version_length, max_created_by_length, const_length) + 2 * HEADER_MARGIN
     
+    # Выводим заголовок
+    print("┌" + "─" * top_bottom_line_width + "┐")
+    print(f"│ {HEADER_TITLE}{' ' * (top_bottom_line_width - const_length - 2)} │")
+    print("├" + "─" * top_bottom_line_width + "┤")
+    
+    # Выводим версию
+    version_line = f"│ {VERSION_LABEL} {version}{' ' * (top_bottom_line_width - version_length - len(VERSION_LABEL) - 3)} │"
+    print(version_line)
+    print("├" + "─" * top_bottom_line_width + "┤")
+    
+    # Выводим создателей
     for creator in created_by:
-        print("| Created by:", creator, " " * (top_bottom_line_width - len(creator) - 15), "|")
+        creator_line = f"│ {CREATED_BY_LABEL} {creator}{' ' * (top_bottom_line_width - len(creator) - len(CREATED_BY_LABEL) - 3)} │"
+        print(creator_line)
     
-    print("*" + "-" * (top_bottom_line_width) + "*\n")
+    # Выводим нижнюю линию
+    print("└" + "─" * top_bottom_line_width + "┘")
+
 
 def main() -> None:
     update_class = Updater()
@@ -63,9 +82,8 @@ def main() -> None:
             case 2: # Просмотр ченджлога
                 clear_consol()
                 logging.info("Запрос ченджлога с сервера...")
-                
+                print()
                 try:
-                    changelog_class.get_changelog()
                     changelog_class.print_changelog()
                 except Exception as err:
                     logging.error(f"Произошла ошибка при получении ченджлога: {err}")
