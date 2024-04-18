@@ -1,5 +1,4 @@
 import hashlib
-import logging
 import os
 import pickle
 
@@ -33,6 +32,7 @@ class FileWork:
             bool: Возвращает True если файл был создан, иначе False
         """
         directory = os.path.dirname(self._path)
+
         if not os.path.exists(directory):
             os.makedirs(directory)
 
@@ -40,6 +40,7 @@ class FileWork:
             with open(self._path, "wb") as file:
                 pickle.dump(None, file)
                 return True
+            
         return False
 
     def _calculate_file_hash(self) -> str:
@@ -50,11 +51,13 @@ class FileWork:
             str: Хеш файла.
         """
         hasher = hashlib.sha256()
+
         with open(self._path, 'rb') as file:
             chunk = file.read(8192)
             while chunk:
                 hasher.update(chunk)
                 chunk = file.read(8192)
+            
         return hasher.hexdigest()
 
     def _load_file(self) -> bytes:
