@@ -63,13 +63,15 @@ class FileWork:
 
         Returns:
             object: Данные файла.
+
+        Raises:
+            FileNotFoundError: Если файл не найден.
         """
-        try:
-            with open(self._path, 'rb') as file:
-                return file.read()
-        except Exception as e:
-            logging.error(f"An error occurred in {self._path}: {e}")
-            return None
+        if not os.path.exists(self._path):
+            raise FileNotFoundError(f"File {self._path} not found")
+    
+        with open(self._path, 'rb') as file:
+            return file.read()
 
     def load_data(self) -> object:
         """
@@ -77,6 +79,9 @@ class FileWork:
 
         Returns:
             object: Загруженные данные файла.
+
+        Raises:
+            FileNotFoundError: Если файл не найден.
         """
         current_hash = self._calculate_file_hash()
         if not self._cached or self._file_hash != current_hash:
