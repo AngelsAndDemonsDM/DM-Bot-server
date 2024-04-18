@@ -16,7 +16,6 @@ class FileWork:
             data (object): Данные файла.
             cached (bool): Флаг указывающий, кэшированы ли данные.
             file_hash (str): Хэш файла.
-            lock (asyncio.Lock): Асинхронный замок для обеспечения безопасности при доступе к данным из разных потоков.
         """
         file_path = file_path.replace('/', os.sep)
         self._path = os.path.join(os.getcwd(), 'Data.DM-Bot', file_path)
