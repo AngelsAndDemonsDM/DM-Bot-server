@@ -21,11 +21,11 @@
             flex: 1;
         }
 
-        .active {
+        .green {
             color: rgb(0, 255, 0);
         }
 
-        .inactive {
+        .red {
             color: red;
         }
     </style>
@@ -38,30 +38,24 @@
         <li><a href="/about">О программе</a></li>
     </ul>
 
+    
     <div class="container">
-        <div class="card">
-            <div class="card-content">
-
-                <h3>Панель управления ботом</h3>
-
-                <!-- Ввод токена бота -->
-                <div class="input-column">
-                    <label for="botToken">Ввести токен:</label>
-                    <input type="text" id="botToken">
-                    <button onclick="sendToken()">Отправить</button>
-                </div>
-
-            </div>
+        <div class="input-column card card-content">
+            <!-- Работа с токеном -->
+            <h3>Токен</h3>
+            <button onclick="hasToken()">Проверить сохранённый токен</button> <br><br>
+                    
+            <label for="botToken">Ввести токен:</label>
+            <input type="text" id="botToken">
+            <button onclick="sendToken()">Отправить</button>
         </div>
 
-        <div class="card">
-            <div class="card-content">
-                Статус онлайна бота: <p style="display: inline;" id="botStatus"></p><br><br>
-                <div class="output-column">
-                    Статус ответа сервера:
-                    <p id="anserFromPy"></p>
-                </div>
-            </div>
+        <div class="output-column card card-content">
+            Статус онлайна бота: <p style="display: inline;" id="botStatus"></p><br><br>
+
+            Статус токена: <p style="display: inline;" id="botHasToken"></p><br><br>
+
+            > <p style="display: inline;" id="anserFromPy"></p>
         </div>
     </div>
 
@@ -75,9 +69,9 @@
     var socket = io.connect('http://' + document.domain + ':' + location.port);
 
     // Обновление статуса бота //
-    document.addEventListener("DOMContentLoaded", onPageLoad);
+    document.addEventListener("DOMContentLoaded", onPageLoadForStatus);
 
-    function onPageLoad() { // Создаём цикл обновлений на каждые 5 секунд
+    function onPageLoadForStatus() { // Создаём цикл обновлений на каждые 5 секунд
         setInterval(statusBot, 5000);
         statusBot();
     }
@@ -91,24 +85,48 @@
 
         if (data == true) {
             botStatusElement.textContent = "Онлаин";
-            botStatusElement.classList.add('active');
-            botStatusElement.classList.remove('inactive'); 
+            botStatusElement.classList.add('green');
+            botStatusElement.classList.remove('red'); 
         } else {
             botStatusElement.textContent = "Оффлаин";
-            botStatusElement.classList.add('inactive'); 
-            botStatusElement.classList.remove('active');
+            botStatusElement.classList.add('red'); 
+            botStatusElement.classList.remove('green');
         }
     })
 
-    // Настройка токена для бота //
+    // Работа с токеном //
+    document.addEventListener("DOMContentLoaded", onPageLoadForToken);
+
+    function onPageLoadForToken() { // Загружаем токен из бинарника
+        hasToken();
+    }
+
     function sendToken() { // Отправка даты на обработку для кода
         var botToken = document.getElementById("botToken").value;
         socket.emit('sendToken', botToken);
     }
 
+    function hasToken() { // Проверка есть ли токен
+        socket.emit('isHasToken');
+    }
+
+    socket.on('getIsHasToken', function(data) {
+        var botStatusElement = document.getElementById("botHasToken");
+
+        if (data == true) {
+            botStatusElement.textContent = "Существует";
+            botStatusElement.classList.add('green');
+            botStatusElement.classList.remove('red'); 
+        } else {
+            botStatusElement.textContent = "Не существует";
+            botStatusElement.classList.add('red'); 
+            botStatusElement.classList.remove('green');
+        }
+    })
+
     // Связь бота с пользователем //
     socket.on('anserFromPy', function(data) { // Обновляем поле и говорим что хотели
-        document.getElementById("anserFromPy").textContent = data;
+        document.getElementById("anserFromPy").innerHTML = data;
     });
 </script>
 
