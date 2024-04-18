@@ -84,12 +84,14 @@ class FileWork:
             FileNotFoundError: Если файл не найден.
         """
         current_hash = self._calculate_file_hash()
+
         if not self._cached or self._file_hash != current_hash:
             file_content = self._load_file()
             if file_content is not None:
                 self._data = pickle.loads(file_content)
                 self._cached = True
                 self._file_hash = current_hash
+        
         return self._data
 
     def _save_file(self) -> None:
