@@ -128,7 +128,7 @@ dmypy.json
 cython_debug/
 
 # Data
-data/*
+Data.DM-Bot/*
 
 # VS
 .vs/*
