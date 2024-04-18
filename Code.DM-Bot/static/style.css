@@ -6,6 +6,19 @@ body {
     padding: 5px;
 }
 
+a {
+    color: #ff7e00;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #ffa500;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
 ul {
     list-style-type: none;
     margin: 0;
