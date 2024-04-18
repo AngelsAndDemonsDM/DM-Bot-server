@@ -4,13 +4,17 @@
 Инициализация объекта класса Changelog.<br>
 Вызывает конструктор родительского класса ServerInfo.<br>
 <br>
-## `Changelog.get_changelog`<br>
-Получает changelog с сервера и возвращает его в формате словаря.<br>
+## `Changelog.download_changelog`<br>
+Скачивает ченджлог с сервера.<br>
+<br>**Args:**<br>
+file_name (str): Имя файла для сохранения ченджлога.<br>
+chunk_size (int): Размер части для скачивания.<br>
+retries (int): Количество попыток скачивания.<br>
+timeout (int): Время ожидания ответа сервера.<br>
 <br>**Raises:**<br>
-ValueError: Если 'changelog_id' отсутствует в _info_json.<br>
-RequestException: Если возникает ошибка при загрузке changelog.<br>
+RequestException: Если скачивание ченджлога не удалось после всех попыток.<br>
 <br>**Returns:**<br>
-dict: Словарь с информацией из changelog.<br>
+str: Имя скачанного файла ченджлога.<br>
 <br>
 ## `Changelog.print_changelog`<br>
 Выводит changelog на экран, разбивая на страницы по 10 версий.<br>
