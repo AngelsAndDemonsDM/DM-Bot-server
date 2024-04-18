@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Меню приложения</title>
+    <title>Main</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
@@ -12,15 +12,24 @@
     <div>
         <ul>
             <li><a href="/">Главная</a></li>
-            <li><a href="/bot">Управление ботом</a></li>
+            <li><a href="/about">О программе</a></li>
         </ul>
     </div>
 
     <h1>Main html</h1>
+    <p>▬▬▬ Ссылки ▬▬▬</p>
+    <a href="https://discord.gg/vxzegFkRjB">Discord</a>
+
+    <a href="https://boosty.to/themanyfaceddemon">Boosty</a>
+    <p>▬▬▬ ▬▬▬▬ ▬▬▬</p>
 </body>
 
 <div class="footer">
     <p>DM-Bot</p>
 </div>
+
+<script type="text/javascript">
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+</script>
 
 </html>
