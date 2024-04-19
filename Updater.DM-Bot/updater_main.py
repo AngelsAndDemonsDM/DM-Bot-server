@@ -2,9 +2,9 @@ import logging
 import os
 import subprocess
 
-from changelog import Changelog
 from colorlog import ColoredFormatter
-from updater import Updater
+
+from . import Changelog, Updater
 
 
 def clear_consol():

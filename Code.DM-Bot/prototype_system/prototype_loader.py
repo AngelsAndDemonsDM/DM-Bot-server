@@ -1,20 +1,10 @@
 import os
+from abc import ABC, abstractmethod
 
 import yaml
 
 
-class PrototypeLoader:
-    def __new__(cls, *args, **kwargs):
-        """
-        Создаёт новый экземпляр класса. Этот метод переопределяется для предотвращения создания экземпляров абстрактного класса PrototypeLoader.
-
-        Raises:
-            NotImplementedError: Ошибка возникает в случае попытки создания экземпляра абстрактного класса.
-        """
-        if cls is PrototypeLoader:
-            raise NotImplementedError("You cannot create an abstract 'PrototypeLoader' class. Use inheritance")
-        return super().__new__(cls)
-
+class PrototypeLoader(ABC):
     def __init__(self, file_path, type: str = None):
         """
         Инициализатор класса PrototypeLoader.
@@ -75,6 +65,7 @@ class PrototypeLoader:
 
         return prototypes_list
     
+    @abstractmethod
     def _get_func(self, config):
         """
         Возвращает функцию для создания прототипа. Этот метод должен быть переопределён в дочерних классах.
@@ -85,7 +76,7 @@ class PrototypeLoader:
         Raises:
             NotImplementedError: Если метод не переопределён.
         """
-        raise NotImplementedError(f"The method '_get_func' in class '{self.__class__.__name__}' must be overridden.")
+        pass
 
     def _validate_config_param(self, config, param_name, id="Unknown prototype"):
         """

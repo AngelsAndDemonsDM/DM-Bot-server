@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from base_classes.file_work import FileWork
+from base_classes import FileWork
 
 
 class TestFileWork(unittest.TestCase):

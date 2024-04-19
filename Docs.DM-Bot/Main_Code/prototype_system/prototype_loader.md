@@ -1,10 +1,5 @@
 # Документация по файлу `prototype_loader.py`
 
-## `PrototypeLoader.__new__`<br>
-Создаёт новый экземпляр класса. Этот метод переопределяется для предотвращения создания экземпляров абстрактного класса PrototypeLoader.<br>
-<br>**Raises:**<br>
-NotImplementedError: Ошибка возникает в случае попытки создания экземпляра абстрактного класса.<br>
-<br>
 ## `PrototypeLoader.__init__`<br>
 Инициализатор класса PrototypeLoader.<br>
 <br>**Args:**<br>
