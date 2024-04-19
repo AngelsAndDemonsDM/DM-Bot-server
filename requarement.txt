@@ -1,0 +1,11 @@
+isort
+aiofiles
+colorlog
+discord.py
+flask
+flask-socketio
+imageio
+nuitka
+pyzipper
+pyyaml
+requests
