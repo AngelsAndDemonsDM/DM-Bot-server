@@ -1,5 +1,10 @@
 [[source]]
-name = "DM_Bot"
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-package]
+isort = "*"
 
 [packages]
 aiofiles = "*"
@@ -8,11 +13,13 @@ discord.py = "*"
 flask = "*"
 flask-socketio = "*"
 imageio = "*"
-isort = "*"
 nuitka = "*"
 pyzipper = "*"
 pyyaml = "*"
 requests = "*"
+
+[package]
+name = "dm_bot"
 
 [requires]
 python_version = "3.11"
