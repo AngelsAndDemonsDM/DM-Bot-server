@@ -41,6 +41,9 @@
     
     <div class="container">
         <div class="input-column card card-content">
+            <h3>Контроль бота</h3>
+            <button onclick="startBot()">Запустить бота</button>
+
             <!-- Работа с токеном -->
             <h3>Токен</h3>
             <button onclick="hasToken()">Проверить сохранённый токен</button> <br><br>
@@ -123,6 +126,11 @@
             botStatusElement.classList.remove('green');
         }
     })
+
+    // Запуск бота //
+    function startBot() {
+        socket.emit('startBot');
+    }
 
     // Связь бота с пользователем //
     socket.on('anserFromPy', function(data) { // Обновляем поле и говорим что хотели

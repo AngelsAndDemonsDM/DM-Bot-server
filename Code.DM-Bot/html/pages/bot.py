@@ -1,7 +1,9 @@
+import asyncio
 from html.init_socketio import socketio
 
 import requests
 from base_classes.file_work import FileWork
+from bot import bot, main
 from flask import render_template
 
 TOKEN_PATH: str = "secrets/token.bin"
@@ -61,7 +63,14 @@ def is_has_token():
     except Exception:
         socketio.emit("getIsHasToken", False)
 
+@socketio.on('startBot')
+def start_bot():
+    try:
+        asyncio.run(main())
+    except Exception:
+        socketio.emit("anserFromPy", "Токен <p class=\"red\"style=\"display: inline;\">не обнаружен</p>")
+
 # Отправка статуса бота
 @socketio.on('requestBotStatus')
 def send_bot_status():
-    socketio.emit("getBotStatus", True)
+    socketio.emit("getBotStatus", bot.is_ready())
