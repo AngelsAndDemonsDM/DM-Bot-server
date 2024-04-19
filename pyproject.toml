@@ -1,3 +1,6 @@
+[[source]]
+name = "DM_Bot"
+
 [packages]
 aiofiles = "*"
 colorlog = "*"
