@@ -1,0 +1,15 @@
+[packages]
+aiofiles = "*"
+colorlog = "*"
+discord.py = "*"
+flask = "*"
+flask-socketio = "*"
+imageio = "*"
+isort = "*"
+nuitka = "*"
+pyzipper = "*"
+pyyaml = "*"
+requests = "*"
+
+[requires]
+python_version = "3.11"
