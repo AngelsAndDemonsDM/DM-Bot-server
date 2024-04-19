@@ -3,7 +3,7 @@ name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
 
-[dev-package]
+[dev-packages]
 isort = "*"
 
 [packages]
@@ -18,8 +18,12 @@ pyzipper = "*"
 pyyaml = "*"
 requests = "*"
 
-[package]
+[project]
 name = "dm_bot"
+authors = [
+  { name = "Verggrey" },
+  { name = "themanyfaceddemon" }
+]
 
 [requires]
 python_version = "3.11"
