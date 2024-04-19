@@ -7,7 +7,7 @@ import pyzipper
 import requests
 from requests.exceptions import RequestException
 
-from . import ServerInfo
+from server_info import ServerInfo
 
 
 class Updater(ServerInfo):

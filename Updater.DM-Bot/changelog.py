@@ -5,7 +5,7 @@ import requests
 import yaml
 from requests.exceptions import RequestException
 
-from . import ServerInfo
+from server_info import ServerInfo
 
 
 class Changelog(ServerInfo):

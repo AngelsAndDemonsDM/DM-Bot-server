@@ -1,7 +1,7 @@
 import requests
 from requests.exceptions import RequestException
 
-from . import SERVER_INFO_ID
+from main_vars import SERVER_INFO_ID
 
 
 class ServerInfo:
