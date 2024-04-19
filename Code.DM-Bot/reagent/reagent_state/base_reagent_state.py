@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from effect import Effect
+from etc.effect import Effect
 
 
 class BaseReagentState:
