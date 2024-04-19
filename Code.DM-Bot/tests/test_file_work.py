@@ -6,7 +6,7 @@ from base_classes import FileWork
 
 class TestFileWork(unittest.TestCase):
     def setUp(self):
-        self.file_work = FileWork("test\\test.txt")
+        self.file_work = FileWork("test\\test.bin")
 
     def test_create_file(self):
         self.assertTrue(self.file_work.create_file())
