@@ -1,8 +1,8 @@
-import requests
 from html.init_socketio import socketio
 
-from flask import render_template
+import requests
 from base_classes.file_work import FileWork
+from flask import render_template
 
 TOKEN_PATH: str = "secrets/token.bin"
 
