@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from .pages import about_main_page, bot_main_page, index_main_page
+from .pages import about_main_page, bot_main_page, index_main_page, players_main_page
 
 main_bp = Blueprint('main', __name__)
 
@@ -8,6 +8,10 @@ main_bp = Blueprint('main', __name__)
 @main_bp.route('/')
 def home_page():
     return index_main_page()
+
+@main_bp.route('/player')
+def players_page():
+    return players_main_page()
 
 # Окно с управлением ботом 
 @main_bp.route("/bot")
