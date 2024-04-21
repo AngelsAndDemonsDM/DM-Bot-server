@@ -119,3 +119,12 @@ td {
     padding: 8px 15px; /* Внутренние отступы */
     border: 1px solid #e0e0e0; /* Светло-серая граница */
 }
+
+/* Цвета */
+.green {
+    color: rgb(0, 255, 0);
+}
+
+.red {
+    color: red;
+}
