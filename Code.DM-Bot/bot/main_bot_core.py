@@ -7,7 +7,7 @@ from . import bot
 TOKEN_PATH: str = "secrets/token"
 
 @bot.command()
-async def ping(ctx: discord.Interaction):
+async def ping(ctx):
     await ctx.send(f"Pong in ({round(bot.latency * 1000)}ms)")
 
 async def main():
