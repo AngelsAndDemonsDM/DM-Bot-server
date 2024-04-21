@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Управление игроками</title>
+    <title>Просмотр игрокав</title>
 
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
     
@@ -56,7 +56,7 @@
 <body>
     <ul>
         <li><a href="/">Главная</a></li>
-        <li><a href="/player">Управление игроками</a></li>
+        <li><a href="/player">Просмотр игрокав</a></li>
         <li><a href="/bot">Управление ботом</a></li>
         <li><a href="/about">О программе</a></li>
     </ul>
@@ -64,15 +64,11 @@
     <div class="container">
         <div class="input-column card card-content">
             <input type="text" id="searchInput" placeholder="Поиск по ID или имени">
-            <div id="playerButtons" class="player-buttons-container">
-                <!-- Кнопки для управления игроками будут отображаться здесь -->
-            </div>
+            <div id="playerButtons" class="player-buttons-container"></div>
         </div>
 
         <div class="output-column card card-content">
-            <div id="playerInfo">
-                <!-- Информация о выбранном игроке будет отображаться здесь -->
-            </div>
+            <div id="playerInfo"></div>
         </div>
     </div>
 
