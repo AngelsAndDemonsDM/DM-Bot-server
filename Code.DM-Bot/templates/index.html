@@ -6,9 +6,6 @@
     <title>Main</title>
 
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <script src="{{ url_for('static', filename='js/base.js') }}"></script>
 </head>
 
 <body>
@@ -19,14 +16,12 @@
         <li><a href="/about">О программе</a></li>
     </ul>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='js/base.js') }}"></script>
 </body>
 
 <div class="footer">
     <p>DM-Bot</p>
 </div>
-
-<script type="text/javascript">
-    
-</script>
 
 </html>
