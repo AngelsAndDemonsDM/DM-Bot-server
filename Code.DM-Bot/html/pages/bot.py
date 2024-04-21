@@ -6,7 +6,7 @@ from base_classes.file_work import FileWork
 from bot import bot, main
 from flask import render_template
 
-TOKEN_PATH: str = "secrets/token.bin"
+TOKEN_PATH: str = "secrets/token"
 
 def bot_main_page():
     return render_template('bot.html')

@@ -17,6 +17,7 @@ class FileWork:
             cached (bool): Флаг указывающий, кэшированы ли данные.
             file_hash (str): Хэш файла.
         """
+        file_path = file_path + ".bin"
         file_path = file_path.replace('/', os.sep)
         self._path = os.path.join(os.getcwd(), 'Data.DM-Bot', file_path)
         self._data = None

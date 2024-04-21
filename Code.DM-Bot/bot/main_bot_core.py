@@ -4,7 +4,7 @@ from discord.ext import commands
 
 from . import bot
 
-TOKEN_PATH: str = "secrets/token.bin"
+TOKEN_PATH: str = "secrets/token"
 
 @bot.command()
 async def ping(ctx: discord.Interaction):
