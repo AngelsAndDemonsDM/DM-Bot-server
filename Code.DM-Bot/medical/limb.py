@@ -1,5 +1,5 @@
 from base_classes import BaseObject
-
+from etc import Effect
 from .disease import Disease
 from .implant import Implant
 from .organ import Organ
@@ -137,10 +137,19 @@ class Limb(BaseObject):
     def update_efficiency(self) -> None:
         value = 0
 
-        for list_check in [self._diseases, self._implants]: # О боже блять | TODO Это конечно не как в body_medical, но всё равно
-            for obj in list_check:
-                for effect in obj.effects:
-                    if effect.type == "limb_efficiency_mod":
-                        value += effect.strength
+
+        # О боже блять | TODO ВЫЧИСЛЕНИЯ ТУТ ПРОСТО КОНСКИЕ БЛЯТЬ. УПРОСТИТЬ
+        # Создание списка всех эффектов
+        diseases_effects: list[Effect] = [effect for limb in self._limbs for effect in limb.diseases.effects]
+        implants_effects: list[Effect] = [effect for limb in self._limbs for effect in limb.implants.effects]
+        organs_effects: list[Effect]   = [effect for limb in self._limbs for effect in limb.organs.effects]
+
+        # Объединение всех эффектов в один список
+        all_effects = diseases_effects + implants_effects + organs_effects
+
+        for effect in all_effects:
+            if effect.type == "limb_efficiency_mod":
+                value += effect.strength
         
         self._cur_efficiency = (self._base_efficiency* (self._cur_hp/self._max_hp)) + value
+        # Я хочу плакать
