@@ -5,7 +5,7 @@ from etc.effect import Effect
 class Disease(BaseObject):
     def __init__(self, id: str, name: str, description: str) -> None:
         super().__init__(id, name, description)
-        self._effect: list[Effect]
+        self._effects: list[Effect]
         self._max_stage: int
         self._tick_per_stage: int
 
@@ -15,7 +15,7 @@ class Disease(BaseObject):
     # Get metods
     @property
     def effect(self) -> list[Effect]:
-        return self._effect
+        return self._effects
 
     def update(self):
         self._cur_tick += 1
