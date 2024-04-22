@@ -1,6 +1,9 @@
 from etc import Effect
 
+from .disease import Disease
+from .implant import Implant
 from .limb import Limb
+from .organ import Organ
 
 
 class BodyMedical:
@@ -46,6 +49,7 @@ class BodyMedical:
         """
         return self._body_stats.get(key, None)
 
+    # Идея на заметку - сделать отдельный лист с этим всем говном для ускорения
     def update_stats(self) -> None:
 
         self._body_stats: dict = { # Сносим значения до 0. Потом считаем
@@ -59,19 +63,34 @@ class BodyMedical:
             "fertility": 0.0,    # фертильность
         }
 
-        # О боже блять | TODO ВЫЧИСЛЕНИЯ ТУТ ПРОСТО КОНСКИЕ БЛЯТЬ. УПРОСТИТЬ
-        # Создание списка всех эффектов
-        diseases_effects: list[Effect] = [effect for limb in self._limbs for effect in limb.diseases.effects]
-        implants_effects: list[Effect] = [effect for limb in self._limbs for effect in limb.implants.effects]
-        organs_effects: list[Effect]   = [effect for limb in self._limbs for effect in limb.organs.effects]
+        # Получаем все списки.
+        # Лимбы уже есть
+        diseases_list: list[Disease] = [disease for limb in self._limbs for disease in limb.diseases] # Все болезни
+        implants_list: list[Implant] = [implant for limb in self._limbs for implant in limb.implants] # Все импланты
+        organs_list: list[Organ]     = [organ for limb in self._limbs for organ in limb.organs]       # Все органы
 
-        # Объединение всех эффектов в один список
-        all_effects = diseases_effects + implants_effects + organs_effects
+        # Считаем весь пиздец
+        for limb in self._limbs:
+            self._apply_body_effect(limb.base_effect)
+        
+        for implant in implants_list:
+            self._apply_body_effect(implant.base_effect)
+            for effect in implant.effects:
+                self._apply_body_effect(effect)
 
-        for effect in all_effects:
-            if effect.type.startswith("body_") and effect.type.endswith("_mod"):
+        for disease in diseases_list:
+            for effect in disease.effects:
+                self._apply_body_effect(effect)
+        
+        for organ in organs_list:
+            self._apply_body_effect(organ.base_effect)
+            for effect in organ.effects:
+                self._apply_body_effect(effect)
+
+
+    def _apply_body_effect(self, effect: Effect) -> None:
+        if effect.type.startswith("body_") and effect.type.endswith("_mod"):
                 stat_name = effect.type.split("_")[1]
                         
                 if stat_name in self._body_stats:
                     self._body_stats[stat_name] += effect.strength
-        # brain dead

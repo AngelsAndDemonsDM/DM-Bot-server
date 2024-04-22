@@ -1,37 +1,19 @@
-from base_classes import BaseObject
 from etc import Effect
 
+from .base_medical_class import BaseMedicalClass
 from .disease import Disease
 from .implant import Implant
 from .organ import Organ
 
 
-class Limb(BaseObject):
-    def __init__(self, id: str, name: str, description: str) -> None:
-        super.__init__(id, name, description)
-        self._efficiency_type: str
-        self._base_efficiency: float
-        self._max_hp: float
+class Limb(BaseMedicalClass):
+    def __init__(self, id: str, name: str, description: str, base_effect: Effect, base_efficiency: float, max_hp: float, cur_hp: float) -> None:
+        super().__init__(id, name, description, base_effect, base_efficiency, max_hp, cur_hp)
         self._organs: list[Organ]
         self._diseases: list[Disease]
         self._implants: list[Implant]
 
-        self._cur_hp: float
-        self._cur_efficiency: float
-
     # Get metods
-    @property
-    def efficiency_type(self) -> str:
-        return self._efficiency_type
-    
-    @property
-    def efficiency(self) -> float:
-        return self._cur_efficiency
-
-    @property
-    def max_hp(self) -> float:
-        return self._max_hp
-
     @property
     def organs(self) -> list[Organ]:
         return self._organs 
@@ -43,19 +25,6 @@ class Limb(BaseObject):
     @property
     def implants(self) -> list[Implant]:
         return self._implants
-
-    @property
-    def hp(self) -> float:
-        return self._cur_hp
-
-    # Set metods
-    @efficiency_type.setter
-    def efficiency_type(self, value: str) -> None:
-        self._efficiency_type = value
-    
-    @max_hp.setter
-    def max_hp(self, value: float) -> None:
-        self._max_hp = value
 
     # Class metods
     # Base add/rm/find
@@ -135,22 +104,22 @@ class Limb(BaseObject):
         return self._base_find(key, self._implants)
 
     # ETC
-    def update_efficiency(self) -> None:
-        value = 0
+    # def update_efficiency(self) -> None:
+    #     value = 0
 
 
-        # О боже блять | TODO ВЫЧИСЛЕНИЯ ТУТ ПРОСТО КОНСКИЕ БЛЯТЬ. УПРОСТИТЬ
-        # Создание списка всех эффектов
-        diseases_effects: list[Effect] = [effect for limb in self._limbs for effect in limb.diseases.effects]
-        implants_effects: list[Effect] = [effect for limb in self._limbs for effect in limb.implants.effects]
-        organs_effects: list[Effect]   = [effect for limb in self._limbs for effect in limb.organs.effects]
+    #     # О боже блять | TODO ВЫЧИСЛЕНИЯ ТУТ ПРОСТО КОНСКИЕ БЛЯТЬ. УПРОСТИТЬ
+    #     # Создание списка всех эффектов
+    #     diseases_effects: list[Effect] = [effect for limb in self._limbs for effect in limb.diseases.effects]
+    #     implants_effects: list[Effect] = [effect for limb in self._limbs for effect in limb.implants.effects]
+    #     organs_effects: list[Effect]   = [effect for limb in self._limbs for effect in limb.organs.effects]
 
-        # Объединение всех эффектов в один список
-        all_effects = diseases_effects + implants_effects + organs_effects
+    #     # Объединение всех эффектов в один список
+    #     all_effects = diseases_effects + implants_effects + organs_effects
 
-        for effect in all_effects:
-            if effect.type == "limb_efficiency_mod":
-                value += effect.strength
+    #     for effect in all_effects:
+    #         if effect.type == "limb_efficiency_mod":
+    #             value += effect.strength
         
-        self._cur_efficiency = (self._base_efficiency* (self._cur_hp/self._max_hp)) + value
-        # Я хочу плакать
+    #     self._base_effect.strength = (self._base_efficiency * (self._cur_hp/self._max_hp)) + value
+    #     # Я хочу плакать
