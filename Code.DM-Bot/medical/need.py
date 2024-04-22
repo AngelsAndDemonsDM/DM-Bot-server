@@ -1,5 +1,6 @@
 from base_classes import BaseObject
 
+
 # Проверить позже
 class Need(BaseObject):
     def __init__(self, id: str, name: str, description: str, max_value: int, value: int, min_value: int, count: int = -1):

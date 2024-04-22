@@ -1,5 +1,7 @@
-from .limb import Limb
 from etc import Effect
+
+from .limb import Limb
+
 
 class BodyMedical:
     def __init__(self) -> None:

@@ -1,5 +1,6 @@
 from base_classes import BaseObject
 from etc import Effect
+
 from .disease import Disease
 from .implant import Implant
 from .organ import Organ
