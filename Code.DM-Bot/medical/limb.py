@@ -137,9 +137,9 @@ class Limb(BaseObject):
     def update_efficiency(self) -> None:
         value = 0
 
-        for list_check in [self._diseases, self._implants]:
+        for list_check in [self._diseases, self._implants]: # О боже блять | TODO Это конечно не как в body_medical, но всё равно
             for obj in list_check:
-                for effect in obj.effect:
+                for effect in obj.effects:
                     if effect.type == "limb_efficiency_mod":
                         value += effect.strength
         
