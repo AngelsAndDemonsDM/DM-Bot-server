@@ -1,4 +1,4 @@
-from base_classes.base_object import BaseObject
+from base_classes import BaseObject
 
 
 class Need(BaseObject):

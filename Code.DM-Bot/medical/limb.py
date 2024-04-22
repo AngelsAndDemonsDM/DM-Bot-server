@@ -1,4 +1,4 @@
-from base_classes.base_object import BaseObject
+from base_classes import BaseObject
 
 from .disease import Disease
 from .implant import Implant
@@ -74,6 +74,7 @@ class Limb(BaseObject):
 
         if flag:
             cur_list.append(value)
+            self.update_efficiency()
         
         return flag
 
@@ -91,6 +92,7 @@ class Limb(BaseObject):
         
         if flag:
             cur_list.remove(value)
+            self.update_efficiency()
         
         return flag
 
