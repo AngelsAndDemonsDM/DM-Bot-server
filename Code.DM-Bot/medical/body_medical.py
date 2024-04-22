@@ -51,7 +51,6 @@ class BodyMedical:
 
     # Идея на заметку - сделать отдельный лист с этим всем говном для ускорения
     def update_stats(self) -> None:
-
         self._body_stats: dict = { # Сносим значения до 0. Потом считаем
             "cognitive": 0.0,    # сознание
             "pain": 0.0,         # боль
