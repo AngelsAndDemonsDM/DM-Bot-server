@@ -1,6 +1,5 @@
+from base_classes import PrototypeLoader
 from need import Need
-
-from .prototype_loader import PrototypeLoader
 
 
 class NeedPrototypeLoader(PrototypeLoader):

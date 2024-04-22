@@ -1,12 +1,12 @@
 import os
 import unittest
 
-from base_classes.file_work import FileWork
+from base_classes import FileWork
 
 
 class TestFileWork(unittest.TestCase):
     def setUp(self):
-        self.file_work = FileWork("test\\test.txt")
+        self.file_work = FileWork("test\\test")
 
     def test_create_file(self):
         self.assertTrue(self.file_work.create_file())

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Просмотр игроков</title>
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .output-column,
+        .input-column {
+            flex: 1;
+        }
+
+        .player-list {
+            margin-top: 20px;
+        }
+
+        #searchInput {
+            padding: 10px;
+            background-color: #333;
+            color: #ff7e00;
+            margin-bottom: 10px;
+        }
+
+        #searchInput::placeholder {
+            color: white;
+        }
+
+        .player-buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .player-button {
+            flex: 0 0 calc(33.33% - 10px);
+            margin: 5px;
+            margin-bottom: 5px;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <ul>
+        <li><a href="/">Главная</a></li>
+        <li><a href="/player">Просмотр игроков</a></li>
+        <li><a href="/bot">Управление ботом</a></li>
+        <li><a href="/about">О программе</a></li>
+    </ul>
+
+    <div class="container">
+        <div class="input-column card card-content">
+            <input type="text" id="searchInput" placeholder="Поиск по ID или имени">
+            <div id="playerButtons" class="player-buttons-container"></div>
+        </div>
+
+        <div class="output-column card card-content">
+            <div id="playerInfo"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='js/player.js') }}"></script>
+</body>
+
+</html>

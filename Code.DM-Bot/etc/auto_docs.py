@@ -100,3 +100,9 @@ class AutoDocs:
                                     formatted_docstring = self.format_docstring(name, docstring)
                                     doc_file.write(formatted_docstring)
         logging.info("Создание документации завершено")
+
+if __name__ == "__main__":
+    main_code = AutoDocs("Code.DM-Bot", "Docs.DM-Bot/Main_Code")
+    updater_code = AutoDocs("Updater.DM-Bot", "Docs.DM-Bot/Updater_Code")
+    main_code.generate_documentation()
+    updater_code.generate_documentation()

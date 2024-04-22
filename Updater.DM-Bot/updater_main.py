@@ -2,9 +2,9 @@ import logging
 import os
 import subprocess
 
-from changelog import Changelog, print_changelog
+from changelog import Changelog
 from colorlog import ColoredFormatter
-from updater import get_version, update
+from updater import Updater
 
 
 def clear_consol():
@@ -13,17 +13,16 @@ def clear_consol():
 def pause_consol():
     input("Нажмите Enter для продолжения...")
 
-def show_menu() -> int:
+def show_menu(version) -> int:
     while True:
         clear_consol()
-        version = get_version()
-        print("Автоматический лаунчер обновлений для DM-Bot")
+        
         print_table(version, ["Многоликий демон - Код", "Vergrey - Оформление, помощь с кодом"])
-        print("Меню выбора:")
+        print("Меню выбора:\n")
         print("1. Обновить программу")
         print("2. Просмотр ченджлога")
         print("3. Запуск программы")
-        print("0. Выход")
+        print("0. Выход\n\n")
         choice = input("Введите число: ")
         if choice in {"0", "1", "2", "3"}:
             return int(choice)
@@ -32,45 +31,76 @@ def show_menu() -> int:
             pause_consol()
 
 def print_table(version, created_by):
-    max_created_by_length = max(len(item) for item in created_by)
+    if not version:
+        version = "None"
+    # Именованные константы для заголовка, маржи, меток версии и создателей
+    HEADER_TITLE = "Автоматический лаунчер обновлений для DM-Bot"
+    HEADER_MARGIN = 4
+    VERSION_LABEL = "Version -"
+    CREATED_BY_LABEL = "Created by:"
+
+    # Вычисляем длины
+    max_created_by_length = max(len(item) + len("Created by:") for item in created_by)
     version_length = len(version)
-    top_bottom_line_width = max(version_length, max_created_by_length) + 15
-    print("*" + "-" * (top_bottom_line_width) + "*")
-    print("| Version -", version, " " * (top_bottom_line_width - version_length - 13), "|")
-    print("*" + "-" * (top_bottom_line_width) + "*")
+    const_length = len(HEADER_TITLE)
+    
+    # Вычисляем ширину верхней и нижней линий
+    top_bottom_line_width = max(version_length, max_created_by_length, const_length) + 2 * HEADER_MARGIN
+    
+    # Выводим заголовок
+    print("┌" + "─" * top_bottom_line_width + "┐")
+    print(f"│ {HEADER_TITLE}{' ' * (top_bottom_line_width - const_length - 2)} │")
+    print("├" + "─" * top_bottom_line_width + "┤")
+    
+    # Выводим версию
+    version_line = f"│ {VERSION_LABEL} {version}{' ' * (top_bottom_line_width - version_length - len(VERSION_LABEL) - 3)} │"
+    print(version_line)
+    print("├" + "─" * top_bottom_line_width + "┤")
+    
+    # Выводим создателей
     for creator in created_by:
-        print("| Created by:", creator, " " * (top_bottom_line_width - len(creator) - 15), "|")
-    print("*" + "-" * (top_bottom_line_width) + "*\n")
+        creator_line = f"│ {CREATED_BY_LABEL} {creator}{' ' * (top_bottom_line_width - len(creator) - len(CREATED_BY_LABEL) - 3)} │"
+        print(creator_line)
+    
+    # Выводим нижнюю линию
+    print("└" + "─" * top_bottom_line_width + "┘")
+
 
 def main() -> None:
+    update_class = Updater()
+    changelog_class = Changelog()
     while True:
         clear_consol()
-        menu = show_menu()
+        menu = show_menu(update_class.version)
 
         match menu:
             case 1: # Обновить программу
                 clear_consol()
-                update()
+                update_class.update()
                 pause_consol()
+            
             case 2: # Просмотр ченджлога
                 clear_consol()
                 logging.info("Запрос ченджлога с сервера...")
-                cl = Changelog()
+                print()
                 try:
-                    cl_data = cl.get_changelog()
+                    changelog_class.print_changelog()
                 except Exception as err:
                     logging.error(f"Произошла ошибка при получении ченджлога: {err}")
-                print_changelog(cl_data)
+                
                 pause_consol()
+            
             case 3: # Запуск программы
                 clear_consol()
-                if os.path.exists("DM-Bot\\DM-Bot.exe"):
-                    subprocess.Popen("DM-Bot\\DM-Bot.exe")
+            
+                if os.path.exists("DM-Bot\\main.exe"):
+                    subprocess.Popen("DM-Bot\\main.exe")
                     return
                 else:
                     logging.error("Файл программы не обнаружен, просьба обновить программу!")
                     pause_consol()
-            case 0:
+            
+            case 0: # Выход из программы
                 return
 
 if __name__ == "__main__":

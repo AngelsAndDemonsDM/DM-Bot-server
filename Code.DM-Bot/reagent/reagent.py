@@ -1,7 +1,6 @@
 from base_classes.base_object import BaseObject
 
-from .reagent_state.base_reagent_state import BaseReagentState
-from .reagent_state.reagent_enum import ReagentEnum
+from .reagent_state import BaseReagentState, ReagentEnum
 
 
 class Reagent(BaseObject):

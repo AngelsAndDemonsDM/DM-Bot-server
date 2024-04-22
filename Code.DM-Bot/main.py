@@ -1,116 +1,39 @@
 import argparse
-import asyncio
 import logging
-import os
 import sys
+import webbrowser
+from html.init_socketio import socketio
+from html.main_routes import main_bp
 
 from colorlog import ColoredFormatter
-from etc.auto_docs import AutoDocs
+from flask import Flask
 from main_vars import VERSION
-from tests.run_tests import run_tests
 
+app = Flask(__name__)
 
-def clear_consol():
-    os.system('cls' if os.name == 'nt' else 'clear')
+socketio.init_app(app)
 
-def pause_consol():
-    input("Нажмите Enter для продолжения...")
+# Blueprint
+app.register_blueprint(main_bp)
 
+# Argument parsing
 def parse_arguments():
     parser = argparse.ArgumentParser(description='DM-Bot')
     parser.add_argument('--debug', action='store_true', help='Включить режим отладки')
     parser.add_argument('--version', action='store_true', help='Возвращает версию приложения')
     return parser.parse_args()
 
-def show_menu_debug():
-    while True:
-        clear_consol()
-        
-        print("DEBUG MODE!\n")
-        print("Меню выбора:")
-        print("1. Запуск тестов")
-        print("2. Создать документацию")
-        print("0. Выход")
-        
-        choice = input("Введите число: ")
-        
-        if choice in {"0", "1", "2"}:
-            return int(choice)
-        else:
-            print("Неверное число. Просьба повторить ввод.")
-            pause_consol()
-
-async def main_debug():
-    # Меню выбора
-    while True:
-        menu = show_menu_debug()
-        
-        match menu:
-            case 1: # Запуск тестов
-                run_tests()
-                pause_consol()
-
-            case 2: # Генерация документации
-                AutoDocs().generate_documentation()
-                pause_consol()
-
-            case 0: # Выход из программы
-                return
-
-
-def print_table(version, created_by):
-    max_created_by_length = max(len(item) for item in created_by)
-    version_length = len(version)
-    top_bottom_line_width = max(version_length, max_created_by_length) + 15
-    
-    print("*" + "-" * (top_bottom_line_width) + "*")
-    print("| Version -", version, " " * (top_bottom_line_width - version_length - 13), "|")
-    print("*" + "-" * (top_bottom_line_width) + "*")
-    
-    for creator in created_by:
-        print("| Created by:", creator, " " * (top_bottom_line_width - len(creator) - 15), "|")
-    
-    print("*" + "-" * (top_bottom_line_width) + "*\n")
-
-def show_menu():
-    while True:
-        clear_consol()
-        
-        print_table(VERSION, ["Многоликий демон - Код", "Vergrey - Оформление, помощь с кодом"])
-        print("Меню выбора:")
-        print("0. Выход")
-
-        choice = input("Введите число: ")
-
-        if choice in {"0"}:
-            return int(choice)
-        else:
-            print("Неверное число. Просьба повторить ввод.")
-            pause_consol()
-
-
-async def main():
-    # Меню выбора
-    while True:
-        menu = show_menu()
-        
-        match menu:
-            case 0: # Выход из программы
-                return
-
-
+# Start program
 if __name__ == "__main__":
     args = parse_arguments()
     version = args.version
+    debug = args.debug
     
     if version:
         print(VERSION)
-        sys.exit()
+        sys.exit(0)
     
-    debug = args.debug
-
     logger = logging.getLogger()
-    
     if debug:
         logger.setLevel(logging.DEBUG)        
     else:
@@ -133,8 +56,8 @@ if __name__ == "__main__":
     )
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
-
-    if debug:
-        asyncio.run(main_debug())
-    else:
-        asyncio.run(main())
+    
+    if not debug:
+        webbrowser.open("http://127.0.0.1:5000")
+    
+    socketio.run(app, debug=debug, allow_unsafe_werkzeug=True)
