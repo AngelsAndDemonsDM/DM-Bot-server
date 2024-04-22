@@ -1,6 +1,5 @@
+from base_classes import PrototypeLoader
 from reagent.reagent import Reagent
-
-from .prototype_loader import PrototypeLoader
 
 
 class ReagentPrototypeLoader(PrototypeLoader):

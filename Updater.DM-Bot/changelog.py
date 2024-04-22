@@ -4,7 +4,6 @@ import os
 import requests
 import yaml
 from requests.exceptions import RequestException
-
 from server_info import ServerInfo
 
 

@@ -1,6 +1,5 @@
+from base_classes import PrototypeLoader
 from effect import Effect
-
-from .prototype_loader import PrototypeLoader
 
 
 class EffectPrototypeLoader(PrototypeLoader):

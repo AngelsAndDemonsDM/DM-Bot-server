@@ -1,6 +1,7 @@
 from flask import Blueprint
 
-from .pages import about_main_page, bot_main_page, index_main_page, players_main_page
+from .pages import (about_main_page, bot_main_page, index_main_page,
+                    players_main_page)
 
 main_bp = Blueprint('main', __name__)
 

@@ -1,7 +1,9 @@
-from flask import render_template
 from html.init_socketio import socketio
+
 from base_classes.file_work import FileWork
+from flask import render_template
 from player.soul import PlayerSoul
+
 
 def players_main_page():
     return render_template('player.html')
