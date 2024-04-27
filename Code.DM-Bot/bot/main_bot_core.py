@@ -1,13 +1,15 @@
+import bot.player_control
 import discord
+import discord.ext
+import discord.ext.commands
 from base_classes import FileWork
+from bot import bot
 from discord.ext import commands
-
-from . import bot
 
 TOKEN_PATH: str = "secrets/token"
 
 @bot.command()
-async def ping(ctx):
+async def ping(ctx: discord.ext.commands.Context):
     await ctx.send(f"Pong in ({round(bot.latency * 1000)}ms)")
 
 async def main():
