@@ -1,3 +1,4 @@
+import logging
 from base_classes import FileWork
 from player import PlayerSoul
 
@@ -13,9 +14,10 @@ def load_players() -> list[PlayerSoul]:
     fw = FileWork(PLAYER_PATH)
 
     try:
-        return fw.load_data()
+        data = fw.load_data()
+        return data
     except FileNotFoundError:
-        return False
+        return None
 
 def create_dir() -> bool:
     fw = FileWork(PLAYER_PATH)

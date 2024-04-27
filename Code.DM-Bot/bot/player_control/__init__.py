@@ -1,3 +1,2 @@
-from .player_add import player_add
-from .player_file_work import create_dir, load_players, save_players
-from .player_rm import player_rm
+from bot.player_control.player_add import player_add
+from bot.player_control.player_rm import player_rm

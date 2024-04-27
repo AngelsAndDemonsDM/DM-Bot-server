@@ -1,9 +1,9 @@
-import bot.player_control
 import discord
 import discord.ext
 import discord.ext.commands
 from base_classes import FileWork
 from bot import bot
+from bot.player_control import player_add, player_rm
 from discord.ext import commands
 
 TOKEN_PATH: str = "secrets/token"
