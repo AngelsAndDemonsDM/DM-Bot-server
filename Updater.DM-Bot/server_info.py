@@ -1,7 +1,7 @@
 import requests
-from main_vars import SERVER_INFO_ID
 from requests.exceptions import RequestException
 
+SERVER_INFO_ID: str = "1_Ytb9xGDPerlInZmWtPrC06MKSglF_8g"
 
 class ServerInfo:
     def __init__(self) -> None:
