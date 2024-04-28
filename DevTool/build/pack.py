@@ -1,12 +1,11 @@
 import logging
 import os
 import shutil
-import sys
 
 import pyzipper
 
 
-def copy_folders(destination, folders):
+def copy_folders(destination, folders: list[str]) -> None:
     current_directory = os.path.dirname(os.path.abspath(__file__))
     source_path = os.path.join(current_directory, "Code.DM-Bot")
 
@@ -19,12 +18,15 @@ def copy_folders(destination, folders):
         
         shutil.copytree(source_folder, destination_folder)
 
-def zip_folder(folder_path, output_path, password, compression=pyzipper.ZIP_DEFLATED, encryption=pyzipper.WZ_AES):
+def zip_folder(
+        folder_path, 
+        output_path, 
+        password, 
+        compression=pyzipper.ZIP_DEFLATED, 
+        encryption=pyzipper.WZ_AES
+    ) -> None:
     parent_folder = os.path.dirname(folder_path)
     contents = os.walk(folder_path)
-    
-    # Инициализация логгера
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
     try:
         with pyzipper.AESZipFile(output_path, 'w', compression=compression, encryption=encryption) as zip_file:
@@ -47,28 +49,22 @@ def zip_folder(folder_path, output_path, password, compression=pyzipper.ZIP_DEFL
 
     except FileNotFoundError as e:
         logging.error(f"File or directory not found: {e}")
-        sys.exit(1)
-    except pyzipper.PyZipperError as e:
-        logging.error(f"PyZipper error: {e}")
-        sys.exit(1)
+
     except Exception as e:
         logging.error(f"An error occurred: {e}")
-        sys.exit(1)
 
-if __name__ == "__main__":
-    destination_folder = "DM-Bot"
+def pack(
+        destination_folder: str = "DM-Bot", 
+        folder_to_add: list[str] = ["templates", "static"]
+    ) -> None:
     output_zip_name = destination_folder + ".zip"
     password = b"1Ei2ttDIBadNmDHqh3HRIWpipnxh7DwNM"
-    
-    folder1 = "templates"
-    folder2 = "static"
     
     if not os.path.exists(destination_folder):
         os.makedirs(destination_folder)
     
-    copy_folders(destination_folder, [folder1, folder2])
+    copy_folders(destination_folder, folder_to_add)
     
     zip_folder(destination_folder, output_zip_name, password)
-    #pyminizip.compress(destination_folder, None, output_zip_name, password, 0)
     
-    print(f"Selected folders are copied to {destination_folder} and compressed into {output_zip_name} with encryption")
+    logging.info(f"Selected folders are copied to {destination_folder} and compressed into {output_zip_name} with encryption")
