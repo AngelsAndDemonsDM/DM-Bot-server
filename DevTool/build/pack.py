@@ -1,9 +1,24 @@
 import logging
 import os
+import secrets
 import shutil
+import string
 import pyzipper
 
-PASSWORD = b"1Ei2ttDIBadNmDHqh3HRIWpipnxh7DwNM"
+PASSWORD_HELL: int = 42
+
+def generate_random_password(length: int) -> str:
+    """
+    Генерирует случайный пароль заданной длины.
+
+    Args:
+        length (int): Длина пароля.
+
+    Returns:
+        str: Случайный пароль.
+    """
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
 
 def copy_folders(destination: str, folders: list[str]) -> None:
     project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -68,16 +83,18 @@ def pack(
     ) -> None:
     output_zip_name = destination_folder + ".zip"
 
+    password = generate_random_password(PASSWORD_HELL)
+
     if not os.path.exists(destination_folder):
         os.makedirs(destination_folder)
 
     copy_folders(destination_folder, folder_to_add)
 
-    zip_folder(destination_folder, output_zip_name, PASSWORD)
+    zip_folder(destination_folder, output_zip_name, password)
 
     logging.info(f"Selected folders are copied to '{destination_folder}' and compressed into '{output_zip_name}' with encryption")
 
-    glue_key(output_zip_name, PASSWORD)
+    glue_key(output_zip_name, password)
 
 if __name__ == "__main__":
     pack()
