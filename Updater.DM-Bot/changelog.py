@@ -47,9 +47,10 @@ class Changelog(ServerInfo):
                 return file_name
             
             except requests.Timeout:
-                print(f"Timeout occurred during changelog download. Retrying ({retries} retries left).")
+                logging.error(f"Timeout occurred during changelog download. Retrying ({retries} retries left).")
+            
             except requests.RequestException as e:
-                print(f"Error during changelog download: {e}. Retrying ({retries} retries left).")
+                logging.error(f"Error during changelog download: {e}. Retrying ({retries} retries left).")
         
         raise RequestException(f"Failed to download changelog after {retries} retries.")
 
@@ -107,6 +108,7 @@ class Changelog(ServerInfo):
 
         except Exception as e:
             logging.error(f"Ошибка при выводе ченджлога: {e}")
+        
         finally:
             if os.path.exists(file_name):
                 os.remove(file_name)

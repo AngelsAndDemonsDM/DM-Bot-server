@@ -110,9 +110,10 @@ class Updater(ServerInfo):
                 return file_name
             
             except requests.Timeout:
-                print(f"Timeout occurred during download. Retrying ({retries} retries left).")
+                logging.error(f"Timeout occurred during download. Retrying ({retries} retries left).")
+            
             except requests.RequestException as e:
-                print(f"Error during download: {e}. Retrying ({retries} retries left).")
+                logging.error(f"Error during download: {e}. Retrying ({retries} retries left).")
         
         raise RequestException(f"Failed to download after {retries} retries.")
 
@@ -146,20 +147,22 @@ class Updater(ServerInfo):
             self.download(file_name=zip_filename)
             
             logging.info("Начало распаковки...")
+            password = self.extract_key_from_zip(zip_filename)
             with pyzipper.AESZipFile(zip_filename, 'r') as zip_ref:
-                zip_ref.setpassword(b"1Ei2ttDIBadNmDHqh3HRIWpipnxh7DwNM")
+                zip_ref.setpassword(password)
                 zip_ref.extractall(os.getcwd())
 
             logging.info("Архив распакован!")
             os.remove(zip_filename)
 
             logging.info("Программа успешно обновлена")
+        
         except Exception as err:
             logging.error(f"Получена ошибка при попытке обновления: {err}")
             return
 
     @staticmethod
-    def check_file_in_directory(directory, filename):
+    def check_file_in_directory(directory, filename) -> bool:
         """
         Проверяет наличие файла в указанной директории.
 
@@ -171,8 +174,10 @@ class Updater(ServerInfo):
             bool: True, если файл существует; False, если файла нет.
         """
         file_path = os.path.join(directory, filename)
+
         if os.path.exists(file_path):
             return True
+
         return False
 
     @staticmethod
@@ -195,3 +200,23 @@ class Updater(ServerInfo):
                 version = result.stdout.strip()
 
         return version
+
+    @staticmethod
+    def extract_key_from_zip(zip_file) -> bytes:
+        """
+        Извлекает ключ шифрования из архива.
+
+        Args:
+            zip_file (str): Путь к архиву.
+
+        Returns:
+            bytes: Ключ шифрования.
+        """
+        with open(zip_file, 'rb') as f:
+            f.seek(-4, 2)
+            key_length_bytes = f.read(4)
+            key_length = int.from_bytes(key_length_bytes, byteorder='big', signed=False)
+            f.seek(-(4 + key_length), 2)
+            key = f.read(key_length)
+        
+        return key
