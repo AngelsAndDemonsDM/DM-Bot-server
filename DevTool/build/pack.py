@@ -84,6 +84,7 @@ def pack(
     output_zip_name = destination_folder + ".zip"
 
     password = generate_random_password(PASSWORD_HELL)
+    password = password.encode("utf-8")
 
     if not os.path.exists(destination_folder):
         os.makedirs(destination_folder)
