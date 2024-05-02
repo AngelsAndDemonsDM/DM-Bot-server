@@ -9,7 +9,7 @@ from discord.ext import commands
 from player import PlayerSoul
 
 
-@bot.command()
+@bot.command(aliases=["pl_rm", "plrm", "player rm"])
 async def player_rm(ctx: discord.ext.commands.Context, player: discord.Member) -> None:
     try:
         data: list[PlayerSoul] = load_players()

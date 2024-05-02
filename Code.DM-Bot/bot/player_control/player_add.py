@@ -11,7 +11,7 @@ from player import PlayerSoul
 
 
 # Добавить красивое оформелине через дискорд эмбарг(когда ни будь когда не будет в падлу)
-@bot.command()
+@bot.command(aliases=["pl_add", "pladd", "player add"])
 async def player_add(ctx: discord.ext.commands.Context, player: discord.Member) -> None:
     try:
         data: list[PlayerSoul] = load_players()
