@@ -3,6 +3,7 @@ import discord.ext
 import discord.ext.commands
 from base_classes import FileWork
 from bot import bot
+from bot.help_command import help
 from bot.player_control import player_add, player_rm
 from discord.ext import commands
 

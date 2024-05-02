@@ -14,3 +14,4 @@ changelog:
     changes:
       - "Добавлены ссылки на почту администрации"
       - "Общее улучшение updater. Просьба переустановить апдейтер по ссылке https://boosty.to/themanyfaceddemon/posts/a04ba0b4-e0be-44c1-8561-682003669c6e?share=post_link"
+      - "Добавлена команда help в перечень команд бота"
