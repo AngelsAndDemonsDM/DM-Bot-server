@@ -31,39 +31,27 @@ def show_menu(version) -> int:
             pause_consol()
 
 def print_table(version, created_by):
-    if not version:
-        version = "None"
-    # Именованные константы для заголовка, маржи, меток версии и создателей
+    version = version or "None"
     HEADER_TITLE = "Автоматический лаунчер обновлений для DM-Bot"
     HEADER_MARGIN = 4
-    VERSION_LABEL = "Version -"
-    CREATED_BY_LABEL = "Created by:"
+    VERSION_LABEL = "Version: "
+    CREATED_BY_LABEL = "Created by: "
 
-    # Вычисляем длины
-    max_created_by_length = max(len(item) + len("Created by:") for item in created_by)
-    version_length = len(version)
-    const_length = len(HEADER_TITLE)
-    
-    # Вычисляем ширину верхней и нижней линий
-    top_bottom_line_width = max(version_length, max_created_by_length, const_length) + 2 * HEADER_MARGIN
-    
-    # Выводим заголовок
-    print("┌" + "─" * top_bottom_line_width + "┐")
-    print(f"│ {HEADER_TITLE}{' ' * (top_bottom_line_width - const_length - 2)} │")
-    print("├" + "─" * top_bottom_line_width + "┤")
-    
-    # Выводим версию
-    version_line = f"│ {VERSION_LABEL} {version}{' ' * (top_bottom_line_width - version_length - len(VERSION_LABEL) - 3)} │"
-    print(version_line)
-    print("├" + "─" * top_bottom_line_width + "┤")
-    
-    # Выводим создателей
+    max_length = max(len(HEADER_TITLE), len(version) + len(VERSION_LABEL), 
+                     max(len(item) + len(CREATED_BY_LABEL) for item in created_by))
+    line_width = max_length + 2 * HEADER_MARGIN
+
+    print(f"┌{'─' * line_width}┐")
+    print(f"│ {HEADER_TITLE}{' ' * (line_width - len(HEADER_TITLE) - 2)} │")
+    print(f"├{'─' * line_width}┤")
+
+    print(f"│ {VERSION_LABEL}{version}{' ' * (line_width - len(version) - len(VERSION_LABEL) - 2)} │")
+    print(f"├{'─' * line_width}┤")
+
     for creator in created_by:
-        creator_line = f"│ {CREATED_BY_LABEL} {creator}{' ' * (top_bottom_line_width - len(creator) - len(CREATED_BY_LABEL) - 3)} │"
-        print(creator_line)
-    
-    # Выводим нижнюю линию
-    print("└" + "─" * top_bottom_line_width + "┘")
+        print(f"│ {CREATED_BY_LABEL}{creator}{' ' * (line_width - len(creator) - len(CREATED_BY_LABEL) - 2)} │")
+
+    print(f"└{'─' * line_width}┘")
 
 
 def main() -> None:
@@ -124,4 +112,5 @@ if __name__ == "__main__":
     )
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
+
     main()
