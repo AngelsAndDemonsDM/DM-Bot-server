@@ -31,12 +31,11 @@ class Changelog(ServerInfo):
         Returns:
             str: Имя скачанного файла ченджлога.
         """
-        if 'changelog_id' not in self._info_json:
-            raise ValueError("\"changelog_id\" not found in json_data")
+        self.raise_if_not_data("changelog_id")
         
         for _ in range(retries):
             try:
-                with requests.get(self._url(self._info_json['changelog_id']), stream=True, timeout=timeout) as response:
+                with self._session.get(self._url(self._info_json['changelog_id']), stream=True, timeout=timeout) as response:
                     response.raise_for_status()
                     
                     with open(file_name, 'wb') as file:

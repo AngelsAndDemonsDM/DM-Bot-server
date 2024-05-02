@@ -71,11 +71,11 @@ class Updater(ServerInfo):
         Returns:
             bool: True, если есть новая версия; False, если версия актуальна.
         """
-        if 'version' not in self._info_json:
-            raise ValueError("\"version\" not found on server")
+        self.raise_if_not_data("version")
         
         if self.compare_versions(self._info_json['version'], self._version) == 1:
             return True
+        
         return False
 
     def download(self, file_name, chunk_size=8192, retries=3, timeout=30):
@@ -94,12 +94,11 @@ class Updater(ServerInfo):
         Returns:
             str: Имя скачанного файла.
         """
-        if 'download' not in self._info_json:
-            raise ValueError("\"download\" not found in json_data")
+        self.raise_if_not_data("download")
         
         for _ in range(retries):
             try:
-                with requests.get(self._url(self._info_json['download']), stream=True, timeout=timeout) as response:
+                with self._session.get(self._url(self._info_json['download']), stream=True, timeout=timeout) as response:
                     response.raise_for_status()
                     
                     with open(file_name, 'wb') as file:
@@ -141,7 +140,13 @@ class Updater(ServerInfo):
         try:
             if os.path.exists(destination_folder):
                 logging.info("Удаление старой версии")
-                shutil.rmtree(destination_folder)
+                for item in os.listdir(destination_folder):
+                    if item != "Data.DM-Bot":
+                        item_path = os.path.join(destination_folder, item)
+                        if os.path.isfile(item_path):
+                            os.remove(item_path)
+                        elif os.path.isdir(item_path):
+                            shutil.rmtree(item_path)
 
             logging.info("Начинаю скачивать архив с сервера...")
             self.download(file_name=zip_filename)
