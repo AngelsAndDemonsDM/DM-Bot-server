@@ -9,3 +9,8 @@ changelog:
     date: "2024-04-16"
     changes:
       - "Добавлен первичный UI для программы"
+  - version: "0.0.03"
+    date: "2024-05-02"
+    changes:
+      - "Добавлены ссылки на почту администрации"
+      - "Общее улучшение updater. Просьба переустановить апдейтер по ссылке https://boosty.to/themanyfaceddemon/posts/a04ba0b4-e0be-44c1-8561-682003669c6e?share=post_link"
