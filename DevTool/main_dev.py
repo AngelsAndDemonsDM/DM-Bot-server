@@ -3,8 +3,9 @@ import os
 import subprocess
 import sys
 
-from build import build_main, build_updater, pack
 from colorlog import ColoredFormatter
+
+from build import build_main, build_updater, pack
 
 
 def clear_consol() -> None:
@@ -24,7 +25,7 @@ def main() -> None:
         match int(menu):
             case 1:
                 build_main()
-                pack()
+                pack(folder_to_add=["templates", "static", "../Prototype.DM-Bot", "../Loc.DM-Bot", "../Sprites.DM-Bot"])
                 
             case 2:
                 build_updater()

@@ -4,6 +4,7 @@ import secrets
 import shutil
 import string
 import pyzipper
+import re
 
 PASSWORD_HELL: int = 42
 
@@ -27,7 +28,8 @@ def copy_folders(destination: str, folders: list[str]) -> None:
 
     for folder in folders:
         source_folder = os.path.join(source_path, folder)
-        destination_folder = os.path.join(destination, folder)
+        destination_path = re.sub(r'\.\./', '', folder)
+        destination_folder = os.path.join(destination, destination_path)
 
         if os.path.exists(destination_folder):
             shutil.rmtree(destination_folder)
@@ -98,4 +100,4 @@ def pack(
     glue_key(output_zip_name, password)
 
 if __name__ == "__main__":
-    pack()
+    pack(folder_to_add=["templates", "static", "../Prototype.DM-Bot", "../Loc.DM-Bot", "../Sprites.DM-Bot"])
