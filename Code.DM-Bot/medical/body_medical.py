@@ -5,14 +5,14 @@ class BodyMedical:
 
         # Stats
         self._body_stats = {
-            "cognitive": self.cognitive, # сознание
-            "pain": self.pain, # боль
-            "vision": self.vision, # зрение
-            "hearing": self.hearing, # слух
-            "scent": self.scent, # обоняние
+            "cognitive": self.cognitive,       # сознание
+            "pain": self.pain,                 # боль
+            "vision": self.vision,             # зрение
+            "hearing": self.hearing,           # слух
+            "scent": self.scent,               # обоняние
             "productivity": self.productivity, # работа
-            "movement": self.movement, # передвижение
-            "fertility": self.fertility, # фертильность
+            "movement": self.movement,         # передвижение
+            "fertility": self.fertility,       # фертильность
         }
 
         # Needs
