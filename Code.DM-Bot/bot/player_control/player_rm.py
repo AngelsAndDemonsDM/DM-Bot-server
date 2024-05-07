@@ -1,5 +1,6 @@
 import logging
 
+# TODO: SQL3
 import discord
 import discord.ext
 import discord.ext.commands

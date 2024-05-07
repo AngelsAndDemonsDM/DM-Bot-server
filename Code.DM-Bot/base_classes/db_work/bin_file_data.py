@@ -3,7 +3,7 @@ import os
 import pickle
 
 
-class FileWork:
+class BinFileData:
     def __init__(self, file_path) -> None:
         """
         Инициализация объекта FileWork.

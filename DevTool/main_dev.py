@@ -3,9 +3,8 @@ import os
 import subprocess
 import sys
 
-from colorlog import ColoredFormatter
-
 from build import build_main, build_updater, pack
+from colorlog import ColoredFormatter
 
 
 def clear_consol() -> None:
