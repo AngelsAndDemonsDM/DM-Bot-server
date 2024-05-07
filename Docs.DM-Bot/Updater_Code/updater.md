@@ -54,3 +54,10 @@ filename (str): Имя файла, из которого нужно получи
 <br>**Returns:**<br>
 str: Версия программы, полученная из файла.<br>
 <br>
+## `Updater.extract_key_from_zip`<br>
+Извлекает ключ шифрования из архива.<br>
+<br>**Args:**<br>
+zip_file (str): Путь к архиву.<br>
+<br>**Returns:**<br>
+bytes: Ключ шифрования.<br>
+<br>
