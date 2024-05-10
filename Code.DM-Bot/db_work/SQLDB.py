@@ -29,9 +29,9 @@ class SQLDB:
             db = SQLDB(
                 table_name="users",
                 columns={
-                    "id": (int, ["INTEGER", "PRIMARY KEY", "AUTOINCREMENT"]),
-                    "username": (str, ["TEXT", "UNIQUE"]),
-                    "email": (str, ["TEXT", "NOT NULL"])
+                    "id": (int, ["PRIMARY KEY", "AUTOINCREMENT"]),
+                    "username": (str, ["UNIQUE"]),
+                    "email": (str, ["NOT NULL"])
                 },
                 db_name="my_db",
                 db_path="/path/to/database/"
