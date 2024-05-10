@@ -2,8 +2,8 @@ import asyncio
 from html.init_socketio import socketio
 
 import requests
-from base_classes.db_work import BinFileData
 from bot import bot, main
+from db_work import BinFileData
 from flask import render_template
 
 TOKEN_PATH: str = "secrets/token"
