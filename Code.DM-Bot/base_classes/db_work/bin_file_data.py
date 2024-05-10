@@ -4,27 +4,37 @@ import pickle
 
 
 class BinFileData:
-    def __init__(self, file_path) -> None:
+    """
+    Класс для работы с бинарными файлами.
+
+    Attributes:
+        _path (str): Полный путь к файлу.
+        _data (object): Данные файла.
+        _cached (bool): Флаг, указывающий, кэшированы ли данные.
+        _file_hash (str): Хеш файла.
+    """
+    def __init__(self, file_path: str) -> None:
         """
-        Инициализация объекта FileWork.
+        Инициализация объекта BinFileData.
 
         Args:
             file_path (str): Путь к файлу.
 
-        Attributes:
-            path (str): Полный путь к файлу.
-            data (object): Данные файла.
-            cached (bool): Флаг указывающий, кэшированы ли данные.
-            file_hash (str): Хэш файла.
+        Examples:
+            Создание экземпляра класса BinFileData для работы с файлом "example_data.bin"
+            ```py
+            file_data = BinFileData("example_data")
+            ```
         """
         file_path = file_path + ".bin"
         file_path = file_path.replace('/', os.sep)
         self._path = os.path.join(os.getcwd(), 'Data.DM-Bot', file_path)
+        self._create_file()
         self._data = None
         self._cached = False
         self._file_hash = None
 
-    def create_file(self) -> bool:
+    def _create_file(self) -> bool:
         """
         Создание директории и файла, если они не были созданы ранее.
         
@@ -71,7 +81,7 @@ class BinFileData:
             FileNotFoundError: Если файл не найден.
         """
         if not os.path.exists(self._path):
-            raise FileNotFoundError(f"File {self._path} not found")
+            raise FileNotFoundError(f"Файл {self._path} не найден")
     
         with open(self._path, 'rb') as file:
             return file.read()
@@ -85,6 +95,13 @@ class BinFileData:
 
         Raises:
             FileNotFoundError: Если файл не найден.
+
+        Examples:
+            Загрузка данных из файла "example_data.bin"
+            ```py
+            loaded_data = file_data.load_data()
+            print("Загруженные данные из файла:", loaded_data)
+            ```
         """
         current_hash = self._calculate_file_hash()
 
@@ -108,6 +125,12 @@ class BinFileData:
     def save_data(self) -> None:
         """
         Сохранение данных.
+
+        Examples:
+            Сохранение данных в файл "example_data.bin"
+            ```py
+            file_data.save_data()
+            ```
         """
         self._save_file()
         self._cached = False
@@ -115,19 +138,25 @@ class BinFileData:
     @property
     def data(self) -> object:
         """
-        Возвращает текущие данные класса
+        Возвращает или записывает данные
         
         Returns:
             any: Данные, записанные в классе
+
+        Examples:
+            Получение данных из объекта класса
+            ```py
+            file_data = BinFileData("example_data")
+            file_data.data = 123
+            file_data.save_data()
+            file_data.data = 124
+            file_data.load_data()
+            print("Данные из объекта класса:", file_data.data)
+            ```
+            print выведет `Данные из объекта класса: 123`
         """
         return self._data
 
     @data.setter
     def data(self, data) -> None:
-        """
-        Записывает в data класса кастомные данные
-
-        Args:
-            data (any): Данные для записи в класс
-        """
         self._data = data

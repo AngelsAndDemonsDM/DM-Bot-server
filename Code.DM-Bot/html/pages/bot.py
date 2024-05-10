@@ -29,9 +29,6 @@ def get_token(data):
     if flag:
         file_work = BinFileData(TOKEN_PATH)
 
-        if not file_work.create_file():
-            socketio.emit("anserFromPy", "<p class=\"red\"style=\"display: inline;\">Внимание!</p><br>Перезапись сохранённого токена!")
-        
         file_work.data = data
         file_work.save_data()
         is_has_token()
