@@ -281,3 +281,31 @@ class SQLDB:
         for record in records_to_delete:
             record_id = record["id"]
             self.delete(record_id)
+
+    def get_all_records(self) -> List[Dict[str, any]]:
+        """
+        Получает все записи из таблицы.
+
+        Returns:
+            List[Dict[str, any]]: Список всех записей из таблицы.
+
+        Examples:
+            Получение всех записей из таблицы "users":
+            ```py
+            all_users = db.get_all_records()
+            print(all_users)
+            ```
+            Вывод: [{"id": 1, "username": "john_doe", "email": "john@example.com"}, {"id": 2, "username": "jane_doe", "email": "jane@example.com"}]
+        """
+        cursor = self._connection.cursor()
+
+        query = f"SELECT * FROM {self._table_name}"
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+        records = []
+        for row in rows:
+            record = dict(zip([column[0] for column in cursor.description], row))
+            records.append(record)
+
+        return records

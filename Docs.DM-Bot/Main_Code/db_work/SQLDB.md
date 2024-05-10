@@ -107,3 +107,16 @@ criteria = {"username": "john_doe"}
 db.delete_mass(criteria)
 ```
 <br>
+
+## `SQLDB.get_all_records`<br>
+Получает все записи из таблицы.<br>
+**Returns:**<br>
+List[Dict[str, any]]: Список всех записей из таблицы.<br>
+**Examples:**<br>
+Получение всех записей из таблицы "users":<br>
+```py
+all_users = db.get_all_records()
+print(all_users)
+```
+Вывод: [{"id": 1, "username": "john_doe", "email": "john@example.com"}, {"id": 2, "username": "jane_doe", "email": "jane@example.com"}]<br>
+<br>
