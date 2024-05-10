@@ -10,9 +10,9 @@ columns (Dict[str, Tuple[type, List[str]]]): Словарь, где ключи -
 db_name (str): Имя базы данных.<br>
 db_path (str): Путь к базе данных.<br>
 **Examples:**<br>
-Создание экземпляра класса SQLDBBase для работы с таблицей "users" в базе данных "my_db.db" с указанием столбцов "id" (целое число, первичный ключ, автоинкремент), "username" (строка, уникальное значение) и "email" (строка, обязательное поле)<br>
+Создание экземпляра класса SQLDB для работы с таблицей "users" в базе данных "my_db.db" с указанием столбцов "id" (целое число, первичный ключ, автоинкремент), "username" (строка, уникальное значение) и "email" (строка, обязательное поле)<br>
 ```py
-db = SQLDBBase(
+db = SQLDB(
 table_name="users",
 columns={
 "id": (int, ["INTEGER", "PRIMARY KEY", "AUTOINCREMENT"]),

@@ -24,9 +24,9 @@ class SQLDB:
             db_path (str): Путь к базе данных.
 
         Examples:
-            Создание экземпляра класса SQLDBBase для работы с таблицей "users" в базе данных "my_db.db" с указанием столбцов "id" (целое число, первичный ключ, автоинкремент), "username" (строка, уникальное значение) и "email" (строка, обязательное поле)
+            Создание экземпляра класса SQLDB для работы с таблицей "users" в базе данных "my_db.db" с указанием столбцов "id" (целое число, первичный ключ, автоинкремент), "username" (строка, уникальное значение) и "email" (строка, обязательное поле)
             ```py
-            db = SQLDBBase(
+            db = SQLDB(
                 table_name="users",
                 columns={
                     "id": (int, ["INTEGER", "PRIMARY KEY", "AUTOINCREMENT"]),
@@ -135,7 +135,7 @@ class SQLDB:
             if self._connection is not None:
                 self._connection.close()
         except sqlite3.Error as err:
-            logging.error(f"SQLDBBase error: __del__: {err}")
+            logging.error(f"SQLDB error: __del__: {err}")
 
     def find(self, criteria: Dict[str, any]) -> List[Dict[str, any]]:
         """
