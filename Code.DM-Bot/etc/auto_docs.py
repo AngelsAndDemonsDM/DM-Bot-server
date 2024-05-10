@@ -66,9 +66,16 @@ class AutoDocs:
         else:
             formatted_docstring = f"## `{name}`\n*Документация отсутствует*\n\n"
 
-        formatted_docstring = re.sub(r'(Args|Attributes|Examples|Parameters|Raises|Returns):\n', r'<br>**\1:**\n', formatted_docstring)
+        formatted_docstring = re.sub(r'(Args|Attributes|Examples|Parameters|Raises|Returns):\n', r'**\1:**\n', formatted_docstring)
         formatted_docstring = re.sub(r'\n', r'<br>\n', formatted_docstring)
         formatted_docstring = re.sub(r'<br>\n<br>\n', r'<br>\n', formatted_docstring)
+        
+        formatted_docstring = re.sub(r'```py.*?```<br>', lambda match: match.group().replace('<br>', ''), formatted_docstring, flags=re.DOTALL)
+        formatted_docstring = re.sub(r'```py', r'\n```py', formatted_docstring)
+        formatted_docstring = re.sub(r'```(?!py)', r'```\n', formatted_docstring)
+
+        formatted_docstring = re.sub(r'##(?=[^\n])', r'\n##', formatted_docstring)
+        formatted_docstring = re.sub(r'\n\n', r'\n', formatted_docstring)
 
         return formatted_docstring
 
