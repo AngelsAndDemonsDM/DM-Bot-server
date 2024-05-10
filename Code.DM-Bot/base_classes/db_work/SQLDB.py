@@ -24,9 +24,8 @@ class SQLDB:
             db_path (str): Путь к базе данных.
 
         Examples:
-            # Создание экземпляра класса SQLDBBase для работы с таблицей "users" в базе данных "my_db.db"
-            # с указанием столбцов "id" (целое число, первичный ключ, автоинкремент), "username" (строка, уникальное значение)
-            # и "email" (строка, обязательное поле)
+            Создание экземпляра класса SQLDBBase для работы с таблицей "users" в базе данных "my_db.db" с указанием столбцов "id" (целое число, первичный ключ, автоинкремент), "username" (строка, уникальное значение) и "email" (строка, обязательное поле)
+            ```py
             db = SQLDBBase(
                 table_name="users",
                 columns={
@@ -37,6 +36,7 @@ class SQLDB:
                 db_name="my_db",
                 db_path="/path/to/database/"
             )
+            ```
         """
         self._connection: sqlite3.Connection = None
         self._table_name: str = table_name
@@ -146,10 +146,12 @@ class SQLDB:
             List[Dict[str, any]]: Список найденных записей.
 
         Examples:
-            # Поиск пользователя по имени пользователя
+            Поиск пользователя по имени пользователя
+            ```py
             criteria = {"username": "john_doe"}
             found_users = db.find(criteria)
             print(found_users)
+            ```
         """
         cursor = self._connection.cursor()
 
@@ -175,9 +177,11 @@ class SQLDB:
             record (Dict[str, any]): Запись для добавления.
 
         Examples:
-            # Добавление нового пользователя в таблицу
+            Добавление нового пользователя в таблицу
+            ```py
             user_record = {"username": "john_doe", "email": "john@example.com"}
             db.add(user_record)
+            ```
         """
         cursor = self._connection.cursor()
 
@@ -198,9 +202,12 @@ class SQLDB:
             new_values (Dict[str, any]): Новые значения для записи.
 
         Examples:
-            # Обновление данных пользователя
+            Обновление данных пользователя
+            ```py
             updated_values = {"email": "john.doe@example.com"}
-            db.update(1, updated_values)  # Предполагается, что пользователь с ID=1 существует
+            db.update(1, updated_values)  
+            ```
+            Предполагается, что пользователь с ID=1 существует
         """
         cursor = self._connection.cursor()
 
@@ -220,10 +227,12 @@ class SQLDB:
             new_values (Dict[str, any]): Новые значения для записей.
 
         Examples:
-            # Массовое обновление email у всех пользователей с именем "john_doe"
+            Массовое обновление email у всех пользователей с именем "john_doe"
+            ```py
             criteria = {"username": "john_doe"}
             new_values = {"email": "john_new@example.com"}
             db.update_mass(criteria, new_values)
+            ```
         """
         records_to_update = self.find(criteria)
 
@@ -239,8 +248,11 @@ class SQLDB:
             record_id (int): Идентификатор записи.
 
         Examples:
-            # Удаление пользователя
-            db.delete(1)  # Предполагается, что пользователь с ID=1 существует
+            Удаление пользователя
+            ```py
+            db.delete(1)
+            ```
+            Предполагается, что пользователь с ID=1 существует
         """
         cursor = self._connection.cursor()
 
@@ -256,9 +268,11 @@ class SQLDB:
             criteria (Dict[str, any]): Критерии для выбора записей для удаления.
 
         Examples:
-            # Массовое удаление пользователей с именем "john_doe"
+            Массовое удаление пользователей с именем "john_doe"
+            ```py
             criteria = {"username": "john_doe"}
             db.delete_mass(criteria)
+            ```
         """
         records_to_delete = self.find(criteria)
 
