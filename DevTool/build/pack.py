@@ -41,28 +41,43 @@ def zip_folder(
         folder_path, 
         output_path, 
         password, 
-        compression=pyzipper.ZIP_DEFLATED, 
-        encryption=pyzipper.WZ_AES
+        compression = pyzipper.ZIP_DEFLATED, 
+        encryption = pyzipper.WZ_AES
     ) -> None:
     parent_folder = os.path.dirname(folder_path)
     contents = os.walk(folder_path)
 
     try:
-        with pyzipper.AESZipFile(output_path, 'w', compression=compression, encryption=encryption) as zip_file:
-            zip_file.setpassword(password)
+        if password is None:
+            with pyzipper.AESZipFile(output_path, 'w', compression=compression) as zip_file:
+                for root, folders, files in contents:
+                    for folder_name in folders:
+                        absolute_path = os.path.join(root, folder_name)
+                        relative_path = os.path.relpath(absolute_path, parent_folder)
+                        logging.info(f"Adding '{absolute_path}' to archive.")
+                        zip_file.write(absolute_path, relative_path)
 
-            for root, folders, files in contents:
-                for folder_name in folders:
-                    absolute_path = os.path.join(root, folder_name)
-                    relative_path = os.path.relpath(absolute_path, parent_folder)
-                    logging.info(f"Adding '{absolute_path}' to archive.")
-                    zip_file.write(absolute_path, relative_path)
+                    for file_name in files:
+                        absolute_path = os.path.join(root, file_name)
+                        relative_path = os.path.relpath(absolute_path, parent_folder)
+                        logging.info(f"Adding '{absolute_path}' to archive.")
+                        zip_file.write(absolute_path, relative_path)
+        else:
+            with pyzipper.AESZipFile(output_path, 'w', compression=compression, encryption=encryption) as zip_file:
+                zip_file.setpassword(password)
 
-                for file_name in files:
-                    absolute_path = os.path.join(root, file_name)
-                    relative_path = os.path.relpath(absolute_path, parent_folder)
-                    logging.info(f"Adding '{absolute_path}' to archive.")
-                    zip_file.write(absolute_path, relative_path)
+                for root, folders, files in contents:
+                    for folder_name in folders:
+                        absolute_path = os.path.join(root, folder_name)
+                        relative_path = os.path.relpath(absolute_path, parent_folder)
+                        logging.info(f"Adding '{absolute_path}' to archive.")
+                        zip_file.write(absolute_path, relative_path)
+
+                    for file_name in files:
+                        absolute_path = os.path.join(root, file_name)
+                        relative_path = os.path.relpath(absolute_path, parent_folder)
+                        logging.info(f"Adding '{absolute_path}' to archive.")
+                        zip_file.write(absolute_path, relative_path)
 
         logging.info(f"'{output_path}' created successfully.")
 
@@ -106,3 +121,4 @@ def pack(
     logging.info(f"Selected folders are copied to '{destination_folder}' and compressed into '{output_zip_name}' with encryption '{password}'")
 
     glue_key(output_zip_name, password)
+
