@@ -73,20 +73,28 @@ def zip_folder(
         logging.error(f"An error occurred: {e}")
 
 def glue_key(zip_file, key):
-    key_length = len(key)
     with open(zip_file, 'ab') as f:
-        f.write(key)
+        if key is not None:
+            key_length = len(key)
+            f.write(key)
+        else:
+            key_length = 0
+
         f.write(key_length.to_bytes(4, byteorder='big', signed=False))
-        logging.info(f"Key and its length appended to '{zip_file}'")
+        logging.info(f"Key '{key}' and its length '{key_length}' appended to '{zip_file}'")
 
 def pack(
         destination_folder: str = "DM-Bot", 
-        folder_to_add: list[str] = ["templates", "static"]
+        folder_to_add: list[str] = ["templates", "static"],
+        use_password: bool = True 
     ) -> None:
     output_zip_name = destination_folder + ".zip"
 
-    password = generate_random_password(PASSWORD_HELL)
-    password = password.encode("utf-8")
+    if use_password:
+        password = generate_random_password(PASSWORD_HELL)
+        password = password.encode("utf-8")
+    else:
+        password = None
 
     if not os.path.exists(destination_folder):
         os.makedirs(destination_folder)
@@ -95,9 +103,6 @@ def pack(
 
     zip_folder(destination_folder, output_zip_name, password)
 
-    logging.info(f"Selected folders are copied to '{destination_folder}' and compressed into '{output_zip_name}' with encryption")
+    logging.info(f"Selected folders are copied to '{destination_folder}' and compressed into '{output_zip_name}' with encryption '{password}'")
 
     glue_key(output_zip_name, password)
-
-if __name__ == "__main__":
-    pack(folder_to_add=["templates", "static", "../Prototype.DM-Bot", "../Loc.DM-Bot", "../Sprites.DM-Bot"])

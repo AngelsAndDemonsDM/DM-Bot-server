@@ -6,7 +6,6 @@ import sys
 from build import build_main, pack
 from colorlog import ColoredFormatter
 
-
 if __name__ == "__main__":
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)        
@@ -30,4 +29,4 @@ if __name__ == "__main__":
     logger.addHandler(console_handler)
 
     build_main()
-    pack(folder_to_add=["templates", "static", "../Prototype.DM-Bot", "../Loc.DM-Bot", "../Sprites.DM-Bot"])
+    pack(folder_to_add=["templates", "static", "../Prototype.DM-Bot", "../Loc.DM-Bot", "../Sprites.DM-Bot"], use_password=False)
