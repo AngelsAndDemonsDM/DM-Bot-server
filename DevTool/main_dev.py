@@ -3,38 +3,8 @@ import os
 import subprocess
 import sys
 
-from build import build_main, build_updater, pack
+from build import build_main, pack
 from colorlog import ColoredFormatter
-
-
-def clear_consol() -> None:
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-def print_menu() -> None:
-    print("1. build_main & pack")
-    print("2. build_updater")
-    print("0. exit")
-
-def main() -> None:
-    while True:
-        clear_consol()
-        print_menu()
-        menu = input("> ")
-        
-        match int(menu):
-            case 1:
-                build_main()
-                pack(folder_to_add=["templates", "static", "../Prototype.DM-Bot", "../Loc.DM-Bot", "../Sprites.DM-Bot"])
-                
-            case 2:
-                build_updater()
-
-            case 0:
-                sys.exit(0)
-            
-            case _:
-                print("number error")
-                input("Enter...")
 
 
 if __name__ == "__main__":
@@ -59,4 +29,5 @@ if __name__ == "__main__":
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-    main()
+    build_main()
+    pack(folder_to_add=["templates", "static", "../Prototype.DM-Bot", "../Loc.DM-Bot", "../Sprites.DM-Bot"])
