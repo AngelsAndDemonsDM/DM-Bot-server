@@ -51,13 +51,12 @@ class SQLDB:
             db_name (str): Имя базы данных.
             db_path (str): Путь к базе данных.
         """
-        db_path = db_name + ".db"
         db_path = db_path.replace('/', os.sep)
         db_path = os.path.join(os.getcwd(), 'Data.DM-Bot', db_path)
         if not os.path.exists(db_path):
             os.makedirs(db_path)
         
-        self._connection = sqlite3.connect(db_path)
+        self._connection = sqlite3.connect(f"{db_path}/{db_name}.db")
 
     def _create_db(self, columns: Dict[str, Tuple[type, List[str]]]) -> None:
         """
@@ -101,10 +100,11 @@ class SQLDB:
             str: Тип данных SQLite.
         """
         match str(datatype):
-            case "int" | "bool": return "INTEGER"
-            case "float":        return "REAL"
-            case "str":          return "TEXT"
-            case _:              raise ValueError(f"Unsupported datatype: {datatype}")
+            case "<class 'int'>" | "<class 'bool'>": return "INTEGER"
+            case "<class 'float'>":                  return "REAL"
+            case "<class 'str'>":                    return "TEXT"
+            case "<class 'bytes'>":                  return "BLOB"
+            case _:                                  raise ValueError(f"Unsupported datatype: {datatype}")
 
     def _get_column_flags(self, flags: List[str]) -> str:
         """

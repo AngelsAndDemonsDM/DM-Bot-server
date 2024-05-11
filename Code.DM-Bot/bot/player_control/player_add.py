@@ -1,46 +1,26 @@
 import logging
 
-# TODO: SQL3
 import discord
 import discord.ext
 import discord.ext.commands
 from bot import bot
-from bot.player_control.player_file_work import (create_dir, load_players,
-                                                 save_players)
+from discord import Option
 from discord.ext import commands
-from player import PlayerSoul
+from player import soul_db
 
 
-# Добавить красивое оформелине через дискорд эмбарг(когда ни будь когда не будет в падлу)
-@bot.command(aliases=["pl_add", "pladd", "player add"])
-async def player_add(ctx: discord.ext.commands.Context, player: discord.Member) -> None:
-    try:
-        data: list[PlayerSoul] = load_players()
+# TODO: оформелине через дискорд эмбарг(maybe)
+@bot.slash_command(name="player_add", description="", guild_ids=['1218456392730411049'])
+async def player_add(
+    ctx:    discord.ApplicationContext, 
+    player: Option(discord.Member, description="", required=True) # type: ignore
+    ) -> None:
+    user = {"disord_id": player.id, "name": player.name}
 
-        if not data:
-            create_dir()
-            data: list[PlayerSoul] = []
-            await add_payer_to_bd(ctx, data, PlayerSoul(player.id, player.name))
-            return
-        
-        for soul in data:
-            if soul.id == player.id:
-                await ctx.send(f"Игрок {player.name} уже находился в базе данных")
-                return
-
-        await add_payer_to_bd(ctx, data, PlayerSoul(player.id, player.name))
-        return
+    try:  
+        await soul_db.add(user)
+        resp = "Пользователь успешно добавлен в БД"
     except Exception as err:
-        logging.error(f"player_control.player_add error: {err}")
+        resp = f"Пользователь не был добавлен в БД. Ошибка: {err}"
 
-@player_add.error
-async def player_add_bad_argument(ctx: discord.ext.commands.Context, error) -> None:
-    if isinstance(error, commands.BadArgument):
-        await ctx.send("В качестве первого аргуметна необходим ID пользователя дискорд или просто упомяните его.")
-        return
-
-async def add_payer_to_bd(ctx: discord.ext.commands.Context, data_list: list[PlayerSoul], player: PlayerSoul) -> None:
-    data_list.append(player)
-    save_players(data_list)
-
-    await ctx.send(f"Игрок {player.name} успешно добавлен в базу данных")
+    await ctx.respond(resp)
