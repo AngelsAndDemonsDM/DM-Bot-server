@@ -7,7 +7,8 @@ from html.main_routes import main_bp
 
 from colorlog import ColoredFormatter
 from flask import Flask
-from main_vars import VERSION
+
+VERSION: str = "0.0.01"
 
 app = Flask(__name__)
 

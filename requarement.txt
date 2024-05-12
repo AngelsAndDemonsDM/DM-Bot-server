@@ -1,11 +1,12 @@
-isort
 aiofiles
 colorlog
-discord.py
+py-cord
 flask
 flask-socketio
 imageio
+isort
 nuitka
-pyzipper
 pyyaml
+pyzipper
 requests
+toml

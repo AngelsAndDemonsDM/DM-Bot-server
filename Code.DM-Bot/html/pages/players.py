@@ -1,9 +1,10 @@
+import asyncio
 from html.init_socketio import socketio
 
-from base_classes.file_work import FileWork
 from flask import render_template
-from player.soul import PlayerSoul
+from player import soul_db
 
+PLAYER_PATH: str = "Discord/players"
 
 def players_main_page():
     return render_template('player.html')
@@ -11,20 +12,18 @@ def players_main_page():
 @socketio.on('getAllPlayers')
 def handle_get_all_players():
     player_list = []
-    try:
-        players: list[PlayerSoul] = FileWork("Discord/players")
-        
-        for player in players:
-            player_dict = {}
-            player_dict["id"] = player.id
-            player_dict["name"] = player.name
-            player_list.append(player_dict)
-        
-        # Если player_list пустой, добавляем плейсхолдер игрока
-    except Exception:
-        player_list.append({
-            "id": "placeholder",
-            "name": "Нет доступных игроков"
-        })
-        
-    socketio.emit('allPlayers', player_list)
+
+    async def async_task():
+        try:
+            for user in await soul_db.get_all_records():
+                player_list.append({"id": user["id"], "name": user["name"]})
+
+        except Exception:
+            player_list.append({
+                "id": "placeholder",
+                "name": "Нет доступных игроков"
+            })
+
+        socketio.emit('allPlayers', player_list)
+
+    asyncio.run(async_task())

@@ -2,8 +2,8 @@ import asyncio
 from html.init_socketio import socketio
 
 import requests
-from base_classes.file_work import FileWork
 from bot import bot, main
+from db_work import BinFileData
 from flask import render_template
 
 TOKEN_PATH: str = "secrets/token"
@@ -27,11 +27,8 @@ def get_token(data):
     socketio.emit("anserFromPy", anser)
 
     if flag:
-        file_work = FileWork(TOKEN_PATH)
+        file_work = BinFileData(TOKEN_PATH)
 
-        if not file_work.create_file():
-            socketio.emit("anserFromPy", "<p class=\"red\"style=\"display: inline;\">Внимание!</p><br>Перезапись сохранённого токена!")
-        
         file_work.data = data
         file_work.save_data()
         is_has_token()
@@ -52,7 +49,7 @@ def token_valid(token: str) -> bool:
 # У нас запросили наличие токена
 @socketio.on('isHasToken')
 def is_has_token():
-    file_work = FileWork(TOKEN_PATH)
+    file_work = BinFileData(TOKEN_PATH)
     try:
         file_work.load_data()
     
