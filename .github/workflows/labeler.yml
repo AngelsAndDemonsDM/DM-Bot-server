@@ -1,4 +1,4 @@
-name: "Labels: PR"
+﻿name: "Labels for PR"
 
 on:
 - pull_request_target
