@@ -2,7 +2,13 @@ import logging
 import os
 import sqlite3
 from typing import Dict, List, Tuple
+from enum import Enum
 
+class SQLFlag(Enum):
+    auto_increment: bytes = 0b0001 # AUTOINCREMENT
+    not_null      : bytes = 0b0010 # NOT NULL
+    primary_key   : bytes = 0b0100 # PRIMARY KEY
+    unique        : bytes = 0b1000 # UNIQUE
 
 class SQLDB:
     """
@@ -12,13 +18,13 @@ class SQLDB:
         _connection (sqlite3.Connection): Соединение с базой данных.
         _table_name (str): Имя таблицы.
     """
-    def __init__(self, table_name: str, columns: Dict[str, Tuple[type, List[str]]], db_name: str, db_path: str) -> None:
+    def __init__(self, table_name: str, columns: Dict[str, Tuple[type, bytes]], db_name: str, db_path: str) -> None:
         """
         Инициализация класса.
 
         Args:
             table_name (str): Имя таблицы.
-            columns (Dict[str, Tuple[type, List[str]]]): Словарь, где ключи - названия столбцов,
+            columns (Dict[str, Tuple[type, bytes]]): Словарь, где ключи - названия столбцов,
                 а значения - кортежи, содержащие тип данных столбца и список флагов.
             db_name (str): Имя базы данных.
             db_path (str): Путь к базе данных.
@@ -58,12 +64,12 @@ class SQLDB:
         
         self._connection = sqlite3.connect(f"{db_path}/{db_name}.db")
 
-    def _create_db(self, columns: Dict[str, Tuple[type, List[str]]]) -> None:
+    def _create_db(self, columns: Dict[str, Tuple[type, bytes]]) -> None:
         """
         Создает таблицу в базе данных.
 
         Args:
-            columns (Dict[str, Tuple[type, List[str]]]): Словарь с описанием столбцов таблицы.
+            columns (Dict[str, Tuple[type, bytes]]): Словарь с описанием столбцов таблицы.
         """
         cursor: sqlite3.Cursor = self._connection.cursor()
 
@@ -74,13 +80,13 @@ class SQLDB:
         cursor.execute(query)
         self._connection.commit()
     
-    def _get_column_definition(self, datatype: type, flags: List[str]) -> str:
+    def _get_column_definition(self, datatype: type, flags: bytes) -> str:
         """
         Возвращает определение столбца.
 
         Args:
             datatype (type): Тип данных столбца.
-            flags (List[str]): Список флагов для столбца.
+            flags (bytes): Список флагов для столбца.
 
         Returns:
             str: Определение столбца.
@@ -106,31 +112,33 @@ class SQLDB:
             case "<class 'bytes'>":                  return "BLOB"
             case _:                                  raise ValueError(f"Unsupported datatype: {datatype}")
 
-    def _get_column_flags(self, flags: List[str]) -> str:
+    def _get_column_flags(self, flags: bytes) -> str:
         """
         Возвращает строку с флагами столбца.
 
         Args:
-            flags (List[str]): Список флагов для столбца.
+            flags (bytes): Список флагов для столбца.
 
         Returns:
             str: Строка с флагами столбца.
         """
         column_flags = []
-        for flag in flags:
-            match flag:
-                case "AUTOINCREMENT": column_flags.append("AUTOINCREMENT")
-                case "NOT NULL": column_flags.append("NOT NULL")
-                case "PRIMARY KEY": column_flags.append("PRIMARY KEY")
-                case "UNIQUE": column_flags.append("UNIQUE")
-                case _: raise ValueError(f"Unsupported column flag: {flag}")
+
+        if flags & SQLFlag.auto_increment:
+            column_flags.append("AUTOINCREMENT")
+        
+        if flags & SQLFlag.not_null:
+            column_flags.append("NOT NULL")
+        
+        if flags & SQLFlag.primary_key:
+            column_flags.append("PRIMARY KEY")
+        
+        if flags & SQLFlag.unique:
+            column_flags.append("UNIQUE")
                 
         return " ".join(column_flags)
     
     def __del__(self):
-        """
-        Деструктор класса.
-        """
         try:
             if self._connection is not None:
                 self._connection.close()
