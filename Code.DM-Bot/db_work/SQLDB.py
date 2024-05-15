@@ -2,13 +2,11 @@ import logging
 import os
 import sqlite3
 from typing import Dict, List, Tuple
-from enum import Enum
 
-class SQLFlag(Enum):
-    auto_increment: bytes = 0b0001 # AUTOINCREMENT
-    not_null      : bytes = 0b0010 # NOT NULL
-    primary_key   : bytes = 0b0100 # PRIMARY KEY
-    unique        : bytes = 0b1000 # UNIQUE
+AUTO_INCREMENT: bytes = 1 << 0 # AUTOINCREMENT
+NOT_NULL      : bytes = 1 << 1 # NOT NULL
+PRIMARY_KEY   : bytes = 1 << 2 # PRIMARY KEY
+UNIQUE        : bytes = 1 << 3 # UNIQUE
 
 class SQLDB:
     """
@@ -124,18 +122,18 @@ class SQLDB:
         """
         column_flags = []
 
-        if flags & SQLFlag.auto_increment:
+        if flags & AUTO_INCREMENT:
             column_flags.append("AUTOINCREMENT")
         
-        if flags & SQLFlag.not_null:
+        if flags & NOT_NULL:
             column_flags.append("NOT NULL")
         
-        if flags & SQLFlag.primary_key:
+        if flags & PRIMARY_KEY:
             column_flags.append("PRIMARY KEY")
         
-        if flags & SQLFlag.unique:
+        if flags & UNIQUE:
             column_flags.append("UNIQUE")
-                
+        
         return " ".join(column_flags)
     
     def __del__(self):

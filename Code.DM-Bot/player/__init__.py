@@ -1,5 +1,6 @@
-from .soul import PlayerSoul
 from db_work import AsyncSQLDB
+
+from .soul import PlayerSoul
 
 soul_db = AsyncSQLDB(
     table_name="soul",
