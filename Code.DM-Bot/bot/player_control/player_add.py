@@ -9,18 +9,17 @@ from discord.ext import commands
 from player import soul_db
 
 
-# TODO: оформелине через дискорд эмбарг(maybe)
 @bot.slash_command(name="player_add", description="", guild_ids=['1218456392730411049'])
 async def player_add(
     ctx:    discord.ApplicationContext, 
     player: Option(discord.Member, description="", required=True) # type: ignore
     ) -> None:
-    user = {"discord_id": int(player.id), "name": str(player.name)}
 
     async with soul_db:
         try:
-            await soul_db.insert("souls", user)
+            await soul_db.insert("souls", {"discord_id": int(player.id), "name": str(player.name)})
             resp = "Пользователь успешно добавлен в БД"
+        
         except Exception as err:
             resp = f"Пользователь не был добавлен в БД. Ошибка: {err}"
 
