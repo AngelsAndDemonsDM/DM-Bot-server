@@ -19,6 +19,8 @@ class AsyncDB:
             db_config (dict[str, list[tuple[str, type, bytes, str | None]])]: Конфигурация базы данных.
 
         Example:
+        ```py
+        AsyncDB = (
             db_name = "F"
             db_path = "HELP_ME"
             db_config = {
@@ -34,6 +36,8 @@ class AsyncDB:
                     ('department_id', int, NOT_NULL, 'departments.id')
                 ]
             }
+        )
+        ```
         """
         db_path = db_path.replace('/', os.sep)
         db_path = os.path.join(os.getcwd(), "Data.DM-Bot", db_path)
@@ -129,7 +133,9 @@ class AsyncDB:
             data (dict[str, any]): Данные для вставки в виде словаря.
 
         Example:
+        ```py
             await db.insert('employees', {'name': 'John Doe', 'age': 30, 'email': 'john.doe@example.com', 'department_id': 1})
+        ```
         """
         async with self:
             columns = ', '.join(data.keys())
@@ -151,7 +157,9 @@ class AsyncDB:
             list[dict[str, any]]: Выбранные записи.
 
         Example:
+        ```py
             results = await db.select('employees', ['name', 'age'], "age > 25")
+        ```
         """
         async with self:
             columns_part = ', '.join(columns) if columns else '*'
@@ -170,7 +178,9 @@ class AsyncDB:
             where (str): Предложение WHERE, указывающее, какие записи необходимо обновить.
 
         Example:
+        ```py
             await db.update('employees', {'age': 31}, "name = 'John Doe'")
+        ```
         """
         async with self:
             set_clause = ', '.join(f"{key} = ?" for key in data.keys())
@@ -187,7 +197,9 @@ class AsyncDB:
             where (str): Предложение WHERE, указывающее, какие записи следует удалить.
 
         Example:
+        ```py
             await db.delete('employees', "name = 'John Doe'")
+        ```
         """
         async with self:
             async with self._connect.execute(f"DELETE FROM {table} WHERE {where}") as cursor:
