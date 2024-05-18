@@ -16,14 +16,11 @@ async def player_rm(
     ) -> None:
     user = {"discord_id": player.id}
 
-    try:
-        found_users = await soul_db.find(user)
-        if found_users:
-            await soul_db.delete(found_users[0]["id"])
+    async with soul_db:
+        try:
+            await soul_db.delete("souls", user)
             resp = "Пользователь успешно удален из БД"
-        else:
-            resp = "Пользователь не найден в БД"
-    except Exception as err:
-        resp = f"Произошла ошибка при удалении пользователя: {err}"
+        except Exception as err:
+            resp = f"Произошла ошибка при удалении пользователя: {err}"
 
     await ctx.respond(resp)

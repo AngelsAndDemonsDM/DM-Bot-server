@@ -1,14 +1,16 @@
-from db_work import AsyncSQLDB
+from db_work import DBF_PRIMARY_KEY, DBF_UNIQUE, AsyncDB
 
 from .soul import PlayerSoul
 
-soul_db = AsyncSQLDB(
-    table_name="soul",
-    columns= {
-        "id": (int, ["PRIMARY KEY AUTOINCREMENT"]),
-        "discord_id": (int, ["UNIQUE"]),
-        "name": (str, [])
-    },
-    db_name="soils",
-    db_path=""
+soul_db = AsyncDB(
+    db_name="souls",
+    db_path="",
+    db_config= { 
+        "souls": [ 
+            ("discord_id", int, (DBF_PRIMARY_KEY | DBF_UNIQUE), None), 
+            ("name", str, 0, None) 
+        ] 
+    }
 )
+
+

@@ -15,12 +15,13 @@ async def player_add(
     ctx:    discord.ApplicationContext, 
     player: Option(discord.Member, description="", required=True) # type: ignore
     ) -> None:
-    user = {"disord_id": player.id, "name": player.name}
+    user = {"discord_id": int(player.id), "name": str(player.name)}
 
-    try:  
-        await soul_db.add(user)
-        resp = "Пользователь успешно добавлен в БД"
-    except Exception as err:
-        resp = f"Пользователь не был добавлен в БД. Ошибка: {err}"
+    async with soul_db:
+        try:
+            await soul_db.insert("souls", user)
+            resp = "Пользователь успешно добавлен в БД"
+        except Exception as err:
+            resp = f"Пользователь не был добавлен в БД. Ошибка: {err}"
 
     await ctx.respond(resp)
