@@ -1,13 +1,13 @@
 import os
 from abc import ABC, abstractmethod
+from typing import Any
 
 import yaml
 
 
 class PrototypeLoader(ABC):
-    def __init__(self, file_path, type: str = None):
-        """
-        Инициализатор класса PrototypeLoader.
+    def __init__(self, file_path: str, type: str = None) -> None:
+        """Инициализатор класса PrototypeLoader.
 
         Args:
             file_path (str): Путь к каталогу с прототипами.
@@ -25,9 +25,8 @@ class PrototypeLoader(ABC):
         self._id_set = set()
         self._prototypes = self._load_prototypes(directory_path)
 
-    def _load_prototypes(self, directory_path):
-        """
-        Загружает прототипы из файлов в указанной директории.
+    def _load_prototypes(self, directory_path: str) -> list:
+        """Загружает прототипы из файлов в указанной директории.
 
         Args:
             directory_path (str): Путь к директории с файлами прототипов.
@@ -66,9 +65,8 @@ class PrototypeLoader(ABC):
         return prototypes_list
     
     @abstractmethod
-    def _get_func(self, config):
-        """
-        Возвращает функцию для создания прототипа. Этот метод должен быть переопределён в дочерних классах.
+    def _get_func(self, config) -> None:
+        """Возвращает функцию для создания прототипа. Этот метод должен быть переопределён в дочерних классах.
 
         Args:
             config (dict): Конфигурация прототипа.
@@ -78,9 +76,8 @@ class PrototypeLoader(ABC):
         """
         pass
 
-    def _validate_config_param(self, config, param_name, id="Unknown prototype"):
-        """
-        Проверяет наличие и возвращает значение указанного параметра в конфигурации прототипа.
+    def _validate_config_param(self, config: dict, param_name: str, id: str="Unknown prototype") -> Any:
+        """Проверяет наличие и возвращает значение указанного параметра в конфигурации прототипа.
 
         Args:
             config (dict): Конфигурация прототипа.
@@ -100,9 +97,26 @@ class PrototypeLoader(ABC):
         
         return param_value
 
-    def __getitem__(self, key: str):
+    def _set_params(self, config: dict, params: list[str], cur_id: str = "Unknown prototype") -> list[Any]:
+        """Возвращает список введённых параметров
+
+        Args:
+            config (dict): Конфигурация прототипа.
+            params (list[str]): Лист параметров.
+            cur_id (str): ID прототипа текущей обработки.
+
+        Returns:
+            list[Any]: Лист с значениями параметров.
         """
-        Возвращает прототип по его идентификатору.
+        params_exit = []
+        
+        for parm in params:
+            params_exit.append(self._validate_config_param(config, parm, cur_id))
+        
+        return params_exit
+
+    def __getitem__(self, key: str):
+        """Возвращает прототип по его идентификатору.
 
         Args:
             key (str): Идентификатор прототипа.
@@ -118,8 +132,7 @@ class PrototypeLoader(ABC):
 
     @property
     def prototypes(self) -> list:
-        """
-        Свойство для получения списка всех прототипов.
+        """Свойство для получения списка всех прототипов.
 
         Returns:
             list: Список прототипов.

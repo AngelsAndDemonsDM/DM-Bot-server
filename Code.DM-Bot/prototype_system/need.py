@@ -10,11 +10,6 @@ class NeedPrototypeLoader(PrototypeLoader):
         return self._create_need
         
     def _create_need(self, config):
-            id = self._validate_config_param(config, "id")
-            name = self._validate_config_param(config, "name", id)
-            desc = self._validate_config_param(config, "desc", id)
-            max_value = self._validate_config_param(config, "max_value", id)
-            min_value = self._validate_config_param(config, "min_value", id)
-            count = self._validate_config_param(config, "count", id)
+        cur_id = self._validate_config_param(config, "id")
 
-            return Need(id, name, desc, max_value, min_value, count)
+        return Need(cur_id, *self._set_params(config, ["name", "desc", "max_value", "min_value", "count"], cur_id))

@@ -11,10 +11,6 @@ class ReagentPrototypeLoader(PrototypeLoader):
         return self._create_reagent
     
     def _create_reagent(self, config):
-        id = self._validate_config_param(config, "id")
-        name = self._validate_config_param(config, "name", id)
-        desc = self._validate_config_param(config, "desc", id)
-        boiling_temp = self._validate_config_param(config, "boiling_temp", id)
-        crystal_temp = self._validate_config_param(config, "crystal_temp", id)
+        cur_id = self._validate_config_param(config, "id")
 
-        return Reagent(id, name, desc, boiling_temp, crystal_temp, 0)
+        return Reagent(cur_id, *self._set_params(config, ["name", "desc", "boiling_temp", "crystal_temp"], cur_id), 0)
