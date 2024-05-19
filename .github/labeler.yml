@@ -4,7 +4,7 @@
     - 'Code.DM-Bot/**/*.py'
   - all-globs-to-all-files:
     - '!Code.DB-Bot/bot/**'
-    - '!Code.DM-Bot/code templates/**'
+    - '!Code.DM-Bot/templates/**'
     - '!Code.DM-Bot/static/**'
     - '!Code.DM-Bot/html/**'
 
@@ -16,7 +16,7 @@
 "Changes: UI":
 - changed-files:
   - any-glob-to-any-file:
-    - 'Code.DM-Bot/code templates/**'
+    - 'Code.DM-Bot/templates/**'
     - 'Code.DM-Bot/static/**'
     - 'Code.DM-Bot/html/**'
 
