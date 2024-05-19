@@ -10,3 +10,4 @@ pyyaml
 pyzipper
 requests
 toml
+aiosqlite

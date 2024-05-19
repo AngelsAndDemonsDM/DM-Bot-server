@@ -11,19 +11,16 @@ from player import soul_db
 
 @bot.slash_command(name="player_remove", description="", guild_ids=['1218456392730411049'])
 async def player_rm(
-    ctx: discord.ApplicationContext, 
+    ctx:    discord.ApplicationContext, 
     player: Option(discord.Member, description="", required=True) # type: ignore
     ) -> None:
-    user = {"discord_id": player.id}
 
-    try:
-        found_users = await soul_db.find(user)
-        if found_users:
-            await soul_db.delete(found_users[0]["id"])
+    async with soul_db:
+        try:
+            await soul_db.delete("souls", f"discord_id = {player.id}")
             resp = "Пользователь успешно удален из БД"
-        else:
-            resp = "Пользователь не найден в БД"
-    except Exception as err:
-        resp = f"Произошла ошибка при удалении пользователя: {err}"
+        
+        except Exception as err:
+            resp = f"Произошла ошибка при удалении пользователя: {err}"
 
     await ctx.respond(resp)

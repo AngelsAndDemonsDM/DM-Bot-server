@@ -14,16 +14,25 @@ def handle_get_all_players():
     player_list = []
 
     async def async_task():
-        try:
-            for user in await soul_db.get_all_records():
-                player_list.append({"id": user["id"], "name": user["name"]})
-
-        except Exception:
-            player_list.append({
-                "id": "placeholder",
-                "name": "Нет доступных игроков"
-            })
-
+        async with soul_db:
+            try:
+                users = await soul_db.select("souls")
+                if users:
+                    for user in users:
+                        player_list.append({"id": user["discord_id"], "name": user["name"]})
+                else:
+                    player_list.append({
+                        "id": "???",
+                        "name": "Нет доступных игроков"
+                    })
+    
+            except Exception:
+                player_list.append({
+                    "id": "???",
+                    "name": "Ошибка при получении игроков"
+                })
+    
         socketio.emit('allPlayers', player_list)
+        await soul_db.close()
 
     asyncio.run(async_task())
