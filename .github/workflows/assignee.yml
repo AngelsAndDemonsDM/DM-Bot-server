@@ -1,0 +1,19 @@
+name: "Set assignees and reviewers"
+on: pull_request
+
+jobs:
+  reviews:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Set assignees and reviewers
+        uses: kentaro-m/auto-assign-action@v1.1.2
+        with:
+          configuration-path: ".github/assignee.config.yml"

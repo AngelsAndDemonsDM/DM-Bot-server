@@ -1,0 +1,13 @@
+addReviewers: true
+numberOfReviewers: 1
+reviewers:
+ - themanyfaceddemon
+
+addAssignees: true
+numberOfAssignees: 1
+assignees:
+ - themanyfaceddemon
+
+skipKeywords:
+  - wip
+  - draft
