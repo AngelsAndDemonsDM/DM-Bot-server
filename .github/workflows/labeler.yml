@@ -1,13 +1,21 @@
-﻿name: "Labels for PR"
-
-on:
-- pull_request_target
+name: "Set labels for PR"
+on: pull_request
 
 jobs:
   labeler:
+    runs-on: ubuntu-latest
+
     permissions:
       contents: read
       pull-requests: write
-    runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/labeler@v5
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Set labels
+        uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/labeler.config.yml
+          sync-labels: true
