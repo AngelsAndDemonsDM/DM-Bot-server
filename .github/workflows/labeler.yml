@@ -1,7 +1,7 @@
-﻿name: "Labels for PR"
+name: "Labels for PR"
 
 on:
-- pull_request_target
+  - pull_request_target
 
 jobs:
   labeler:
@@ -11,3 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/labeler@v5
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+    - name: Remove unneeded labels
+      uses: peter-evans/remove-labels@v2
+      with:
+        labels: |
+          "Changes: Code"
+          "Changes: Bot"
+          "Changes: UI"
+          "Changes: Sprites"
+          "Changes: Prototypes"
+          "Changes: Locale"
+          "Changes: Docs"
+        remove-conditions: always
