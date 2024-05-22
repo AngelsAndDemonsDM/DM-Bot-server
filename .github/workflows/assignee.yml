@@ -1,5 +1,7 @@
 name: "Set assignees and reviewers"
-on: pull_request
+on:
+    pull_request:
+      types: [opened, ready_for_review]
 
 jobs:
   reviews:
