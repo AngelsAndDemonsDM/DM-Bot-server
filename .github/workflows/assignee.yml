@@ -1,21 +1,19 @@
-name: "Set assignees and reviewers"
-on:
-    pull_request:
-      types: [opened, ready_for_review]
+name: "Auto Assign"
+on: pull_request
 
 jobs:
-  reviews:
+  assign:
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
       pull-requests: write
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      
-      - name: Set assignees and reviewers
-        uses: kentaro-m/auto-assign-action@v1.1.2
+    
+      - uses: shufo/auto-assign-reviewer-by-files@v1.1.5
         with:
-          configuration-path: ".github/assignee.config.yml"
+          config: ".github/workflows_config/assignee.yml"
+          token: ${{ secrets.GITHUB_TOKEN }}
