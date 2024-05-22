@@ -38,5 +38,7 @@
 "Changes: Docs":
 - changed-files:
   - any-glob-to-any-file:
+    - 'README.md'
+    - 'LICENSE'
     - 'Docs.DM-Bot/**'
     - 'Libriary_Of_Ruina - DB/**'
