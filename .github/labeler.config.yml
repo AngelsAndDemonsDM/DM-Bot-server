@@ -1,7 +1,7 @@
 "Changes: Code":
 - changed-files:
   - any-glob-to-any-file:
-    - 'Code.DM-Bot/**/*.py'
+    - 'Code.DM-Bot/**'
   - all-globs-to-all-files:
     - '!Code.DB-Bot/bot/**'
     - '!Code.DM-Bot/templates/**'
@@ -42,3 +42,8 @@
     - 'LICENSE'
     - 'Docs.DM-Bot/**'
     - 'Libriary_Of_Ruina - DB/**'
+
+"Changes: Workflows"
+- changed-files:
+  - any-glob-to-any-file:
+    - '.github/workflows/**'

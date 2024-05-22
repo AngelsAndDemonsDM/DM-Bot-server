@@ -2,9 +2,9 @@ name: "Set assignees and reviewers"
 on: pull_request
 
 jobs:
-  reviews:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: kentaro-m/auto-assign-action@v1.1.2
-        with:
-          configuration-path: ".github/assignee.config.yml"
+    reviews:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: kentaro-m/auto-assign-action@v1.1.2
+            with:
+            configuration-path: ".github/assignee.config.yml"
