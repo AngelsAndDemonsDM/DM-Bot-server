@@ -24,6 +24,7 @@ class DynamicLoader:
         Загружает сопоставления классов сущностей и компонентов из файла class_mappings.yml.
         """
         class_mapping_path = os.path.join(self.config_dir, 'class_mappings.yml')
+        
         with open(class_mapping_path, 'r') as file:
             class_mappings = yaml.safe_load(file)
             self.entity_classes = self._import_classes(class_mappings['entities'])
@@ -39,11 +40,13 @@ class DynamicLoader:
             Dict[str, Type]: Словарь с именами классов и их объектами типов.
         """
         classes = {}
+        
         for class_id, class_path in class_mapping.items():
             module_name, class_name = class_path.rsplit('.', 1)
             module = importlib.import_module(module_name)
             cls = getattr(module, class_name)
             classes[class_id] = cls
+        
         return classes
 
     def _load_entities(self) -> None:

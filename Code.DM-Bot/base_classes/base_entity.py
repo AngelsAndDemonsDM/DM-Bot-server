@@ -1,3 +1,4 @@
+import pickle
 from typing import Dict, Optional
 
 from base_classes.base_component import Component
@@ -21,9 +22,11 @@ class Entity:
             component_id (str): Идентификатор компонента.
             component (Component): Объект компонента.
         """
-        component.set_entity(self)
+        component.owner = self
+        
         if component_type not in self.components:
             self.components[component_type] = {}
+            
         self.components[component_type][component_id] = component
 
     def get_component(self, component_type: str, component_id: str) -> Optional[Component]:
@@ -44,3 +47,23 @@ class Entity:
         for component_dict in self.components.values():
             for component in component_dict.values():
                 component.update()
+
+    def to_binary(self) -> bytes:
+        """Преобразует объект Entity в бинарный формат.
+
+        Returns:
+            bytes: Бинарное представление объекта Entity.
+        """
+        return pickle.dumps(self)
+
+    @staticmethod
+    def from_binary(binary_data: bytes) -> 'Entity':
+        """Восстанавливает объект Entity из бинарного формата.
+
+        Args:
+            binary_data (bytes): Бинарное представление объекта Entity.
+
+        Returns:
+            Entity: Восстановленный объект Entity.
+        """
+        return pickle.loads(binary_data)
