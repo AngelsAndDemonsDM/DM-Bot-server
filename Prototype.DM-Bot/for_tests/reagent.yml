@@ -1,7 +1,0 @@
-- type: Reagent
-  id: water
-  name: water
-  desc: |
-    ---
-  boiling: 273
-  crystal: 0
