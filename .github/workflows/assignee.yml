@@ -1,0 +1,19 @@
+name: "Auto Assign"
+on: pull_request
+
+jobs:
+  assign:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+    
+      - uses: shufo/auto-assign-reviewer-by-files@v1.1.5
+        with:
+          config: ".github/workflows_config/assignee.yml"
+          token: ${{ secrets.GITHUB_TOKEN }}
