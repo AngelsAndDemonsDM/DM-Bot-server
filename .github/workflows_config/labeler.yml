@@ -32,4 +32,8 @@
 
 "Changes: Workflows":
 - changed-files:
-  - any-glob-to-any-file: ['.github/workflows/**', '.github/workflows_config/**']
+  - any-glob-to-any-file: ['.github/workflows/**']
+
+"Changes: Workflows config":
+- changed-files:
+  - any-glob-to-any-file: ['.github/workflows_config/**']
