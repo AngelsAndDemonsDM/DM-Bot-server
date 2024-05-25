@@ -28,10 +28,14 @@ jobs:
         PR_BODY: ${{ github.event.pull_request.body }}
         GIT_AUTHOR: ${{ github.event.pull_request.user.login }}
 
-    - name: Commit and push changelog
+    - name: Pull latest changes
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git pull origin master
+
+    - name: Commit and push changelog
+      run: |
         git add .github/changelog.yml
         git commit -m 'Auto changelog update'
         git push origin HEAD:master
