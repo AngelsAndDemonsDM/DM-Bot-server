@@ -22,24 +22,28 @@ jobs:
     - name: Install dependencies
       run: pip install PyYAML
 
-    - name: Fetch latest changes
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git fetch origin master
-        git reset --hard origin/master
-
     - name: Generate changelog
       run: python .github/workflows_config/update_changelog.py
       env:
         PR_BODY: ${{ github.event.pull_request.body }}
         GIT_AUTHOR: ${{ github.event.pull_request.user.login }}
 
-
-    - name: Commit and push changelog
+    - name: Create new branch and commit
       run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git checkout -b auto-update-changelog
         git add .github/changelog.yml
         git commit -m 'Auto changelog update'
-        git push origin HEAD:master
+        git push origin auto-update-changelog
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        title: 'Auto changelog update'
+        body: 'This PR updates the changelog.'
+        head: auto-update-changelog
+        base: master
