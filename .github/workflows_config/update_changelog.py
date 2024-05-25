@@ -54,6 +54,10 @@ def main():
 
     changes = extract_changes(pr_body)
 
+    if changes and changes[0].upper() == "NOT":
+        print("Changelog update skipped due to 'NOT' keyword.")
+        return
+
     new_entry = {
         'version': new_version,
         'date': date_today,
