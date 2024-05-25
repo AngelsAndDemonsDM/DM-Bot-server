@@ -22,7 +22,7 @@ jobs:
       run: pip install PyYAML
 
     - name: Generate changelog
-      run: python .github/generate_changelog.py
+      run: python .github/workflows_config/generate_changelog.py
       env:
         PR_BODY: ${{ github.event.pull_request.body }}
         GIT_AUTHOR: ${{ github.event.pull_request.user.login }}
