@@ -32,10 +32,10 @@ jobs:
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git checkout -b auto-update-changelog-${{ github.run_id }}
+        git checkout -b update-changelog
         git add .github/changelog.yml
         git commit -m 'Auto changelog update'
-        git push origin auto-update-changelog-${{ github.run_id }}
+        git push origin update-changelog --force
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -45,5 +45,5 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         title: 'Auto changelog update'
         body: 'This PR updates the changelog.'
-        head: auto-update-changelog-${{ github.run_id }}
+        head: update-changelog
         base: master
