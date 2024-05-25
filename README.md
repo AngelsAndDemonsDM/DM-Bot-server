@@ -1,5 +1,7 @@
 # DM-Bot
 
+[![Update Changelog](https://github.com/AngelsAndDemonsDM/DM-Bot/actions/workflows/update_changelog.yml/badge.svg)](https://github.com/AngelsAndDemonsDM/DM-Bot/actions/workflows/update_changelog.yml)
+
 ## Оглавление
 - [Общая информация](#общая-информация)
 - [Про контрибьютинг](#про-контрибьютинг)
