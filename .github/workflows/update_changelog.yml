@@ -22,17 +22,19 @@ jobs:
     - name: Install dependencies
       run: pip install PyYAML
 
+    - name: Fetch latest changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git fetch origin master
+        git reset --hard origin/master
+
     - name: Generate changelog
       run: python .github/workflows_config/update_changelog.py
       env:
         PR_BODY: ${{ github.event.pull_request.body }}
         GIT_AUTHOR: ${{ github.event.pull_request.user.login }}
 
-    - name: Pull latest changes
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git pull origin master --rebase=false
 
     - name: Commit and push changelog
       run: |
