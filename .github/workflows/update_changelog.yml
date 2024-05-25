@@ -12,24 +12,28 @@ jobs:
 
     steps:
     - name: Checkout repository
+      id: checkout
       uses: actions/checkout@v2
 
     - name: Set up Python
+      id: setup-python
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
 
     - name: Install dependencies
+      id: install-dependencies
       run: pip install PyYAML
 
     - name: Generate changelog
+      id: generate-changelog
       run: python .github/workflows_config/update_changelog.py
       env:
         PR_BODY: ${{ github.event.pull_request.body }}
         GIT_AUTHOR: ${{ github.event.pull_request.user.login }}
 
     - name: Create new branch and commit
-      if: steps.check_changes.outputs.changed == 'true'
+      id: create-branch-commit
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
@@ -39,9 +43,10 @@ jobs:
         git push origin update-changelog --force
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      needs: generate-changelog
 
     - name: Create Pull Request
-      if: steps.check_changes.outputs.changed == 'true'
+      id: create-pull-request
       uses: peter-evans/create-pull-request@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -49,3 +54,4 @@ jobs:
         body: 'This PR updates the changelog.'
         branch: update-changelog
         base: master
+      needs: create-branch-commit
