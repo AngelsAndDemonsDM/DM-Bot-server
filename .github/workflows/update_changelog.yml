@@ -40,10 +40,11 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v4
+      uses: repo-sync/pull-request@v2
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        title: 'Auto changelog update'
-        body: 'This PR updates the changelog.'
-        head: update-changelog
-        base: master
+        source_branch: update-changelog
+        destination_branch: master
+        pr_title: 'Auto changelog update'
+        pr_body: 'This PR updates the changelog.'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
