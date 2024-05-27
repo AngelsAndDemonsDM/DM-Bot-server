@@ -4,7 +4,7 @@
 ## `Entity.__init__`<br>
 Инициализирует объект сущности.<br>
 **Args:**<br>
-name (str): Имя сущности.<br>
+entity_id (str): Идентификатор сущности.<br>
 <br>
 
 ## `Entity.add_component`<br>
