@@ -30,7 +30,7 @@
 - changed-files:
   - any-glob-to-any-file: ['README.md', 'LICENSE.md', 'Docs.DM-Bot/**', 'Libriary_Of_Ruina - DB/**']
 
-"Changes: Tests":
+"Changes: Unit test":
 - changed-files:
   - any-glob-to-any-file: ['Tests.DM-Bot/**']
 
