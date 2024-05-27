@@ -49,16 +49,12 @@ class AsyncDB:
         self._connect: aiosqlite.Connection = None
         self._db_config: dict[str, list[tuple[str, type, bytes, str]]] = db_config
 
-    def __del__(self) -> None:
-        if self._connect is not None:
-            asyncio.ensure_future(self.close())
-
     async def __aenter__(self) -> 'AsyncDB':
-        self._connect = await aiosqlite.connect(self._db_path)
+        await self.open()
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
-        await self._connect.close()
+        await self.close()
 
     def _process_columns(self, columns: list[tuple[str, type, bytes, str]]) -> str:
         table_cfg: list[str] = []
@@ -101,29 +97,30 @@ class AsyncDB:
         return " ".join(flags_exit)
 
     async def open(self) -> None:
-        """Открывает базу данных и создайте таблицы в соответствии с конфигурацией.
+        """Открывает базу данных и создаёт таблицы в соответствии с конфигурацией.
         """
-        async with self:
-            try:
-                cursor = await self._connect.cursor()
+        self._connect = await aiosqlite.connect(self._db_path)
+        try:
+            cursor = await self._connect.cursor()
 
-                for table_name, columns in self._db_config.items():
-                    table_cfg = self._process_columns(columns)
-                    await cursor.execute(f"CREATE TABLE IF NOT EXISTS {table_name} ({table_cfg})")
-        
-                await self._connect.commit()
-                logging.debug(f"Connection with {self._db_path} is open.")
-                
-            except Exception as err:
-                logging.error(f"Error while connecting to {self._db_path}: {err}")
+            for table_name, columns in self._db_config.items():
+                table_cfg = self._process_columns(columns)
+                await cursor.execute(f"CREATE TABLE IF NOT EXISTS {table_name} ({table_cfg})")
+    
+            await self._connect.commit()
+            logging.debug(f"Connection with {self._db_path} is open.")
+            
+        except Exception as err:
+            logging.error(f"Error while connecting to {self._db_path}: {err}")
         
     async def close(self) -> None:
         """Закрывает соединение с базой данных.
         """
-        try:
-            await self._connect.close()
-        except Exception as err: 
-            logging.error(f"Error while closing connection with {self._db_path}: {err}")
+        if self._connect:
+            try:
+                await self._connect.close()
+            except Exception as err: 
+                logging.error(f"Error while closing connection with {self._db_path}: {err}")
 
     async def insert(self, table: str, data: dict[str, any]) -> None:
         """Вставляет новую запись в указанную таблицу.
@@ -137,13 +134,12 @@ class AsyncDB:
             await db.insert('employees', {'name': 'John Doe', 'age': 30, 'email': 'john.doe@example.com', 'department_id': 1})
         ```
         """
-        async with self:
-            columns = ', '.join(data.keys())
-            placeholders = ', '.join('?' for _ in data)
-            values = tuple(data.values())
+        columns = ', '.join(data.keys())
+        placeholders = ', '.join('?' for _ in data)
+        values = tuple(data.values())
 
-            async with self._connect.execute(f"INSERT INTO {table} ({columns}) VALUES ({placeholders})", values) as cursor:
-                await self._connect.commit()
+        async with self._connect.execute(f"INSERT INTO {table} ({columns}) VALUES ({placeholders})", values) as cursor:
+            await self._connect.commit()
 
     async def select(self, table: str, columns: list[str] = None, where: str = None) -> list[dict[str, any]]:
         """Выбирает записи из указанной таблицы.
@@ -161,16 +157,15 @@ class AsyncDB:
             results = await db.select('employees', ['name', 'age'], "age > 25")
         ```
         """
-        async with self:
-            columns_part = ', '.join(columns) if columns else '*'
-            where_part = f" WHERE {where}" if where else ''
-            async with self._connect.execute(f"SELECT {columns_part} FROM {table}{where_part}") as cursor:
-                rows = await cursor.fetchall()
-                col_names = [description[0] for description in cursor.description]
-                return [dict(zip(col_names, row)) for row in rows]
+        columns_part = ', '.join(columns) if columns else '*'
+        where_part = f" WHERE {where}" if where else ''
+        async with self._connect.execute(f"SELECT {columns_part} FROM {table}{where_part}") as cursor:
+            rows = await cursor.fetchall()
+            col_names = [description[0] for description in cursor.description]
+            return [dict(zip(col_names, row)) for row in rows]
 
     async def update(self, table: str, data: dict[str, any], where: str) -> None:
-        """Обновляет записей в указанной таблице.
+        """Обновляет записи в указанной таблице.
 
         Args:
             table (str): Имя таблицы.
@@ -182,15 +177,14 @@ class AsyncDB:
             await db.update('employees', {'age': 31}, "name = 'John Doe'")
         ```
         """
-        async with self:
-            set_clause = ', '.join(f"{key} = ?" for key in data.keys())
-            values = tuple(data.values())
+        set_clause = ', '.join(f"{key} = ?" for key in data.keys())
+        values = tuple(data.values())
 
-            async with self._connect.execute(f"UPDATE {table} SET {set_clause} WHERE {where}", values) as cursor:
-                await self._connect.commit()
+        async with self._connect.execute(f"UPDATE {table} SET {set_clause} WHERE {where}", values) as cursor:
+            await self._connect.commit()
 
     async def delete(self, table: str, where: str) -> None:
-        """Удаляет записей из указанной таблицы.
+        """Удаляет записи из указанной таблицы.
 
         Args:
             table (str): Имя таблицы.
@@ -201,6 +195,5 @@ class AsyncDB:
             await db.delete('employees', "name = 'John Doe'")
         ```
         """
-        async with self:
-            async with self._connect.execute(f"DELETE FROM {table} WHERE {where}") as cursor:
-                await self._connect.commit()
+        async with self._connect.execute(f"DELETE FROM {table} WHERE {where}") as cursor:
+            await self._connect.commit()

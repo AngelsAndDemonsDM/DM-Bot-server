@@ -12,5 +12,3 @@ soul_db = AsyncDB(
         ] 
     }
 )
-
-
