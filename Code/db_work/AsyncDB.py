@@ -50,12 +50,11 @@ class AsyncDB:
         self._db_config: dict[str, list[tuple[str, type, bytes, str]]] = db_config
 
     async def __aenter__(self) -> 'AsyncDB':
-        self._connect = await aiosqlite.connect(self._db_path)
+        await self.open()
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
-        if self._connect:
-            await self._connect.close()
+        await self.close()
 
     def _process_columns(self, columns: list[tuple[str, type, bytes, str]]) -> str:
         table_cfg: list[str] = []
