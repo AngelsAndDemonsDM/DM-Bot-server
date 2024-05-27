@@ -2,7 +2,7 @@ import unittest
 import asyncio
 import os
 import aiosqlite
-from Code.DM-Bot.db_work import AsyncDB, DBF_PRIMARY_KEY, DBF_UNIQUE, DBF_AUTOINCREMENT, DBF_NOT_NULL
+from Code.db_work import AsyncDB, DBF_PRIMARY_KEY, DBF_UNIQUE, DBF_AUTOINCREMENT, DBF_NOT_NULL
 
 class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
 

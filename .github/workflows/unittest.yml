@@ -22,4 +22,4 @@ jobs:
     
     - name: Run tests
       run: |
-        python -m unittest discover Test.DM-Bot
+        python -m unittest discover Test
