@@ -1,6 +1,8 @@
 import pickle
 from typing import Dict, Optional
+
 from base_classes.base_component import Component
+
 
 class Entity:
     def __init__(self, entity_id: str):
