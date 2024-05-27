@@ -109,5 +109,5 @@ class AutoDocs:
         logging.info("Создание документации завершено")
 
 if __name__ == "__main__":
-    main_code = AutoDocs("Code.DM-Bot", "Docs.DM-Bot")
+    main_code = AutoDocs("Code", "Docs")
     main_code.generate_documentation()
