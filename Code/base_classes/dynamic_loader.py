@@ -1,9 +1,7 @@
 import importlib
 import os
 from typing import Any, Dict, List, Type
-
 import yaml
-
 
 class DynamicLoader:
     def __init__(self, config_dir: str):
@@ -15,9 +13,10 @@ class DynamicLoader:
         self.config_dir: str = config_dir
         self.entity_classes: Dict[str, Type] = {}
         self.component_classes: Dict[str, Type] = {}
-        self.entities: Dict[str, Any] = {}
+        self.entities: Dict[str, Dict[str, Any]] = {}
         self._load_class_mappings()
         self._load_entities()
+        self._resolve_references()
 
     def _load_class_mappings(self) -> None:
         """
@@ -60,7 +59,11 @@ class DynamicLoader:
                         entity_configs = yaml.safe_load(file)
                         for entity_config in entity_configs:
                             entity = self._create_entity(entity_config)
-                            self.entities[entity_config['id']] = entity
+                            entity_type = entity_config['type']
+                            entity_id = entity_config['id']
+                            if entity_type not in self.entities:
+                                self.entities[entity_type] = {}
+                            self.entities[entity_type][entity_id] = entity
 
     def _create_entity(self, config: Dict[str, Any]) -> Any:
         """Создает объект сущности на основе конфигурации.
@@ -72,11 +75,10 @@ class DynamicLoader:
             Any: Созданный объект сущности.
         """
         entity_type = config['type']
-        entity_id = config['id']
         entity_class = self.entity_classes[entity_type]
         entity_params = {k: v for k, v in config.items() if k not in ['type', 'id', 'components']}
         entity = entity_class(**entity_params)
-        entity.entity_id = entity_id
+        entity.entity_id = config['id']
 
         for component_config in config.get('components', []):
             component_type = component_config['type']
@@ -88,16 +90,41 @@ class DynamicLoader:
 
         return entity
 
-    def get_entity(self, entity_id: str) -> Any:
-        """Возвращает объект сущности по ее идентификатору.
+    def _resolve_references(self) -> None:
+        """Устанавливает ссылки на другие сущности по их идентификаторам."""
+        for entity_type, entities in self.entities.items():
+            for entity in entities.values():
+                self._resolve_entity_references(entity)
+
+    def _resolve_entity_references(self, entity: Any) -> None:
+        """Рекурсивно устанавливает ссылки на другие сущности в сущности и ее компонентах."""
+        for attr, value in vars(entity).items():
+            if isinstance(value, str) and ':' in value:
+                ref_type, ref_id = value.split(':', 1)
+                setattr(entity, attr, self.get_entity(ref_type, ref_id))
+        
+        for component_dict in entity.components.values():
+            for component in component_dict.values():
+                self._resolve_component_references(component)
+
+    def _resolve_component_references(self, component: Any) -> None:
+        """Рекурсивно устанавливает ссылки на другие сущности в компоненте."""
+        for attr, value in vars(component).items():
+            if isinstance(value, str) and ':' in value:
+                ref_type, ref_id = value.split(':', 1)
+                setattr(component, attr, self.get_entity(ref_type, ref_id))
+
+    def get_entity(self, entity_type: str, entity_id: str) -> Any:
+        """Возвращает объект сущности по ее типу и идентификатору.
 
         Args:
+            entity_type (str): Тип сущности.
             entity_id (str): Идентификатор сущности.
 
         Returns:
             Any: Объект сущности или None, если сущность не найдена.
         """
-        return self.entities.get(entity_id)
+        return self.entities.get(entity_type, {}).get(entity_id)
 
     def load_entities(self) -> List[Any]:
         """Возвращает список всех загруженных сущностей.
@@ -105,4 +132,7 @@ class DynamicLoader:
         Returns:
             List[Any]: Список загруженных сущностей.
         """
-        return list(self.entities.values())
+        all_entities = []
+        for entities in self.entities.values():
+            all_entities.extend(entities.values())
+        return all_entities
