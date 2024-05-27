@@ -5,6 +5,7 @@ import aiosqlite
 from Code.db_work import AsyncDB, DBF_PRIMARY_KEY, DBF_UNIQUE, DBF_AUTOINCREMENT, DBF_NOT_NULL
 
 class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
+
     async def asyncSetUp(self):
         self.db_name = "test_db"
         self.db_path = "test_path"
@@ -26,9 +27,7 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
 
     async def asyncTearDown(self):
         await self.db.close()
-        if os.path.exists(self.db._db_path):
-            os.remove(self.db._db_path)
-        # Завершаем все оставшиеся задачи
+        
         tasks = [task for task in asyncio.all_tasks() if task is not asyncio.current_task()]
         for task in tasks:
             task.cancel()
@@ -36,6 +35,9 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
                 await task
             except asyncio.CancelledError:
                 pass
+        
+        if os.path.exists(self.db._db_path):
+            os.remove(self.db._db_path)
 
     async def test_insert_and_select(self):
         async with self.db:
