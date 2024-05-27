@@ -5,7 +5,6 @@ import aiosqlite
 from Code.db_work import AsyncDB, DBF_PRIMARY_KEY, DBF_UNIQUE, DBF_AUTOINCREMENT, DBF_NOT_NULL
 
 class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
-
     async def asyncSetUp(self):
         self.db_name = "test_db"
         self.db_path = "test_path"
@@ -39,22 +38,25 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
                 pass
 
     async def test_insert_and_select(self):
-        await self.db.insert('departments', {'name': 'HR'})
-        result = await self.db.select('departments')
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]['name'], 'HR')
+        async with self.db:
+            await self.db.insert('departments', {'name': 'HR'})
+            result = await self.db.select('departments')
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]['name'], 'HR')
 
     async def test_update(self):
-        await self.db.insert('departments', {'name': 'HR'})
-        await self.db.update('departments', {'name': 'Human Resources'}, "name = 'HR'")
-        result = await self.db.select('departments')
-        self.assertEqual(result[0]['name'], 'Human Resources')
+        async with self.db:
+            await self.db.insert('departments', {'name': 'HR'})
+            await self.db.update('departments', {'name': 'Human Resources'}, "name = 'HR'")
+            result = await self.db.select('departments')
+            self.assertEqual(result[0]['name'], 'Human Resources')
 
     async def test_delete(self):
-        await self.db.insert('departments', {'name': 'HR'})
-        await self.db.delete('departments', "name = 'HR'")
-        result = await self.db.select('departments')
-        self.assertEqual(len(result), 0)
+        async with self.db:
+            await self.db.insert('departments', {'name': 'HR'})
+            await self.db.delete('departments', "name = 'HR'")
+            result = await self.db.select('departments')
+            self.assertEqual(len(result), 0)
 
 if __name__ == '__main__':
     unittest.main()
