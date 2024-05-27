@@ -32,7 +32,7 @@
 
 "Changes: Tests":
 - changed-files:
-  - any-glob-to-any-file: [Tests.DM-Bot/**']
+  - any-glob-to-any-file: ['Tests.DM-Bot/**']
 
 "Changes: Workflows":
 - changed-files:
