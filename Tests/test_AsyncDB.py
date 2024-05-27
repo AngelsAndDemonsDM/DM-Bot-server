@@ -1,8 +1,12 @@
-import unittest
 import asyncio
 import os
+import unittest
+
 import aiosqlite
-from Code.db_work import AsyncDB, DBF_PRIMARY_KEY, DBF_UNIQUE, DBF_AUTOINCREMENT, DBF_NOT_NULL
+
+from Code.db_work import (DBF_AUTOINCREMENT, DBF_NOT_NULL, DBF_PRIMARY_KEY,
+                          DBF_UNIQUE, AsyncDB)
+
 
 class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
