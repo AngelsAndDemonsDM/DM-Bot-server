@@ -1,6 +1,6 @@
 # DM-Bot
 
-[![Update Changelog](https://github.com/AngelsAndDemonsDM/DM-Bot/actions/workflows/update_changelog.yml/badge.svg)](https://github.com/AngelsAndDemonsDM/DM-Bot/actions/workflows/update_changelog.yml)
+[![Run tests](https://github.com/AngelsAndDemonsDM/DM-Bot/actions/workflows/unittest.yml/badge.svg)](https://github.com/AngelsAndDemonsDM/DM-Bot/actions/workflows/unittest.yml)
 
 ## Оглавление
 - [Общая информация](#общая-информация)
