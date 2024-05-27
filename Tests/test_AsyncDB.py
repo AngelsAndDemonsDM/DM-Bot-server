@@ -5,7 +5,6 @@ import aiosqlite
 from Code.db_work import AsyncDB, DBF_PRIMARY_KEY, DBF_UNIQUE, DBF_AUTOINCREMENT, DBF_NOT_NULL
 
 class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
-
     async def asyncSetUp(self):
         self.db_name = "test_db"
         self.db_path = "test_path"
@@ -23,11 +22,8 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
             ]
         }
         self.db = AsyncDB(self.db_name, self.db_path, self.db_config)
-        await self.db.open()
 
     async def asyncTearDown(self):
-        await self.db.close()
-        
         tasks = [task for task in asyncio.all_tasks() if task is not asyncio.current_task()]
         for task in tasks:
             task.cancel()
@@ -40,24 +36,24 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
             os.remove(self.db._db_path)
 
     async def test_insert_and_select(self):
-        async with self.db:
-            await self.db.insert('departments', {'name': 'HR'})
-            result = await self.db.select('departments')
+        async with self.db as db:
+            await db.insert('departments', {'name': 'HR'})
+            result = await db.select('departments')
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0]['name'], 'HR')
 
     async def test_update(self):
-        async with self.db:
-            await self.db.insert('departments', {'name': 'HR'})
-            await self.db.update('departments', {'name': 'Human Resources'}, "name = 'HR'")
-            result = await self.db.select('departments')
+        async with self.db as db:
+            await db.insert('departments', {'name': 'HR'})
+            await db.update('departments', {'name': 'Human Resources'}, "name = 'HR'")
+            result = await db.select('departments')
             self.assertEqual(result[0]['name'], 'Human Resources')
 
     async def test_delete(self):
-        async with self.db:
-            await self.db.insert('departments', {'name': 'HR'})
-            await self.db.delete('departments', "name = 'HR'")
-            result = await self.db.select('departments')
+        async with self.db as db:
+            await db.insert('departments', {'name': 'HR'})
+            await db.delete('departments', "name = 'HR'")
+            result = await db.select('departments')
             self.assertEqual(len(result), 0)
 
 if __name__ == '__main__':
