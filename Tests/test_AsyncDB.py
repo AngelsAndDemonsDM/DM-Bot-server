@@ -5,7 +5,6 @@ import aiosqlite
 from Code.db_work import AsyncDB, DBF_PRIMARY_KEY, DBF_UNIQUE, DBF_AUTOINCREMENT, DBF_NOT_NULL
 
 class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
-
     async def asyncSetUp(self):
         self.db_name = "test_db"
         self.db_path = "test_path"

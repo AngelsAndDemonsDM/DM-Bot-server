@@ -49,10 +49,6 @@ class AsyncDB:
         self._connect: aiosqlite.Connection = None
         self._db_config: dict[str, list[tuple[str, type, bytes, str]]] = db_config
 
-    def __del__(self) -> None:
-        if self._connect is not None:
-            asyncio.ensure_future(self.close())
-
     async def __aenter__(self) -> 'AsyncDB':
         self._connect = await aiosqlite.connect(self._db_path)
         return self
