@@ -54,7 +54,8 @@ class AsyncDB:
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
-        await self._connect.close()
+        if self._connect:
+            await self._connect.close()
 
     def _process_columns(self, columns: list[tuple[str, type, bytes, str]]) -> str:
         table_cfg: list[str] = []
@@ -116,10 +117,11 @@ class AsyncDB:
     async def close(self) -> None:
         """Закрывает соединение с базой данных.
         """
-        try:
-            await self._connect.close()
-        except Exception as err: 
-            logging.error(f"Error while closing connection with {self._db_path}: {err}")
+        if self._connect:
+            try:
+                await self._connect.close()
+            except Exception as err: 
+                logging.error(f"Error while closing connection with {self._db_path}: {err}")
 
     async def insert(self, table: str, data: dict[str, any]) -> None:
         """Вставляет новую запись в указанную таблицу.
