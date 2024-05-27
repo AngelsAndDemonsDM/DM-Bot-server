@@ -1,17 +1,15 @@
 import pickle
 from typing import Dict, Optional
-
 from base_classes.base_component import Component
 
-
 class Entity:
-    def __init__(self, name: str):
+    def __init__(self, entity_id: str):
         """Инициализирует объект сущности.
 
         Args:
-            name (str): Имя сущности.
+            entity_id (str): Идентификатор сущности.
         """
-        self.name: str = name
+        self.id: str = entity_id
         self.components: Dict[str, Dict[str, Component]] = {}
 
     def add_component(self, component_type: str, component_id: str, component: Component) -> None:

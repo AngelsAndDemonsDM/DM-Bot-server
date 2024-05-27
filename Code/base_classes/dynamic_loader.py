@@ -49,8 +49,7 @@ class DynamicLoader:
         return classes
 
     def _load_entities(self) -> None:
-        """Загружает все сущности из конфигурационных файлов в директории config_dir.
-        """
+        """Загружает все сущности из конфигурационных файлов в директории config_dir."""
         for root, _, files in os.walk(self.config_dir):
             for file_name in files:
                 if file_name.endswith('.yml') and file_name != 'class_mappings.yml':
@@ -58,12 +57,26 @@ class DynamicLoader:
                     with open(file_path, 'r') as file:
                         entity_configs = yaml.safe_load(file)
                         for entity_config in entity_configs:
-                            entity = self._create_entity(entity_config)
-                            entity_type = entity_config['type']
-                            entity_id = entity_config['id']
-                            if entity_type not in self.entities:
-                                self.entities[entity_type] = {}
-                            self.entities[entity_type][entity_id] = entity
+                            self._add_entity(entity_config)
+
+    def _add_entity(self, config: Dict[str, Any]) -> None:
+        """Добавляет сущность на основе конфигурации.
+
+        Args:
+            config (Dict[str, Any]): Конфигурация сущности.
+
+        Raises:
+            ValueError: Если сущность с таким идентификатором уже существует.
+        """
+        entity_type = config['type']
+        entity_id = config['id']
+        if entity_type not in self.entities:
+            self.entities[entity_type] = {}
+        if entity_id in self.entities[entity_type]:
+            raise ValueError(f"Entity of type '{entity_type}' with id '{entity_id}' already exists.")
+        
+        entity = self._create_entity(config)
+        self.entities[entity_type][entity_id] = entity
 
     def _create_entity(self, config: Dict[str, Any]) -> Any:
         """Создает объект сущности на основе конфигурации.
@@ -78,7 +91,7 @@ class DynamicLoader:
         entity_class = self.entity_classes[entity_type]
         entity_params = {k: v for k, v in config.items() if k not in ['type', 'id', 'components']}
         entity = entity_class(**entity_params)
-        entity.entity_id = config['id']
+        entity.id = config['id']
 
         for component_config in config.get('components', []):
             component_type = component_config['type']
