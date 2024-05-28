@@ -13,5 +13,7 @@
 #       ПоляИзКлассаКомпонента: SomeValue
 
 components:
+    MapCoordinateComponent: "Code.components.map.map_coordinate.MapCoordinateComponent"
 
 entities:
+    Map: "Code.entities.map.MapEntity"

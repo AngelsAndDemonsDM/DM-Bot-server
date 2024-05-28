@@ -1,0 +1,1 @@
+from components.map.map_coordinate import MapCoordinateComponent
