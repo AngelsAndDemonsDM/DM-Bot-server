@@ -69,7 +69,7 @@ def validate_all_dms_folders(root_path):
 
 class TestSpriteFolders(unittest.TestCase):
     def setUp(self):
-        self.root_path = '/Sprites'
+        self.root_path = 'Sprites'
 
     def test_validate_all_dms_folders(self):
         results = validate_all_dms_folders(self.root_path)
