@@ -1,5 +1,6 @@
 from PIL import Image
 
+
 def add_color_to_base_image(base_image_path, color):
     base_image = Image.open(base_image_path).convert("RGBA")
     new_data = [
