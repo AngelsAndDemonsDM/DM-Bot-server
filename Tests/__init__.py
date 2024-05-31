@@ -1,2 +1,1 @@
-from test_ValidateSprite import (InvalidSpriteInfoError,
-                                 MissingSpriteFileError, SpriteValidationError)
+from test_ValidateSprite import InvalidSpriteError, SpriteValidationError
