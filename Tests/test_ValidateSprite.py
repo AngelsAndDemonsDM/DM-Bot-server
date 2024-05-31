@@ -69,12 +69,9 @@ def validate_all_dms_folders(root_path):
             results[item] = (is_valid, message)
     return results
 
-# Пример использования в тесте
 class TestSpriteFolders(unittest.TestCase):
-
     def setUp(self):
-        # Задаем путь к корневой директории
-        self.root_path = '/path/to/Sprites'
+        self.root_path = 'Sprites'
 
     def test_validate_all_dms_folders(self):
         results = validate_all_dms_folders(self.root_path)
