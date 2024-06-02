@@ -1,7 +1,8 @@
 from flask import Blueprint
 
 from .pages import (about_main_page, bot_main_page, index_main_page,
-                    players_main_page, settings_main_page)
+                    players_main_page, render_settings_bot_page,
+                    render_settings_main_page)
 
 main_bp = Blueprint('main', __name__)
 
@@ -24,7 +25,13 @@ def bot_page():
 def about_page():
     return about_main_page()
 
-# Настройки приложения
-@main_bp.route("/settings")
-def settings_page():
-    return settings_main_page()
+# # НАСТРОЙКИ
+# Общие
+@main_bp.route("/settings/main")
+def settings_main_page():
+    return render_settings_main_page()
+
+# Бота
+@main_bp.route("/settings/bot")
+def settings_bot_page():
+    return render_settings_bot_page()
