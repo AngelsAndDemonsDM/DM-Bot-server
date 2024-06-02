@@ -39,7 +39,6 @@ li {
 
 li a {
     display: block; /* Блочный элемент */
-    color: white; /* Белый цвет текста */
     text-align: center; /* Выравнивание текста по центру */
     padding: 14px 16px; /* Внутренние отступы */
     text-decoration: none; /* Убираем подчеркивание */
