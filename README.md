@@ -1,6 +1,6 @@
 # DM-Bot
 
-[![Run tests](https://github.com/AngelsAndDemonsDM/DM-Bot/actions/workflows/unittest.yml/badge.svg)](https://github.com/AngelsAndDemonsDM/DM-Bot/actions/workflows/unittest.yml)
+[![Tests](https://github.com/AngelsAndDemonsDM/DM-Bot/actions/workflows/unittest.yml/badge.svg?branch=master)](https://github.com/AngelsAndDemonsDM/DM-Bot/actions/workflows/unittest.yml)
 
 ## Оглавление
 - [Общая информация](#общая-информация)
