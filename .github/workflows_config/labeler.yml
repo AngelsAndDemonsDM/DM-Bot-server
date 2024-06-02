@@ -41,3 +41,7 @@
 "Changes: Workflows config":
 - changed-files:
   - any-glob-to-any-file: ['.github/workflows_config/**']
+
+"Update: Changelog":
+- changed-files:
+  - any-glob-to-any-file: ['.github/changelog.yml']
