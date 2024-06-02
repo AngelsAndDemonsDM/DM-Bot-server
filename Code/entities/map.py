@@ -1,6 +1,8 @@
 from typing import Optional
+
 from base_classes import Entity
 from components.map import MapCoordinateComponent
+
 
 class MapEntity(Entity):
     def __init__(self, entity_id: str, width: int, height: int):
