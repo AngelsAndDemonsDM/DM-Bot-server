@@ -56,19 +56,19 @@ input[type="text"] {
 }
 
 input[type="submit"] {
-    background-color: #ff7e00; /* Оранжевый фон */
+    background-color: #333; /* Тёмно-серый фон */
     color: white; /* Белый текст */
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    padding: 10px 20px; /* Внутренние отступы */
+    border: none; /* Убираем границу */
+    border-radius: 4px; /* Скругленные углы */
+    cursor: pointer; /* Курсор в виде указателя */
+    transition: background-color 0.3s ease; /* Плавное изменение цвета фона */
     display: inline-block; /* Показать как блочный элемент, чтобы выглядело как кнопка */
     text-align: center; /* Выравнивание текста по центру */
 }
 
 input[type="submit"]:hover {
-    background-color: #ffa500; /* Оранжевый цвет при наведении */
+    background-color: #222; /* Темно-серый фон при наведении */
 }
 
 /* Стили для ссылок */
