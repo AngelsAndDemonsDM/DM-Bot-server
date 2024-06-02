@@ -2,8 +2,6 @@ import asyncio
 import os
 import unittest
 
-import aiosqlite
-
 from Code.db_work import (DBF_AUTOINCREMENT, DBF_NOT_NULL, DBF_PRIMARY_KEY,
                           DBF_UNIQUE, AsyncDB)
 

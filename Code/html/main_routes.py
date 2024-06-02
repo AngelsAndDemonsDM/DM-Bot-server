@@ -15,11 +15,6 @@ def home_page():
 def players_page():
     return render_players_main_page()
 
-# Окно с управлением ботом 
-@main_bp.route("/bot")
-def bot_page():
-    return render_bot_main_page()
-
 # О говнюках =)
 @main_bp.route('/about')
 def about_page():
