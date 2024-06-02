@@ -25,14 +25,8 @@
 </head>
 
 <body>
-    <ul>
-        <li><a href="/">Главная</a></li>
-        <li><a href="/player">Просмотр игроков</a></li>
-        <li><a href="/bot">Управление ботом</a></li>
-        <li><a href="/about">О программе</a></li>
-    </ul>
+    {% include 'base_modules/navigation.html' %}
 
-    
     <div class="container">
         <div class="input-column card card-content">
             <h3>Контроль бота</h3>
@@ -60,8 +54,6 @@
     <script src="{{ url_for('static', filename='js/bot.js') }}"></script>
 </body>
 
-<div class="footer">
-    <p>DM-Bot<br><a href="mailto:dm.bot.adm@gmail.com">Обратная связь</a></p>
-</div>
+{% include 'base_modules/footer.html' %}
 
 </html>
