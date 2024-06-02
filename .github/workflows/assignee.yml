@@ -1,19 +1,23 @@
-name: "Auto Assign"
-on: pull_request
+name: Auto Assign
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
 
 jobs:
-  assign:
+  run:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read
+      issues: write
       pull-requests: write
-    
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-    
-      - uses: shufo/auto-assign-reviewer-by-files@v1.1.5
-        with:
-          config: ".github/workflows_config/assignee.yml"
-          token: ${{ secrets.GITHUB_TOKEN }}
+    - name: 'Auto-assign issue'
+      uses: pozil/auto-assign-issue@v1
+      with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          assignees: themanyfaceddemon
+          numOfAssignee: 1
