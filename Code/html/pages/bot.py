@@ -8,7 +8,7 @@ from flask import render_template
 
 TOKEN_PATH: str = "secrets/token"
 
-def bot_main_page():
+def render_bot_main_page():
     return render_template('bot.html')
 
 # Нам прислали токен, пируем (обрабатываем)
