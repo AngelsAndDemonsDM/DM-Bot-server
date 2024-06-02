@@ -1,7 +1,8 @@
 from flask import Blueprint
 
-from .pages import (render_about_main_page, render_bot_main_page, render_index_main_page,
-                    render_players_main_page, render_settings_main_page)
+from .pages import (render_about_main_page, render_bot_main_page,
+                    render_index_main_page, render_players_main_page,
+                    render_settings_main_page)
 
 main_bp = Blueprint('main', __name__)
 
