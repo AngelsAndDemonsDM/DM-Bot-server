@@ -6,6 +6,7 @@ from html.init_socketio import socketio
 from html.main_routes import main_bp
 
 from colorlog import ColoredFormatter
+from db_work import SettingsManager
 from flask import Flask
 
 VERSION: str = "0.0.01"
@@ -13,6 +14,8 @@ VERSION: str = "0.0.01"
 app = Flask(__name__)
 
 socketio.init_app(app)
+
+settings_manager: SettingsManager = SettingsManager()
 
 # Blueprint
 app.register_blueprint(main_bp)
