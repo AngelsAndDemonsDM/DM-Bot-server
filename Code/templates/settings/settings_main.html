@@ -17,14 +17,14 @@
         <form autocomplete="off">
             
             <label for="autoStart">
-                <input type="checkbox" id="autoStart" name="autoStart">
+                <input type="checkbox" id="autoStart" name="autoStart" onchange="saveAutoStartSetting()">
                 Автоматический запуск бота
             </label>
 
             <br><br>
 
             <label for="token">Введите токен бота:</label><input type="text" id="token" name="token" autocomplete="off">
-            <input type="submit" value="Сохранить токен">
+            <input type="submit" onclick="sendToken()" value="Сохранить токен">
         </form>
 
     </div>
