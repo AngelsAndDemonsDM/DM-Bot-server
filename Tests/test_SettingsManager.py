@@ -1,3 +1,4 @@
+import asyncio
 import os
 import unittest
 
@@ -7,15 +8,25 @@ from Code.db_work.SettingsManager import SettingsManager
 class TestSettingsManager(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.settings_manager = SettingsManager()
-        await self.settings_manager.start()
+
+        if os.path.exists(self.settings_manager._path):
+            os.remove(self.settings_manager._path)
+        
+        await self.settings_manager._create_file()
 
     async def test_create_file(self):
+        await self.settings_manager._create_file()
         self.assertTrue(os.path.exists(self.settings_manager._path))
 
     async def test_set_and_get_setting(self):
         await self.settings_manager.set_setting("theme", "dark")
         theme = await self.settings_manager.get_setting("theme")
         self.assertEqual(theme, "dark")
+
+    async def test_set_and_get_nested_setting(self):
+        await self.settings_manager.set_setting("bot.some_field.value", "new_value")
+        value = await self.settings_manager.get_setting("bot.some_field.value")
+        self.assertEqual(value, "new_value")
 
     async def test_get_nonexistent_setting(self):
         theme = await self.settings_manager.get_setting("nonexistent")
