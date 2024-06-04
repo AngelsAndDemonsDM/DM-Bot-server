@@ -27,7 +27,7 @@ async def get_token(data) -> None:
 
     if flag:
         settings_manager: SettingsManager = SettingsManager()
-        settings_manager.start()
+        await settings_manager.start()
         await settings_manager.set_setting("token", data)
 
 def token_valid(token: str) -> bool:

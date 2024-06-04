@@ -11,7 +11,7 @@ class TestSettingsManager(unittest.IsolatedAsyncioTestCase):
         if os.path.exists(self.settings_manager._path):
             os.remove(self.settings_manager._path)
         
-        self.settings_manager.start()
+        await self.settings_manager.start()
 
     async def test_create_file(self):
         self.assertTrue(os.path.exists(self.settings_manager._path))

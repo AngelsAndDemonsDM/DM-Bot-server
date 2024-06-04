@@ -14,5 +14,5 @@ async def ping(ctx: discord.ext.commands.Context):
 
 async def bot_start():
     settings_manager: SettingsManager = SettingsManager()
-    settings_manager.start()
+    await settings_manager.start()
     await bot.start(await settings_manager.get_setting("token"))
