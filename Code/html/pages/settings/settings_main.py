@@ -27,8 +27,7 @@ async def get_token(data) -> None:
 
     if flag:
         settings_manager: SettingsManager = SettingsManager()
-        await settings_manager.start()
-        await settings_manager.set_setting("token", data)
+        await settings_manager.set_setting("bot.token", data)
 
 def token_valid(token: str) -> bool:
     """Проверка того, что токен не инвалид

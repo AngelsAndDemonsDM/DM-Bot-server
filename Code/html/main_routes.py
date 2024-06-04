@@ -1,7 +1,7 @@
-from flask import Blueprint
-
 from html.pages import (render_about_main_page, render_index_main_page,
-                    render_players_main_page, render_settings_main_page)
+                        render_players_main_page, render_settings_main_page)
+
+from flask import Blueprint
 
 main_bp = Blueprint('main', __name__)
 
