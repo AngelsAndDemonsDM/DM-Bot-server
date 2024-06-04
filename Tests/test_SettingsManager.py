@@ -6,10 +6,11 @@ from Code.db_work.SettingsManager import SettingsManager
 
 class TestSettingsManager(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
+        self.settings_manager = SettingsManager()
+        
         if os.path.exists(self.settings_manager._path):
             os.remove(self.settings_manager._path)
-
-        self.settings_manager = SettingsManager()
+        
         self.settings_manager.start()
 
     async def test_create_file(self):
