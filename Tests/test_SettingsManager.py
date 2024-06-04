@@ -1,53 +1,88 @@
 import asyncio
+import json
 import os
 import unittest
 
-from Code.db_work.SettingsManager import SettingsManager
+import aiofiles
 
-class TestSettingsManager(unittest.IsolatedAsyncioTestCase):
-    async def asyncSetUp(self):
+from Code.db_work import SettingsManager
+
+
+class TestSettingsManager(unittest.TestCase):
+
+    def setUp(self):
+        self.test_dir = os.path.join(os.getcwd(), 'test_data')
+        self.test_file = os.path.join(self.test_dir, 'main_settings.json')
+        
+        if not os.path.exists(self.test_dir):
+            os.makedirs(self.test_dir)
+
         self.settings_manager = SettingsManager()
-        if os.path.exists(self.settings_manager._path):
-            os.remove(self.settings_manager._path)
+        self.settings_manager._path = self.test_file
+
+    def tearDown(self):
+        if os.path.exists(self.test_file):
+            os.remove(self.test_file)
         
-        await asyncio.wait_for(self.settings_manager._create_file(), timeout=5)
+        if os.path.exists(self.test_dir):
+            os.rmdir(self.test_dir)
 
-    async def asyncTearDown(self):
-        if os.path.exists(self.settings_manager._path):
-            os.remove(self.settings_manager._path)
-        
-        if os.path.exists(os.path.dirname(self.settings_manager._path)):
-            os.rmdir(os.path.dirname(self.settings_manager._path))
+    def test_create_file(self):
+        async def run_test():
+            result = await self.settings_manager._create_file()
+            self.assertTrue(result)
+            self.assertTrue(os.path.exists(self.test_file))
 
-    async def test_create_file(self):
-        await asyncio.wait_for(self.settings_manager._create_file(), timeout=5)
-        self.assertTrue(os.path.exists(self.settings_manager._path))
+            result = await self.settings_manager._create_file()
+            self.assertFalse(result)
 
-    async def test_set_and_get_setting(self):
-        await asyncio.wait_for(self.settings_manager.set_setting("theme", "dark"), timeout=5)
-        theme = await asyncio.wait_for(self.settings_manager.get_setting("theme"), timeout=5)
-        self.assertEqual(theme, "dark")
+        asyncio.run(run_test())
 
-    async def test_set_and_get_nested_setting(self):
-        await asyncio.wait_for(self.settings_manager.set_setting("bot.some_field.value", "new_value"), timeout=5)
-        value = await asyncio.wait_for(self.settings_manager.get_setting("bot.some_field.value"), timeout=5)
-        self.assertEqual(value, "new_value")
+    def test_load_settings(self):
+        async def run_test():
+            await self.settings_manager._create_file()
+            settings = await self.settings_manager.load_settings()
+            self.assertEqual(settings, {})
 
-    async def test_get_nonexistent_setting(self):
-        theme = await asyncio.wait_for(self.settings_manager.get_setting("nonexistent"), timeout=5)
-        self.assertIsNone(theme)
+            async with aiofiles.open(self.test_file, "w") as file:
+                await file.write(json.dumps({'key': 'value'}))
 
-    async def test_save_and_load_settings(self):
-        settings = {"theme": "dark", "language": "en"}
-        await asyncio.wait_for(self.settings_manager.save_settings(settings), timeout=5)
-        loaded_settings = await asyncio.wait_for(self.settings_manager.load_settings(), timeout=5)
-        self.assertEqual(loaded_settings, settings)
+            settings = await self.settings_manager.load_settings()
+            self.assertEqual(settings, {'key': 'value'})
 
-    async def test_overwrite_setting(self):
-        await asyncio.wait_for(self.settings_manager.set_setting("theme", "dark"), timeout=5)
-        await asyncio.wait_for(self.settings_manager.set_setting("theme", "light"), timeout=5)
-        theme = await asyncio.wait_for(self.settings_manager.get_setting("theme"), timeout=5)
-        self.assertEqual(theme, "light")
+        asyncio.run(run_test())
 
-if __name__ == "__main__":
+    def test_save_settings(self):
+        async def run_test():
+            settings = {'key': 'value'}
+            await self.settings_manager.save_settings(settings)
+
+            async with aiofiles.open(self.test_file, "r") as file:
+                content = await file.read()
+                saved_settings = json.loads(content)
+
+            self.assertEqual(saved_settings, settings)
+
+        asyncio.run(run_test())
+
+    def test_set_setting(self):
+        async def run_test():
+            await self.settings_manager.set_setting('bot.some_field.value', 'new_value')
+            settings = await self.settings_manager.load_settings()
+            self.assertEqual(settings['bot']['some_field']['value'], 'new_value')
+
+        asyncio.run(run_test())
+
+    def test_get_setting(self):
+        async def run_test():
+            await self.settings_manager.set_setting('bot.some_field.value', 'new_value')
+            value = await self.settings_manager.get_setting('bot.some_field.value')
+            self.assertEqual(value, 'new_value')
+
+            value = await self.settings_manager.get_setting('bot.non_existent_field')
+            self.assertIsNone(value)
+
+        asyncio.run(run_test())
+
+if __name__ == '__main__':
     unittest.main()
