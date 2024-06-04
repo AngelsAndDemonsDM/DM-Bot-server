@@ -3,9 +3,8 @@ from html.init_socketio import socketio
 
 import requests
 from bot import bot_start
+from db_work import SettingsManager
 from flask import render_template
-
-from Code.main import settings_manager
 
 
 def render_settings_main_page():
@@ -27,6 +26,8 @@ async def get_token(data) -> None:
     socketio.emit("anserFromPy", anser)
 
     if flag:
+        settings_manager: SettingsManager = SettingsManager()
+        settings_manager.start()
         await settings_manager.set_setting("token", data)
 
 def token_valid(token: str) -> bool:

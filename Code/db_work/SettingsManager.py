@@ -6,12 +6,35 @@ import aiofiles
 
 
 class SettingsManager:
-    def __init__(self) -> None:
-        self._path: str = os.path.join(os.getcwd(), 'Data', 'Settings', 'main_settings.json')
-        self._queue: asyncio.Queue = asyncio.Queue()
+    _instance = None
+    _lock = asyncio.Lock()
 
-        # Запуск обработчика очереди
-        self._task = asyncio.create_task(self._process_queue())
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(SettingsManager, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self) -> None:
+        if not hasattr(self, '_initialized'):
+            self._path: str = os.path.join(os.getcwd(), 'Data', 'Settings', 'main_settings.json')
+            self._queue: asyncio.Queue = asyncio.Queue()
+            self._task = None
+            self._initialized = True
+
+    async def start(self):
+        async with self._lock:
+            if self._task is None:
+                self._task = asyncio.create_task(self._process_queue())
+
+    async def stop(self):
+        async with self._lock:
+            if self._task:
+                self._task.cancel()
+                try:
+                    await self._task
+                except asyncio.CancelledError:
+                    pass
+                self._task = None
 
     async def _create_file(self) -> bool:
         """Создание директории и файла, если они не были созданы ранее.
@@ -27,7 +50,7 @@ class SettingsManager:
         if not os.path.exists(self._path):
             async with aiofiles.open(self._path, "w") as file:
                 await file.write(json.dumps({}))
-                return True
+            return True
             
         return False
 
@@ -75,7 +98,7 @@ class SettingsManager:
         """
         future = asyncio.Future()
         await self._queue.put((self._save_settings, [settings], {}, future))
-        return await future
+        await future
 
     async def _save_settings(self, settings: dict) -> None:
         """Реальное сохранение настроек в файл. Эта функция вызывается из очереди.
@@ -95,7 +118,7 @@ class SettingsManager:
         """
         future = asyncio.Future()
         await self._queue.put((self._set_setting, [key, value], {}, future))
-        return await future
+        await future
 
     async def _set_setting(self, key: str, value) -> None:
         """Реальная установка значения определенного поля в файле настроек. Эта функция вызывается из очереди.
