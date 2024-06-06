@@ -25,6 +25,14 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
         self.db = AsyncDB(self.db_name, self.db_path, self.db_config)
 
     async def asyncTearDown(self):
+        tasks = [task for task in asyncio.all_tasks() if task is not asyncio.current_task()]
+        for task in tasks:
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+        
         if os.path.exists(self.db._db_path):
             os.remove(self.db._db_path)
 
