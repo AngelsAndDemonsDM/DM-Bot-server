@@ -6,11 +6,11 @@
 **Args:**<br>
 db_name (str): Имя базы данных.<br>
 db_path (str): Путь к директории базы данных.<br>
-db_config (dict[str, list[tuple[str, type, int, str]]]): Конфигурация базы данных в виде словаря,<br>
+db_config (Dict[str, List[Tuple[str, type, int, str]]]): Конфигурация базы данных в виде словаря,<br>
 где ключи - это имена таблиц, а значения - списки кортежей, описывающих колонки (имя, тип, флаги, внешние ключи).<br>
 Example:<br>
 ```py
->>> db_config = {
+... db_config = {
 ...     'users': [
 ...         ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
 ...         ('name', str, AsyncDB.NOT_NULL, None),
@@ -28,14 +28,14 @@ ValueError: Если конфигурация базы данных не ука�
 err: Если возникает ошибка при подключении к базе данных.<br>
 Example:<br>
 ```py
->>> db_config = {
+... db_config = {
 ...     'users': [
 ...         ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
 ...         ('name', str, AsyncDB.NOT_NULL, None),
 ...         ('email', str, AsyncDB.UNIQUE, None)
 ...     ]
 ... }
->>> async with async_db as db:
+... async with async_db as db:
 ...     await db.open()
 ```
 <br>
@@ -46,7 +46,7 @@ Example:<br>
 err: Если возникает ошибка при закрытии соединения.<br>
 Example:<br>
 ```py
->>> async with async_db as db:
+... async with async_db as db:
 ...     await db.close()
 ```
 <br>
@@ -56,10 +56,10 @@ Example:<br>
 **Args:**<br>
 query (str): SQL запрос SELECT.<br>
 **Returns:**<br>
-list[dict[str, any]]: Список строк в виде словарей.<br>
+List[Dict[str, Any]]: Список строк в виде словарей.<br>
 Example:<br>
 ```py
->>> async with async_db as db:
+... async with async_db as db:
 ...     results = await db.select_raw("SELECT * FROM users")
 ...     print(results)
 ```
@@ -69,12 +69,12 @@ Example:<br>
 Выполняет вставку строки в указанную таблицу.<br>
 **Args:**<br>
 table (str): Имя таблицы.<br>
-data (dict[str, any]): Данные для вставки в виде словаря (ключи - имена колонок, значения - данные).<br>
+data (Dict[str, Any]): Данные для вставки в виде словаря (ключи - имена колонок, значения - данные).<br>
 **Returns:**<br>
 int: Идентификатор последней вставленной строки.<br>
 Example:<br>
 ```py
->>> async with async_db as db:
+... async with async_db as db:
 ...     user_id = await db.insert('users', {'name': 'John Doe', 'email': 'john@example.com'})
 ...     print(user_id)
 ```
@@ -84,13 +84,13 @@ Example:<br>
 Выполняет SELECT запрос и возвращает результаты.<br>
 **Args:**<br>
 table (str): Имя таблицы.<br>
-columns (list[str], optional): Список колонок для выборки. По умолчанию выбираются все колонки.<br>
-where (str, optional): Условие WHERE для фильтрации. По умолчанию не применяется.<br>
+columns (Optional[List[str]], optional): Список колонок для выборки. По умолчанию выбираются все колонки.<br>
+where (Optional[str], optional): Условие WHERE для фильтрации. По умолчанию не применяется.<br>
 **Returns:**<br>
-list[dict[str, any]]: Список строк в виде словарей.<br>
+List[Dict[str, Any]]: Список строк в виде словарей.<br>
 Example:<br>
 ```py
->>> async with async_db as db:
+... async with async_db as db:
 ...     users = await db.select('users', ['id', 'name'])
 ...     print(users)
 ```
@@ -100,11 +100,11 @@ Example:<br>
 Выполняет обновление строк в указанной таблице.<br>
 **Args:**<br>
 table (str): Имя таблицы.<br>
-data (dict[str, any]): Данные для обновления в виде словаря (ключи - имена колонок, значения - данные).<br>
+data (Dict[str, Any]): Данные для обновления в виде словаря (ключи - имена колонок, значения - данные).<br>
 where (str): Условие WHERE для фильтрации строк для обновления.<br>
 Example:<br>
 ```py
->>> async with async_db as db:
+... async with async_db as db:
 ...     await db.update('users', {'name': 'John Smith'}, "id = 1")
 ```
 <br>
@@ -116,7 +116,7 @@ table (str): Имя таблицы.<br>
 where (str): Условие WHERE для фильтрации строк для удаления.<br>
 Example:<br>
 ```py
->>> async with async_db as db:
+... async with async_db as db:
 ...     await db.delete('users', "id = 1")
 ```
 <br>
