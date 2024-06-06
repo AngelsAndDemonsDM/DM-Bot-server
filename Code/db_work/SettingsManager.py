@@ -1,36 +1,38 @@
 import asyncio
 import json
 import os
+from typing import Any, Optional
 
 import aiofiles
 
 
 class SettingsManager:
-    _instance = None
-    _lock = asyncio.Lock()
+    __slots__ = ['_path', '_lock']
+    
+    def __init__(self, settings_name: str = "main_settings") -> None:
+        """Инициализирует менеджер настроек.
 
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super(SettingsManager, cls).__new__(cls)
-        return cls._instance
+        Args:
+            settings_name (str, optional): Имя файла настроек. Defaults to "main_settings".
 
-    def __init__(self) -> None:
-        if not hasattr(self, '_initialized'):
-            self._path: str = os.path.join(os.getcwd(), 'Data', 'Settings', 'main_settings.json')
-            self._initialized = True
-
-    async def _create_file(self) -> bool:
-        """
-        Создание директории и файла, если они не были созданы ранее.
-        
-        Returns:
-            bool: Возвращает True если файл был создан, иначе False
-        
         Example:
         ```py
-        settings_manager = SettingsManager()
+        settings_manager = SettingsManager("app_settings")
+        ```
+        """
+        self._path: str = os.path.join(os.getcwd(), 'settings', f'{settings_name}.json')
+        self._lock = asyncio.Lock()
+
+    async def _create_file(self) -> bool:
+        """Создает файл настроек, если он не существует.
+
+        Returns:
+            bool: Возвращает True, если файл был создан, иначе False.
+
+        Example:
+        ```py
         created = await settings_manager._create_file()
-        print(created)  # True если файл был создан, иначе False
+        print(created)  # True, если файл создан, иначе False
         ```
         """
         directory = os.path.dirname(self._path)
@@ -46,17 +48,15 @@ class SettingsManager:
         return False
 
     async def load_settings(self) -> dict:
-        """
-        Загрузка настроек из файла.
-        
+        """Загружает настройки из файла.
+
         Returns:
-            dict: Словарь с настройками
-        
+            dict: Словарь с настройками.
+
         Example:
         ```py
-        settings_manager = SettingsManager()
         settings = await settings_manager.load_settings()
-        print(settings)  # {'key': 'value'}
+        print(settings)
         ```
         """
         async with self._lock:
@@ -70,34 +70,30 @@ class SettingsManager:
         return settings
 
     async def save_settings(self, settings: dict) -> None:
-        """
-        Сохранение настроек в файл.
-        
+        """Сохраняет настройки в файл.
+
         Args:
-            settings (dict): Словарь с настройками
-        
+            settings (dict): Словарь с настройками.
+
         Example:
         ```py
-        settings_manager = SettingsManager()
-        await settings_manager.save_settings({'key': 'value'})
+        await settings_manager.save_settings({"theme": "dark", "volume": 75})
         ```
         """
         async with self._lock:
             async with aiofiles.open(self._path, "w") as file:
                 await file.write(json.dumps(settings, indent=4))
 
-    async def set_setting(self, key: str, value) -> None:
-        """
-        Устанавливает значение определенного поля в файле настроек.
-        
+    async def set_setting(self, key: str, value: Any) -> None:
+        """Устанавливает значение настройки.
+
         Args:
-            key (str): Ключ поля
-            value: Значение поля
-        
+            key (str): Ключ настройки, поддерживается вложенность через точку (например, "user.preferences.theme").
+            value (Any): Значение настройки.
+
         Example:
         ```py
-        settings_manager = SettingsManager()
-        await settings_manager.set_setting('bot.some_field.value', 'new_value')
+        await settings_manager.set_setting("user.preferences.theme", "dark")
         ```
         """
         async with self._lock:
@@ -112,21 +108,19 @@ class SettingsManager:
             
             await self.save_settings(settings)
 
-    async def get_setting(self, key: str):
-        """
-        Получает значение определенного поля из файла настроек.
-        
+    async def get_setting(self, key: str) -> Optional[Any]:
+        """Получает значение настройки.
+
         Args:
-            key (str): Ключ поля
-        
+            key (str): Ключ настройки, поддерживается вложенность через точку (например, "user.preferences.theme").
+
         Returns:
-            Значение поля или None, если ключ не найден
-        
+            Optional[Any]: Значение настройки или None, если ключ не найден.
+
         Example:
         ```py
-        settings_manager = SettingsManager()
-        value = await settings_manager.get_setting('bot.some_field.value')
-        print(value)  # 'new_value' или None, если ключ не найден
+        theme = await settings_manager.get_setting("user.preferences.theme")
+        print(theme)  # "dark"
         ```
         """
         async with self._lock:
