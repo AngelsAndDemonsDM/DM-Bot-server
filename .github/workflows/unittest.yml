@@ -30,6 +30,7 @@ jobs:
       run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)/Code" >> $GITHUB_ENV
 
     - name: Run tests
+      timeout-minutes: 10
       run: |
         python -m unittest discover -s Tests -p "*.py"
       env:
