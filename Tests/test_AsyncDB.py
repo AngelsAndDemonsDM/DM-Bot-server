@@ -1,7 +1,9 @@
 import asyncio
 import os
 import unittest
+
 import aiosqlite
+
 from Code.db_work import AsyncDB
 
 
@@ -66,7 +68,7 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
 
     async def test_table_creation(self):
         async with self.db as db:
-            async with aiosqlite.connect(db._db_path) as conn:
+            async with aiosqlite.connect(self.db._db_path) as conn:
                 cursor = await conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
                 tables = await cursor.fetchall()
                 table_names = [table[0] for table in tables]
@@ -81,7 +83,8 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
     async def test_exception_handling(self):
         db = AsyncDB(self.db_name, self.db_path, {})
         with self.assertLogs(level='ERROR') as log:
-            await db.open()
+            with self.assertRaises(Exception):
+                await db.open()
             self.assertIn('Error while connecting', log.output[0])
 
 if __name__ == '__main__':

@@ -173,10 +173,10 @@ class AsyncDB:
             ... }
             >>> async with async_db as db:
             ...     await db.open()
-        ```py
+        ```
         """
-        self._connect = await aiosqlite.connect(self._db_path)
         try:
+            self._connect = await aiosqlite.connect(self._db_path)
             cursor = await self._connect.cursor()
 
             for table_name, columns in self._db_config.items():
@@ -188,7 +188,8 @@ class AsyncDB:
             
         except Exception as err:
             logging.error(f"Error while connecting to {self._db_path}: {err}")
-        
+            raise err
+
     async def close(self) -> None:
         """
         Закрывает соединение с базой данных.
@@ -197,14 +198,16 @@ class AsyncDB:
         ```py
             >>> async with async_db as db:
             ...     await db.close()
-        ```py
+        ```
         """
         if self._connect:
             try:
                 await self._connect.close()
+                self._connect = None
             
             except Exception as err: 
                 logging.error(f"Error while closing connection with {self._db_path}: {err}")
+                raise err
 
     async def select_raw(self, query: str) -> list[dict[str, any]]:
         """
