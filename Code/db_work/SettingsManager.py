@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import os
 from typing import Any, Optional
 
@@ -123,6 +124,7 @@ class SettingsManager:
         print(theme)  # "dark"
         ```
         """
+        logging.info(f"Getting setting for key: {key}")
         async with self._lock:
             settings = await self.load_settings()
             keys = key.split('.')
@@ -132,6 +134,8 @@ class SettingsManager:
                 if k in d:
                     d = d[k]
                 else:
+                    logging.warning(f"Key '{k}' not found in settings.")
                     return None
             
+            logging.info(f"Value found for key '{key}': {d}")
             return d
