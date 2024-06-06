@@ -6,7 +6,7 @@ import logging
 
 from Code.db_work import SettingsManager
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 class TestSettingsManager(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
