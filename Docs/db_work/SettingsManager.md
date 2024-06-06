@@ -36,7 +36,7 @@ await settings_manager.save_settings({"theme": "dark", "volume": 75})
 Устанавливает значение настройки.<br>
 **Args:**<br>
 key (str): Ключ настройки, поддерживается вложенность через точку (например, "user.preferences.theme").<br>
-value (_type_): Значение настройки.<br>
+value (Any): Значение настройки.<br>
 Example:<br>
 ```py
 await settings_manager.set_setting("user.preferences.theme", "dark")
@@ -48,7 +48,7 @@ await settings_manager.set_setting("user.preferences.theme", "dark")
 **Args:**<br>
 key (str): Ключ настройки, поддерживается вложенность через точку (например, "user.preferences.theme").<br>
 **Returns:**<br>
-_type_: Значение настройки или None, если ключ не найден.<br>
+Optional[Any]: Значение настройки или None, если ключ не найден.<br>
 Example:<br>
 ```py
 theme = await settings_manager.get_setting("user.preferences.theme")

@@ -43,6 +43,7 @@ class SettingsManager:
         if not os.path.exists(self._path):
             async with aiofiles.open(self._path, "w") as file:
                 await file.write(json.dumps({}))
+            
             return True
             
         return False
@@ -61,6 +62,20 @@ class SettingsManager:
             settings = json.loads(content)
         
         return settings
+
+    async def _save_settings(self, settings: dict) -> None:
+        """Сохраняет настройки в файл без использования блокировки.
+
+        Args:
+            settings (dict): Словарь с настройками.
+
+        Example:
+        ```py
+        await settings_manager._save_settings_unlocked({"theme": "dark", "volume": 75})
+        ```
+        """
+        async with aiofiles.open(self._path, "w") as file:
+            await file.write(json.dumps(settings, indent=4))
 
     async def load_settings(self) -> dict:
         """Загружает настройки из файла.
@@ -89,8 +104,7 @@ class SettingsManager:
         ```
         """
         async with self._lock:
-            async with aiofiles.open(self._path, "w") as file:
-                await file.write(json.dumps(settings, indent=4))
+            await self._save_settings(settings)
 
     async def set_setting(self, key: str, value: Any) -> None:
         """Устанавливает значение настройки.
@@ -114,7 +128,7 @@ class SettingsManager:
             
             d[keys[-1]] = value
             
-            await self.save_settings(settings)
+            await self._save_settings(settings)
 
     async def get_setting(self, key: str) -> Optional[Any]:
         """Получает значение настройки.
