@@ -176,6 +176,9 @@ class AsyncDB:
         ```
         """
         try:
+            if not self._db_config:
+                raise ValueError("Database configuration is required")
+
             self._connect = await aiosqlite.connect(self._db_path)
             cursor = await self._connect.cursor()
 
