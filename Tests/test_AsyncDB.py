@@ -2,8 +2,9 @@ import asyncio
 import os
 import unittest
 
-from Code.db_work import (DBF_AUTOINCREMENT, DBF_NOT_NULL, DBF_PRIMARY_KEY,
-                          DBF_UNIQUE, AsyncDB)
+import aiosqlite
+
+from Code.db_work import AsyncDB
 
 
 class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
@@ -12,15 +13,15 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
         self.db_path = "test_path"
         self.db_config = {
             'departments': [
-                ('id', int, DBF_PRIMARY_KEY | DBF_AUTOINCREMENT, None),
-                ('name', str, DBF_NOT_NULL, None)
+                ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
+                ('name', str, AsyncDB.NOT_NULL, None)
             ],
             'employees': [
-                ('id', int, DBF_PRIMARY_KEY | DBF_AUTOINCREMENT, None),
-                ('name', str, DBF_NOT_NULL, None),
-                ('age', int, DBF_NOT_NULL, None),
-                ('email', str, DBF_UNIQUE, None),
-                ('department_id', int, DBF_NOT_NULL, 'departments.id')
+                ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
+                ('name', str, AsyncDB.NOT_NULL, None),
+                ('age', int, AsyncDB.NOT_NULL, None),
+                ('email', str, AsyncDB.UNIQUE, None),
+                ('department_id', int, AsyncDB.NOT_NULL, 'departments.id')
             ]
         }
         self.db = AsyncDB(self.db_name, self.db_path, self.db_config)
@@ -57,6 +58,34 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
             await db.delete('departments', "name = 'HR'")
             result = await db.select('departments')
             self.assertEqual(len(result), 0)
+    
+    async def test_select_raw(self):
+        async with self.db as db:
+            await db.insert('departments', {'name': 'HR'})
+            results = await db.select_raw("SELECT * FROM departments")
+            self.assertEqual(len(results), 1)
+            self.assertEqual(results[0]['name'], 'HR')
+
+    async def test_table_creation(self):
+        async with self.db as db:
+            async with aiosqlite.connect(self.db._db_path) as conn:
+                cursor = await conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                tables = await cursor.fetchall()
+                table_names = [table[0] for table in tables]
+                self.assertIn('departments', table_names)
+                self.assertIn('employees', table_names)
+
+    async def test_close(self):
+        async with self.db as db:
+            await db.close()
+            self.assertIsNone(db._connect)
+
+    async def test_exception_handling(self):
+        db = AsyncDB(self.db_name, self.db_path, {})
+        with self.assertLogs(level='ERROR') as log:
+            with self.assertRaises(Exception):
+                await db.open()
+            self.assertIn('Error while connecting', log.output[0])
 
 if __name__ == '__main__':
     unittest.main()
