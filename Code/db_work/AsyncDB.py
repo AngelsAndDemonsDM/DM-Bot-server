@@ -14,8 +14,7 @@ class AsyncDB:
     __slots__ = ['_db_path', '_connect', '_db_config']
     
     def __init__(self, db_name: str, db_path: str, db_config: dict[str, list[tuple[str, type, int, str]]]) -> None:
-        """
-        Инициализирует асинхронное соединение с базой данных SQLite.
+        """Инициализирует асинхронное соединение с базой данных SQLite.
 
         Args:
             db_name (str): Имя базы данных.
@@ -53,8 +52,7 @@ class AsyncDB:
         await self.close()
 
     def _process_columns(self, columns: list[tuple[str, type, int, str]]) -> str:
-        """
-        Форматирует описание колонок для SQL запроса.
+        """Форматирует описание колонок для SQL запроса.
 
         Args:
             columns (list[tuple[str, type, int, str]]): Список кортежей, описывающих колонки (имя, тип, флаги, внешние ключи).
@@ -88,8 +86,7 @@ class AsyncDB:
         return ", ".join(table_cfg)
 
     def _get_column_type(self, datatype: type) -> str:
-        """
-        Определяет SQL тип данных для колонки.
+        """Определяет SQL тип данных для колонки.
 
         Args:
             datatype (type): Тип данных Python.
@@ -124,8 +121,7 @@ class AsyncDB:
             raise ValueError(f"Unsupported datatype: {datatype}")
 
     def _get_column_flags(self, flags: int, column_name: str) -> str:
-        """
-        Определяет SQL флаги для колонки.
+        """Определяет SQL флаги для колонки.
 
         Args:
             flags (int): Битовая маска флагов.
@@ -159,8 +155,11 @@ class AsyncDB:
         return " ".join(flags_exit)
 
     async def open(self) -> None:
-        """
-        Открывает соединение с базой данных и создает таблицы согласно конфигурации.
+        """Открывает соединение с базой данных и создает таблицы согласно конфигурации.
+
+        Raises:
+            ValueError: Если конфигурация базы данных не указана.
+            err: Если возникает ошибка при подключении к базе данных.
 
         Example:
         ```py
@@ -194,8 +193,10 @@ class AsyncDB:
             raise err
 
     async def close(self) -> None:
-        """
-        Закрывает соединение с базой данных.
+        """Закрывает соединение с базой данных.
+
+        Raises:
+            err: Если возникает ошибка при закрытии соединения.
 
         Example:
         ```py
@@ -213,8 +214,7 @@ class AsyncDB:
                 raise err
 
     async def select_raw(self, query: str) -> list[dict[str, any]]:
-        """
-        Выполняет произвольный SELECT запрос и возвращает результаты.
+        """Выполняет произвольный SELECT запрос и возвращает результаты.
 
         Args:
             query (str): SQL запрос SELECT.
@@ -236,8 +236,7 @@ class AsyncDB:
             return [dict(zip(col_names, row)) for row in rows]
 
     async def insert(self, table: str, data: dict[str, any]) -> int:
-        """
-        Выполняет вставку строки в указанную таблицу.
+        """Выполняет вставку строки в указанную таблицу.
 
         Args:
             table (str): Имя таблицы.
@@ -262,8 +261,7 @@ class AsyncDB:
             return cursor.lastrowid
 
     async def select(self, table: str, columns: list[str] = None, where: str = None) -> list[dict[str, any]]:
-        """
-        Выполняет SELECT запрос и возвращает результаты.
+        """Выполняет SELECT запрос и возвращает результаты.
 
         Args:
             table (str): Имя таблицы.
@@ -288,8 +286,7 @@ class AsyncDB:
             return [dict(zip(col_names, row)) for row in rows]
 
     async def update(self, table: str, data: dict[str, any], where: str) -> None:
-        """
-        Выполняет обновление строк в указанной таблице.
+        """Выполняет обновление строк в указанной таблице.
 
         Args:
             table (str): Имя таблицы.
@@ -309,8 +306,7 @@ class AsyncDB:
             await self._connect.commit()
 
     async def delete(self, table: str, where: str) -> None:
-        """
-        Выполняет удаление строк из указанной таблицы.
+        """Выполняет удаление строк из указанной таблицы.
 
         Args:
             table (str): Имя таблицы.

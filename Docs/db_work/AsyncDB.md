@@ -23,27 +23,32 @@ Example:<br>
 
 ## `AsyncDB.open`<br>
 Открывает соединение с базой данных и создает таблицы согласно конфигурации.<br>
+**Raises:**<br>
+ValueError: Если конфигурация базы данных не указана.<br>
+err: Если возникает ошибка при подключении к базе данных.<br>
 Example:<br>
-```py<br>
->>> db_config = {<br>
-...     'users': [<br>
-...         ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),<br>
-...         ('name', str, AsyncDB.NOT_NULL, None),<br>
-...         ('email', str, AsyncDB.UNIQUE, None)<br>
-...     ]<br>
-... }<br>
->>> async with async_db as db:<br>
-...     await db.open()<br>
-```py<br>
+```py
+>>> db_config = {
+...     'users': [
+...         ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
+...         ('name', str, AsyncDB.NOT_NULL, None),
+...         ('email', str, AsyncDB.UNIQUE, None)
+...     ]
+... }
+>>> async with async_db as db:
+...     await db.open()
+```
 <br>
 
 ## `AsyncDB.close`<br>
 Закрывает соединение с базой данных.<br>
+**Raises:**<br>
+err: Если возникает ошибка при закрытии соединения.<br>
 Example:<br>
-```py<br>
->>> async with async_db as db:<br>
-...     await db.close()<br>
-```py<br>
+```py
+>>> async with async_db as db:
+...     await db.close()
+```
 <br>
 
 ## `AsyncDB.select_raw`<br>
