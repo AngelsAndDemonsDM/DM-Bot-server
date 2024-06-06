@@ -7,12 +7,8 @@ from Code.db_work import SettingsManager
 
 
 class TestSettingsManager(unittest.IsolatedAsyncioTestCase):
-
     async def asyncSetUp(self):
         self.settings_manager = SettingsManager("test_settings")
-
-        if os.path.exists(self.settings_manager._path):
-            os.remove(self.settings_manager._path)
 
     async def asyncTearDown(self):
         if os.path.exists(self.settings_manager._path):
