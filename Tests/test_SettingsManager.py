@@ -2,11 +2,9 @@ import asyncio
 import json
 import os
 import unittest
-import logging
 
 from Code.db_work import SettingsManager
 
-logging.basicConfig(level=logging.INFO)
 
 class TestSettingsManager(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
@@ -40,14 +38,9 @@ class TestSettingsManager(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(settings['level1']['level2']['key'], 'value')
 
     async def test_get_setting(self):
-        logging.info("Testing getting a single setting.")
-        logging.info("Saving settings for the test.")
         await self.settings_manager.save_settings({'level1': {'level2': {'key': 'value'}}})
-        logging.info("Settings saved. Now trying to get the setting.")
         value = await self.settings_manager.get_setting('level1.level2.key')
-        logging.info(f"Value obtained: {value}")
         self.assertEqual(value, 'value')
-        logging.info("Getting a single setting test passed.")
 
 if __name__ == "__main__":
     unittest.main()

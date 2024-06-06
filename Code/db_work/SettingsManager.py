@@ -1,6 +1,5 @@
 import asyncio
 import json
-import logging
 import os
 from typing import Any, Optional
 
@@ -48,6 +47,21 @@ class SettingsManager:
             
         return False
 
+    async def _load_settings(self) -> dict:
+        """Загружает настройки из файла без использования блокировки.
+
+        Returns:
+            dict: Словарь с настройками.
+        """
+        if not os.path.exists(self._path):
+            await self._create_file()
+
+        async with aiofiles.open(self._path, "r") as file:
+            content = await file.read()
+            settings = json.loads(content)
+        
+        return settings
+
     async def load_settings(self) -> dict:
         """Загружает настройки из файла.
 
@@ -61,14 +75,7 @@ class SettingsManager:
         ```
         """
         async with self._lock:
-            if not os.path.exists(self._path):
-                await self._create_file()
-
-            async with aiofiles.open(self._path, "r") as file:
-                content = await file.read()
-                settings = json.loads(content)
-        
-        return settings
+            return await self._load_settings()
 
     async def save_settings(self, settings: dict) -> None:
         """Сохраняет настройки в файл.
@@ -98,7 +105,7 @@ class SettingsManager:
         ```
         """
         async with self._lock:
-            settings = await self.load_settings()
+            settings = await self._load_settings()
             keys = key.split('.')
             d = settings
            
@@ -124,9 +131,8 @@ class SettingsManager:
         print(theme)  # "dark"
         ```
         """
-        logging.info(f"Getting setting for key: {key}")
         async with self._lock:
-            settings = await self.load_settings()
+            settings = await self._load_settings()
             keys = key.split('.')
             d = settings
             
@@ -134,8 +140,6 @@ class SettingsManager:
                 if k in d:
                     d = d[k]
                 else:
-                    logging.warning(f"Key '{k}' not found in settings.")
                     return None
             
-            logging.info(f"Value found for key '{key}': {d}")
             return d
