@@ -17,7 +17,7 @@ async def player_rm(
 
     async with soul_db:
         try:
-            await soul_db.delete("souls", f"discord_id = {player.id}")
+            await soul_db.delete("souls", "discord_id = ?", (player.id))
             resp = "Пользователь успешно удален из БД"
         
         except Exception as err:
