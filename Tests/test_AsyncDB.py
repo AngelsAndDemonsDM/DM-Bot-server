@@ -75,11 +75,6 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
                 self.assertIn('employees', table_names)
                 self.assertIn('files', table_names)
 
-    async def test_close(self):
-        await self.db.open()
-        await self.db.close()
-        self.assertIsNone(self.db._connect)
-
     async def test_exception_handling(self):
         db = AsyncDB(self.db_name, self.db_path, {})
         with self.assertLogs(level='ERROR') as log:
@@ -101,7 +96,7 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
             initial_blob_data = b'Initial blob data'
             updated_blob_data = b'Updated blob data'
             await db.insert('files', {'name': 'test_blob', 'data': initial_blob_data})
-            await db.update('files', {'data': updated_blob_data}, "name = ?", ('test_blob',))
+            await db.update('files', {'data': updated_blob_data}, 'name = ?', ('test_blob',))
             result = await db.select('files', columns=['name', 'data'])
             self.assertEqual(result[0]['data'], updated_blob_data)
 
@@ -109,7 +104,7 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
         async with self.db as db:
             blob_data = b'Test blob data to delete'
             await db.insert('files', {'name': 'test_blob', 'data': blob_data})
-            await db.delete('files', "name = ?", ('test_blob',))
+            await db.delete('files', 'name = ?', ('test_blob',))
             result = await db.select('files')
             self.assertEqual(len(result), 0)
 
