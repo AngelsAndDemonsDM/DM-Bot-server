@@ -1,8 +1,9 @@
-import os
 import logging
+import os
 from typing import Any, Dict, List, Optional, Tuple
 
 import aiosqlite
+
 
 class AsyncDB:
     PRIMARY_KEY  = 1 << 0
@@ -23,14 +24,14 @@ class AsyncDB:
 
         Example:
         ```py
-        db_config = {
-            'users': [
-                ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
-                ('name', str, AsyncDB.NOT_NULL, None),
-                ('email', str, AsyncDB.UNIQUE, None)
-            ]
-        }
-        async_db = AsyncDB('mydatabase', './db', db_config)
+        |db_config = {
+        |    'users': [
+        |        ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
+        |        ('name', str, AsyncDB.NOT_NULL, None),
+        |        ('email', str, AsyncDB.UNIQUE, None)
+        |    ]
+        |}
+        |async_db = AsyncDB('mydatabase', './db', db_config)
         ```
         """
         logging.debug("AsyncDB: Initializing database.")
@@ -184,9 +185,9 @@ class AsyncDB:
 
         Example:
         ```py
-        async with async_db as db:
-            results = await db.select_raw("SELECT * FROM users WHERE name = ?", ("John Doe",))
-            print(results)
+        |async with async_db as db:
+        |    results = await db.select_raw("SELECT * FROM users WHERE name = ?", ("John Doe",))
+        |    print(results)
         ```
         """
         logging.debug(f"AsyncDB: Executing SELECT query: {query} with parameters: {parameters}")
@@ -209,12 +210,12 @@ class AsyncDB:
 
         Example:
         ```py
-        async with async_db as db:
-            user_id = await db.insert(
-                table='users',
-                data={'name': 'John Doe', 'email': 'john@example.com'}
-            )
-            print(f"Inserted user with ID: {user_id}")
+        |async with async_db as db:
+        |    user_id = await db.insert(
+        |        table='users',
+        |        data={'name': 'John Doe', 'email': 'john@example.com'}
+        |    )
+        |    print(f"Inserted user with ID: {user_id}")
         ```
         """
         logging.debug(f"AsyncDB: Executing INSERT into {table}: {data}")
@@ -241,14 +242,14 @@ class AsyncDB:
 
         Example:
         ```py
-        async with async_db as db:
-            users = await db.select(
-                table='users',
-                columns=['id', 'name', 'email'],
-                where='name = ?',
-                where_values=('John Doe',)
-            )
-            print(users)
+        |async with async_db as db:
+        |    users = await db.select(
+        |        table='users',
+        |        columns=['id', 'name', 'email'],
+        |        where='name = ?',
+        |        where_values=('John Doe',)
+        |    )
+        |    print(users)
         ```
         """
         logging.debug(f"AsyncDB: Executing SELECT in table {table}, columns: {columns}, where: {where}, values: {where_values}")
@@ -272,13 +273,13 @@ class AsyncDB:
 
         Example:
         ```py
-        async with async_db as db:
-            await db.update(
-                table='users',
-                data={'name': 'John Smith'},
-                where='id = ?',
-                where_values=(1,)
-            )
+        |async with async_db as db:
+        |    await db.update(
+        |        table='users',
+        |        data={'name': 'John Smith'},
+        |        where='id = ?',
+        |        where_values=(1,)
+        |    )
         ```
         """
         logging.debug(f"AsyncDB: Executing UPDATE in table {table}, data: {data}, where: {where}, values: {where_values}")
@@ -299,12 +300,12 @@ class AsyncDB:
 
         Example:
         ```py
-        async with async_db as db:
-            await db.delete(
-                table='users',
-                where='id = ?',
-                where_values=(1,)
-            )
+        |async with async_db as db:
+        |    await db.delete(
+        |        table='users',
+        |        where='id = ?',
+        |        where_values=(1,)
+        |    )
         ```
         """
         logging.debug(f"AsyncDB: Executing DELETE from table {table}, where: {where}, values: {where_values}")
