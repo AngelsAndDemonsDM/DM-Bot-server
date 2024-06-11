@@ -1,4 +1,4 @@
-import asyncio
+import logging
 import os
 import unittest
 
@@ -8,6 +8,10 @@ from Code.db_work import AsyncDB
 
 
 class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        logging.basicConfig(level=logging.DEBUG)
+        super().setUp()
+
     async def asyncSetUp(self):
         self.db_name = 'test_db'
         self.db_path = 'test_path'
