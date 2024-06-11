@@ -32,8 +32,7 @@ jobs:
     - name: Run tests
       timeout-minutes: 10
       run: |
-        set -e
-        python -m unittest discover -s Tests -p "*.py"
+        python -m unittest discover -s Tests -p "*.py" -v -f
       env:
         pythonLocation: /opt/hostedtoolcache/Python/3.12.3/x64
         LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.3/x64/lib
