@@ -163,15 +163,36 @@ class AsyncDB:
 
     async def open(self) -> None:
         """Открывает соединение с базой данных."""
-        logging.debug(f"AsyncDB: Opening connection to database at path: {self._db_path}")
-        self._connect = await aiosqlite.connect(self._db_path)
+        try:
+            logging.debug(f"AsyncDB: Opening connection to database at path: {self._db_path}")
+            
+            if not self._db_config:
+                raise ValueError("Database configuration is required")
+
+            self._connect = await aiosqlite.connect(self._db_path)
+            cursor = await self._connect.cursor()
+
+            for table_name, columns in self._db_config.items():
+                table_cfg = self._process_columns(columns)
+                await cursor.execute(f"CREATE TABLE IF NOT EXISTS {table_name} ({table_cfg})")
+
+            await self._connect.commit()
+            logging.debug(f"Connection with {self._db_path} is open.")
+
+        except Exception as err:
+            logging.error(f"Error while connecting to {self._db_path}: {err}")
+            raise err
 
     async def close(self) -> None:
         """Закрывает соединение с базой данных."""
-        logging.debug("AsyncDB: Closing database connection.")
         if self._connect:
-            await self._connect.close()
-            self._connect = None
+            try:
+                await self._connect.close()
+                self._connect = None
+
+            except Exception as err: 
+                logging.error(f"Error while closing connection with {self._db_path}: {err}")
+                raise err
 
     async def select_raw(self, query: str, parameters: Optional[Tuple[Any, ...]] = None) -> List[Dict[str, Any]]:
         """Выполняет произвольный SELECT запрос и возвращает результаты.
