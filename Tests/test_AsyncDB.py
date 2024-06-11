@@ -9,8 +9,8 @@ from Code.db_work import AsyncDB
 
 class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
-        self.db_name = "test_db"
-        self.db_path = "test_path"
+        self.db_name = 'test_db'
+        self.db_path = 'test_path'
         self.db_config = {
             'departments': [
                 ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
@@ -30,6 +30,8 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
             ]
         }
         self.db = AsyncDB(self.db_name, self.db_path, self.db_config)
+        await self.db.open()
+        await self.db.close()
 
     async def asyncTearDown(self):
         if os.path.exists(self.db._db_path):
@@ -45,14 +47,14 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
     async def test_update(self):
         async with self.db as db:
             await db.insert('departments', {'name': 'HR'})
-            await db.update('departments', {'name': 'Human Resources'}, "name = ?", ('HR',))
+            await db.update('departments', {'name': 'Human Resources'}, 'name = ?', ('HR',))
             result = await db.select('departments')
             self.assertEqual(result[0]['name'], 'Human Resources')
 
     async def test_delete(self):
         async with self.db as db:
             await db.insert('departments', {'name': 'HR'})
-            await db.delete('departments', "name = ?", ('HR',))
+            await db.delete('departments', 'name = ?', ('HR',))
             result = await db.select('departments')
             self.assertEqual(len(result), 0)
     
