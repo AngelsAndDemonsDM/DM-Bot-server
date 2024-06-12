@@ -39,6 +39,7 @@ if __name__ == "__main__":
         logger.setLevel(logging.DEBUG)        
     else:
         logger.setLevel(logging.INFO)
+    logger.handlers.clear()
     
     console_handler = logging.StreamHandler()
     formatter = ColoredFormatter(
