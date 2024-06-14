@@ -30,3 +30,5 @@ function adjustPopupPositions() {
         topOffset += popup.offsetHeight + 10;
     });
 }
+
+window.showPopup = showPopup;
