@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import logging
 import sys
 import webbrowser
@@ -63,6 +64,6 @@ if __name__ == "__main__":
     if not debug:
         webbrowser.open("http://127.0.0.1:5000")
     
-    socketio.start_background_task(main_bg_task())
+    socketio.start_background_task(asyncio.run(main_bg_task()))
     
     socketio.run(app, debug=debug, allow_unsafe_werkzeug=True)
