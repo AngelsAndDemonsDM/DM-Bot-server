@@ -21,6 +21,7 @@ async def player_add(
             resp = "Пользователь успешно добавлен в БД"
         
         except Exception as err:
-            resp = f"Пользователь не был добавлен в БД. Ошибка: {err}"
+            logging.error(f"Error while add player: {err}")
+            resp = f"Произошла ошибка при добавлении пользователя. Свяжитесь с администратором/разработчиком для решения проблемы"
 
     await ctx.respond(resp)
