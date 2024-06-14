@@ -1,17 +1,18 @@
 import argparse
 import asyncio
 import logging
+import signal
 import sys
 import webbrowser
 from html.init_socketio import handle_show_popup, socketio
 from html.main_routes import main_bp
 
-from bot import bot_start
+from bot import bot_close, bot_start
 from colorlog import ColoredFormatter
 from db_work import SettingsManager
 from flask import Flask
 
-VERSION: str = "0.0.01"
+VERSION: str = "0.0.04"
 
 app = Flask(__name__)
 
@@ -32,9 +33,24 @@ async def async_main_bg_task():
     if await SettingsManager().get_setting("bot.auto_start"):
         await bot_start()
 
+async def shutdown_app():
+    logging.info("Shutdown bot...")
+    await bot_close()
+    logging.info("Done!")
+    
 # Background task function
 def main_bg_task():
     asyncio.run(async_main_bg_task())
+
+# Signals
+def handle_exit_signal(signum, frame):
+    logging.info("Shutdown start")
+    asyncio.run(shutdown_app())
+    
+    logging.info("Shutdown app is done!")
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, handle_exit_signal)
 
 # Start program
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ import asyncio
 from html.init_socketio import socketio
 
 import requests
+from bot.main_bot_core import bot_start
 from db_work import SettingsManager
 from flask import render_template
 
@@ -68,3 +69,16 @@ def get_auto_start(data) -> None:
 def handle_check_auto_start_status():
     auto_start = asyncio.run(SettingsManager().get_setting("bot.auto_start"))
     socketio.emit('settingAutoStartStatusUpdate', auto_start)
+
+# Запуск бота
+@socketio.on('settingsStartBot')
+def handle_start_bot():
+    try:
+        if asyncio.run(SettingsManager().get_setting("bot.is_run")):
+            socketio.emit('settingsBotStartStatus', {'status': 'error', 'message': 'Бот уже запущен!'})
+        else:
+            socketio.emit('settingsBotStartStatus', {'status': 'success'})
+            asyncio.run(bot_start())
+
+    except Exception as e:
+        socketio.emit('settingsBotStartStatus', {'status': 'error', 'message': str(e)})

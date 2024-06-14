@@ -13,5 +13,11 @@ async def ping(ctx: discord.ext.commands.Context):
     await ctx.send(f"Pong in ({round(bot.latency * 1000)}ms)")
 
 async def bot_start():
-    settings_manager: SettingsManager = SettingsManager()
-    await bot.start(await settings_manager.get_setting("bot.token"))
+    settings_manager = SettingsManager()
+    if not await settings_manager.get_setting("bot.is_run"):
+        await settings_manager.set_setting("bot.is_run", True)
+        await bot.start(await settings_manager.get_setting("bot.token"))
+
+async def bot_close():
+    await SettingsManager().set_setting("bot.is_run", False)
+    # Тут надо что-то сделать. Позже. Мне похеру сейчас.

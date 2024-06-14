@@ -55,3 +55,16 @@ function checkAutoStartStatus() {
 socket.on('settingAutoStartStatusUpdate', function(data) {
     document.getElementById("autoStart").checked = data;
 });
+
+// Функция для запуска бота
+function startBot() {
+    socket.emit('settingsStartBot');
+}
+
+socket.on('settingsBotStartStatus', function(data) {
+    if (data.status === 'success') {
+        showPopup('success', 'Бот успешно запущен!');
+    } else {
+        showPopup('error', 'Ошибка при запуске бота: ' + data.message);
+    }
+});
