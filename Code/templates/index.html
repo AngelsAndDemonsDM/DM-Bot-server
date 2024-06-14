@@ -7,19 +7,10 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='/css/main.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='/css/popup.css') }}">
 </head>
 
 <body>
     {% include 'base_modules/navigation.html' %}
-
-    <button onclick="showPopup('info', 'This is an info notification.')">Show Info Popup</button>
-    <button onclick="showPopup('success', 'This is a success notification.')">Show Success Popup</button>
-    <button onclick="showPopup('warning', 'This is a warning notification.')">Show Warning Popup</button>
-    <button onclick="showPopup('error', 'This is an error notification.')">Show Error Popup</button>
-    <script src="{{ url_for('static', filename='js/popup.js') }}"></script>
-</body>
-
 </body>
 
 {% include 'base_modules/footer.html' %}

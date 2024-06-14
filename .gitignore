@@ -27,6 +27,7 @@ venv.bak/
 # Data
 Data.DM-Bot/*
 settings/*
+[Dd]ata/*
 
 # Build
 DevTool/*.exe
