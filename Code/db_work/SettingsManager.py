@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+from functools import reduce
 from typing import Any, Optional
 
 import aiofiles
@@ -122,9 +123,11 @@ class SettingsManager:
             settings = await self._load_settings()
             keys = key.split('.')
             d = settings
-           
+
             for k in keys[:-1]:
-                d = d.setdefault(k, {})
+                if k not in d:
+                    d[k] = {}
+                d = d[k]
             
             d[keys[-1]] = value
             
@@ -147,13 +150,8 @@ class SettingsManager:
         """
         async with self._lock:
             settings = await self._load_settings()
-            keys = key.split('.')
-            d = settings
+            try:
+                return reduce(lambda d, k: d[k], key.split('.'), settings)
             
-            for k in keys:
-                if k in d:
-                    d = d[k]
-                else:
-                    return None
-            
-            return d
+            except KeyError:
+                return None
