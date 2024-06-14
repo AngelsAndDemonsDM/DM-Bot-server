@@ -1,5 +1,5 @@
-from Code.bot import bot_start
-from Code.db_work import SettingsManager
+from bot import bot_start
+from db_work import SettingsManager
 
 
 async def main_bg_task():
