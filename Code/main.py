@@ -6,8 +6,9 @@ import webbrowser
 from html.init_socketio import handle_show_popup, socketio
 from html.main_routes import main_bp
 
-from bg_task import main_bg_task
+from bot import bot_start
 from colorlog import ColoredFormatter
+from db_work import SettingsManager
 from flask import Flask
 
 VERSION: str = "0.0.01"
@@ -25,6 +26,15 @@ def parse_arguments():
     parser.add_argument('--debug', action='store_true', help='Включить режим отладки')
     parser.add_argument('--version', action='store_true', help='Возвращает версию приложения')
     return parser.parse_args()
+
+# Async helper function
+async def async_main_bg_task():
+    if await SettingsManager().get_setting("bot.auto_start"):
+        await bot_start()
+
+# Background task function
+def main_bg_task():
+    asyncio.run(async_main_bg_task())
 
 # Start program
 if __name__ == "__main__":
@@ -64,6 +74,6 @@ if __name__ == "__main__":
     if not debug:
         webbrowser.open("http://127.0.0.1:5000")
     
-    socketio.start_background_task(asyncio.run(main_bg_task()))
+    socketio.start_background_task(main_bg_task)
     
     socketio.run(app, debug=debug, allow_unsafe_werkzeug=True)

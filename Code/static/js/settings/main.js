@@ -1,41 +1,57 @@
 var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-// Работа с токеном //
-document.addEventListener("DOMContentLoaded", onPageLoadForToken);
+// Функции загрузки данных
+document.addEventListener("DOMContentLoaded", function() {
+    checkTokenStatus();
+    checkAutoStartStatus();
+});
 
-function onPageLoadForToken() { // Загружаем токен из бинарника
-    hasToken();
+// Работа с токеном
+function saveTokenSettings(event) {
+    event.preventDefault();
+
+    var botToken = document.getElementById("token").value;
+    socket.emit('settingSetUpToken', botToken);
 }
 
-function sendToken() { // Отправка даты на обработку для кода
-    var botToken = document.getElementById("botToken").value;
-    socket.emit('sendToken', botToken);
-}
-
-function hasToken() { // Проверка есть ли токен
-    socket.emit('isHasToken');
-}
-
-socket.on('getIsHasToken', function(data) {
-    var botStatusElement = document.getElementById("botHasToken");
-
-    if (data == true) {
-        botStatusElement.textContent = "Существует";
-        botStatusElement.classList.add('green');
-        botStatusElement.classList.remove('red'); 
+socket.on('settingTokenStatusPopup', function(data) {
+    if (data) {
+        showPopup('success', 'Настройка токена сохранена');
     } else {
-        botStatusElement.textContent = "Не существует";
-        botStatusElement.classList.add('red'); 
-        botStatusElement.classList.remove('green');
+        showPopup('error', 'Введён неверный токен бота');
     }
-})
+});
 
-// Запуск бота //
-function startBot() {
-    socket.emit('startBot');
+function checkTokenStatus() {
+    socket.emit('settingCheckToken');
 }
 
-// Связь бота с пользователем //
-socket.on('anserFromPy', function(data) { // Обновляем поле и говорим что хотели
-    document.getElementById("anserFromPy").innerHTML = data;
+socket.on('settingTokenStatusUpdate', function(data) {
+    if (data) {
+        document.getElementById("tokenStatus").textContent = "Токен существует";
+    } else {
+        document.getElementById("tokenStatus").textContent = "Токен не существует";
+    }
+});
+
+// Работа с автозапуском
+function saveAutoStartSetting() {
+    var autoStart = document.getElementById("autoStart").checked;
+    socket.emit('settingSetUpAutoStart', autoStart);
+}
+
+socket.on('settingAutoStartStatusPopup', function(data) {
+    if (data) {
+        showPopup('success', 'Настройка автозапуска сохранена');
+    } else {
+        showPopup('error', 'Ошибка сохранения настройки автозапуска');
+    }
+});
+
+function checkAutoStartStatus() {
+    socket.emit('settingCheckAutoStart');
+}
+
+socket.on('settingAutoStartStatusUpdate', function(data) {
+    document.getElementById("autoStart").checked = data;
 });
