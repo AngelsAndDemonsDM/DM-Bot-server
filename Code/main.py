@@ -1,14 +1,18 @@
 import argparse
+import asyncio
 import logging
+import signal
 import sys
 import webbrowser
-from html.init_socketio import socketio
+from html.init_socketio import handle_show_popup, socketio
 from html.main_routes import main_bp
 
+from bot import bot_close, bot_start
 from colorlog import ColoredFormatter
+from db_work import SettingsManager
 from flask import Flask
 
-VERSION: str = "0.0.01"
+VERSION: str = "0.0.04"
 
 app = Flask(__name__)
 
@@ -23,6 +27,31 @@ def parse_arguments():
     parser.add_argument('--debug', action='store_true', help='Включить режим отладки')
     parser.add_argument('--version', action='store_true', help='Возвращает версию приложения')
     return parser.parse_args()
+
+# Async helper function
+async def async_main_bg_task():
+    if await SettingsManager().get_setting("bot.auto_start"):
+        await SettingsManager().set_setting("bot.is_run", False) # Хуйня ебаная. async_main_bg_task должна быть вызвана только при запуске, так что оправдано.
+        await bot_start()
+
+async def shutdown_app():
+    logging.info("Shutdown bot...")
+    await bot_close()
+    logging.info("Done!")
+    
+# Background task function
+def main_bg_task():
+    asyncio.run(async_main_bg_task())
+
+# Signals
+def handle_exit_signal(signum, frame):
+    logging.info("Shutdown start")
+    asyncio.run(shutdown_app())
+    
+    logging.info("Shutdown app is done!")
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, handle_exit_signal)
 
 # Start program
 if __name__ == "__main__":
@@ -39,6 +68,7 @@ if __name__ == "__main__":
         logger.setLevel(logging.DEBUG)        
     else:
         logger.setLevel(logging.INFO)
+    logger.handlers.clear()
     
     console_handler = logging.StreamHandler()
     formatter = ColoredFormatter(
@@ -60,5 +90,7 @@ if __name__ == "__main__":
     
     if not debug:
         webbrowser.open("http://127.0.0.1:5000")
+    
+    socketio.start_background_task(main_bg_task)
     
     socketio.run(app, debug=debug, allow_unsafe_werkzeug=True)
