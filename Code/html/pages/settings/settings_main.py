@@ -2,7 +2,6 @@ import asyncio
 from html.init_socketio import socketio
 
 import requests
-from bot import bot_start
 from db_work import SettingsManager
 from flask import render_template
 
@@ -12,22 +11,19 @@ def render_settings_main_page():
 
 # Нам прислали токен
 @socketio.on('sendToken')
-async def get_token(data) -> None:
-    anser: str
+def get_token(data) -> None:
     flag: bool
 
     if token_valid(data):
-        anser = "Токен принят"
         flag = True
     else:
-        anser = "Токен не верный"
         flag = False
     
-    socketio.emit("anserFromPy", anser)
+    socketio.emit("settingsGetToken", flag)
 
     if flag:
         settings_manager: SettingsManager = SettingsManager()
-        await settings_manager.set_setting("bot.token", data)
+        asyncio.run(settings_manager.set_setting("bot.token", data))
 
 def token_valid(token: str) -> bool:
     """Проверка того, что токен не инвалид
@@ -46,11 +42,3 @@ def token_valid(token: str) -> bool:
     
     except Exception:
         return False
-
-@socketio.on('startBot')
-async def start_bot() -> None:
-    try:
-        asyncio.run(bot_start())
-        
-    except Exception:
-        socketio.emit("anserFromPy", "Токен <p class=\"red\"style=\"display: inline;\">не обнаружен</p>")
