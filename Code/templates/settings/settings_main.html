@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Настройки</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='/css/popup.css') }}">
+</head>
+
+<body>
+    {% include 'base_modules/navigation.html' %}
+
+    <div class="card card-content">
+        <h1>Настройки Бота</h1>
+        <form autocomplete="off" onsubmit="saveTokenSettings(event)">
+            <label for="autoStart">
+                <input type="checkbox" id="autoStart" name="autoStart" onchange="saveAutoStartSetting()">
+                Автоматический запуск бота
+            </label>
+            <br><br>
+            <label for="token">Введите токен бота:</label>
+            <input type="text" id="token" name="token" autocomplete="off">
+            <input type="submit" value="Сохранить токен">
+        </form>
+        <div id="tokenStatus"></div>
+        <br>
+        <button onclick="startBot()">Запустить бота</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/popup.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/settings/main.js') }}"></script>
+</body>
+
+{% include 'base_modules/footer.html' %}
+
+</html>

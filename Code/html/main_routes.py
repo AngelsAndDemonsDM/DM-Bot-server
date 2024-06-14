@@ -1,25 +1,26 @@
-from flask import Blueprint
+from html.pages import (render_about_main_page, render_index_main_page,
+                        render_players_main_page, render_settings_main_page)
 
-from .pages import (about_main_page, bot_main_page, index_main_page,
-                    players_main_page)
+from flask import Blueprint
 
 main_bp = Blueprint('main', __name__)
 
 # Главное окно приложения
 @main_bp.route('/')
 def home_page():
-    return index_main_page()
+    return render_index_main_page()
 
 @main_bp.route('/player')
 def players_page():
-    return players_main_page()
-
-# Окно с управлением ботом 
-@main_bp.route("/bot")
-def bot_page():
-    return bot_main_page()
+    return render_players_main_page()
 
 # О говнюках =)
 @main_bp.route('/about')
 def about_page():
-    return about_main_page()
+    return render_about_main_page()
+
+# # НАСТРОЙКИ
+# Общие
+@main_bp.route("/settings/main")
+def settings_main_page():
+    return render_settings_main_page()

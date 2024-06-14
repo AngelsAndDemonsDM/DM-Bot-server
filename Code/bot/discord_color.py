@@ -1,44 +1,39 @@
-from enum import auto, enum
-
-
-class DiscordColorEnum(enum):
-    """
-        0 - тёмно серый
-        1 - красный
-        2 - зелёный
-        3 - жёлтый
-        4 - синий
-        5 - розовый
-        6 - бирюзовый
-        7 - белый 
-    """
-    DARK_GREY = auto()
-    RED = auto()
-    GREEN = auto()
-    YELLOW = auto()
-    BLUE = auto()
-    PINK = auto()
-    TEAL = auto()
-    WHITE = auto()
-
 class DiscordColorManager:
+    DARK_GREY: bytes = 1 << 0
+    RED:       bytes = 1 << 1
+    GREEN:     bytes = 1 << 2
+    YELLOW:    bytes = 1 << 3
+    BLUE:      bytes = 1 << 4
+    PINK:      bytes = 1 << 5
+    TEAL:      bytes = 1 << 6
+    WHITE:     bytes = 1 << 7
+    
+    __slots__ = []
+    
     def __init__(self):
         pass
 
-    def get_color(self, text: str, color: DiscordColorEnum):
-        if color == DiscordColorEnum.DARK_GREY:
+    def get_color(self, text: str, color: bytes):
+        if color == DiscordColorManager.DARK_GREY:
             return f"[2;30m{text}[0m"
-        elif color == DiscordColorEnum.RED:
+        
+        elif color == DiscordColorManager.RED:
             return f"[2;31m{text}[0m"
-        elif color == DiscordColorEnum.GREEN:
+        
+        elif color == DiscordColorManager.GREEN:
             return f"[2;32m{text}[0m"
-        elif color == DiscordColorEnum.YELLOW:
+        
+        elif color == DiscordColorManager.YELLOW:
             return f"[2;33m{text}[0m"
-        elif color == DiscordColorEnum.BLUE:
+        
+        elif color == DiscordColorManager.BLUE:
             return f"[2;34m{text}[0m"
-        elif color == DiscordColorEnum.PINK:
+        
+        elif color == DiscordColorManager.PINK:
             return f"[2;35m{text}[0m"
-        elif color == DiscordColorEnum.TEAL:
+        
+        elif color == DiscordColorManager.TEAL:
             return f"[2;36m{text}[0m"
-        elif color == DiscordColorEnum.WHITE:
+        
+        elif color == DiscordColorManager.WHITE:
             return f"[2;37m{text}[0m"
