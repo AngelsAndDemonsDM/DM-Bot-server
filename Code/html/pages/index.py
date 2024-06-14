@@ -1,5 +1,5 @@
 from flask import render_template
 
 
-def index_main_page():
+def render_index_main_page():
     return render_template('index.html')
