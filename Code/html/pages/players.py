@@ -6,7 +6,7 @@ from player import soul_db
 
 PLAYER_PATH: str = "Discord/players"
 
-def players_main_page():
+def render_players_main_page():
     return render_template('player.html')
 
 @socketio.on('getAllPlayers')

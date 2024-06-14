@@ -3,7 +3,7 @@ from player.soul import PlayerSoul
 
 soul_db = AsyncDB(
     db_name="souls",
-    db_path="",
+    db_path="data",
     db_config= { 
         "souls": [ 
             ("discord_id", int, (AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE), None), 
