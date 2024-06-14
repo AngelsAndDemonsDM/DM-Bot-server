@@ -5,6 +5,7 @@ import webbrowser
 from html.init_socketio import handle_show_popup, socketio
 from html.main_routes import main_bp
 
+from bg_task import main_bg_task
 from colorlog import ColoredFormatter
 from flask import Flask
 
@@ -61,5 +62,7 @@ if __name__ == "__main__":
     
     if not debug:
         webbrowser.open("http://127.0.0.1:5000")
+    
+    socketio.start_background_task(main_bg_task())
     
     socketio.run(app, debug=debug, allow_unsafe_werkzeug=True)
