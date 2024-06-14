@@ -31,6 +31,7 @@ def parse_arguments():
 # Async helper function
 async def async_main_bg_task():
     if await SettingsManager().get_setting("bot.auto_start"):
+        await SettingsManager().set_setting("bot.is_run", False) # Хуйня ебаная. async_main_bg_task должна быть вызвана только при запуске, так что оправдано.
         await bot_start()
 
 async def shutdown_app():
