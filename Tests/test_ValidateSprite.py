@@ -1,4 +1,3 @@
-import logging
 import os
 import unittest
 from typing import Dict, List, Union
@@ -26,9 +25,6 @@ class InvalidSpriteError(SpriteValidationError):
         super().__init__(message, path)
         self.missing_files = missing_files
         self.missing_field = missing_field
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Функция для проверки наличия info.yml в папке
 def check_info_yml_exists(folder_path: str) -> bool:
@@ -135,21 +131,9 @@ def validate_all_dms_folders(root_path: str) -> Dict[str, bool]:
         item_path = os.path.join(root_path, item)
         
         if os.path.isdir(item_path) and item.endswith('.dms'):
-            try:
-                is_valid = validate_folder(item_path)
-                results[item] = is_valid
+            is_valid = validate_folder(item_path)
+            results[item] = is_valid
             
-            except InvalidSpriteError as err:
-                logger.error(f"Validation failed for {item}: {err.message}, path: {err.path}")
-                
-                if err.missing_files:
-                    logger.error(f"Missing files: {', '.join(err.missing_files)}")
-                
-                if err.missing_field:
-                    logger.error(f"Missing field: {err.missing_field}")
-                
-                results[item] = False
-    
     return results
 
 class TestSpriteFolders(unittest.TestCase):
