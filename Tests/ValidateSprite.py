@@ -6,7 +6,14 @@ import yaml
 
 
 class SpriteValidationError(Exception):
-    """Базовый класс для исключений, связанных с валидацией спрайтов."""
+    """Базовый класс для исключений, связанных с валидацией спрайтов.
+
+    Этот класс расширяет стандартный класс исключений и добавляет дополнительную информацию о пути к файлу, где произошла ошибка.
+
+    Args:
+        message (str): Сообщение об ошибке, описывающее, что пошло не так.
+        path (str): Путь к файлу, в котором произошла ошибка.
+    """
     def __init__(self, message: str, path: str):
         super().__init__(message)
         self.message = message
@@ -15,107 +22,125 @@ class SpriteValidationError(Exception):
 class InvalidSpriteError(SpriteValidationError):
     """Исключение для случаев, когда файл info.yml отсутствует или содержит неверные данные.
 
+    Этот класс расширяет SpriteValidationError и добавляет информацию о недостающих файлах или полях.
+
     Args:
-        message (str): Сообщение об ошибке.
-        path (str): Путь к файлу.
-        missing_files (List[str]): Список недостающих файлов.
-        missing_field (str): Отсутствующее поле.
+        message (str): Сообщение об ошибке, описывающее, что пошло не так.
+        path (str): Путь к файлу, в котором произошла ошибка.
+        missing_files (List[str], optional): Список недостающих файлов. По умолчанию None.
+        missing_field (str, optional): Отсутствующее поле в файле info.yml. По умолчанию None.
     """
     def __init__(self, message: str, path: str, missing_files: List[str] = None, missing_field: str = None):
         super().__init__(message, path)
         self.missing_files = missing_files
         self.missing_field = missing_field
 
-# Функция для проверки наличия info.yml в папке
-def check_info_yml_exists(folder_path: str) -> bool:
-    """Проверяет наличие файла info.yml в указанной папке.
+
+def get_info_yml_path(folder_path: str) -> str:
+    """Возвращает путь к файлу info.yml в указанной папке.
 
     Args:
         folder_path (str): Путь к папке.
 
+    Returns:
+        str: Путь к файлу info.yml.
+    """
+    return os.path.join(folder_path, 'info.yml')
+
+def read_info_yml(info_yml_path: str) -> Dict:
+    """Читает и возвращает содержимое файла info.yml.
+
+    Args:
+        info_yml_path (str): Путь к файлу info.yml.
+
     Raises:
-        InvalidSpriteError: Исключение, если файл info.yml не найден.
+        InvalidSpriteError: Если файл info.yml не найден.
 
     Returns:
-        bool: True, если файл найден.
+        Dict: Содержимое файла info.yml.
     """
-    info_yml_path = os.path.join(folder_path, 'info.yml')
-    
     if not os.path.isfile(info_yml_path):
         raise InvalidSpriteError("info.yml not found", info_yml_path)
     
-    return True
-
-# Функция для проверки содержания info.yml
-def validate_info_yml(folder_path: str) -> Dict[str, Union[str, List[str]]]:
-    """Проверяет содержание файла info.yml.
-
-    Args:
-        folder_path (str): Путь к папке.
-
-    Raises:
-        InvalidSpriteError: Исключение, если отсутствует обязательное поле или если поле 'Sprites' не является списком строк.
-
-    Returns:
-        Dict[str, Union[str, List[str]]]: Содержимое файла info.yml.
-    """
-    info_yml_path = os.path.join(folder_path, 'info.yml')
     with open(info_yml_path, 'r') as file:
         data = yaml.safe_load(file)
     
-    required_fields = ['Author', 'License', 'Sprites']
+    return data
+
+def validate_required_fields(data: Dict, required_fields: List[str], info_yml_path: str) -> None:
+    """Проверяет наличие обязательных полей в данных.
+
+    Args:
+        data (Dict): Данные для проверки.
+        required_fields (List[str]): Список обязательных полей.
+        info_yml_path (str): Путь к файлу info.yml.
+
+    Raises:
+        InvalidSpriteError: Если отсутствует обязательное поле.
+    """
     for field in required_fields:
         if field not in data:
             raise InvalidSpriteError(f"Missing required field: {field}", info_yml_path, missing_field=field)
-    
-    # Дополнительные проверки для полей
-    if not isinstance(data['Sprites'], list) or not all(isinstance(item, str) for item in data['Sprites']):
-        raise InvalidSpriteError(f"Field 'Sprites' must be a list of strings", info_yml_path)
-    
-    return data
 
-# Функция для проверки наличия файлов, указанных в info.yml
-def check_files_exist(folder_path: str, files_list: List[str]) -> bool:
+def validate_sprites_format(sprites: List[Dict], info_yml_path: str) -> None:
+    """Проверяет формат поля 'Sprites'.
+
+    Args:
+        sprites (List[Dict]): Список спрайтов для проверки.
+        info_yml_path (str): Путь к файлу info.yml.
+
+    Raises:
+        InvalidSpriteError: Если формат спрайтов неверен.
+    """
+    if not isinstance(sprites, list) or not all(isinstance(item, dict) for item in sprites):
+        raise InvalidSpriteError(f"Field 'Sprites' must be a list of dictionaries", info_yml_path)
+    
+    for sprite in sprites:
+        if not all(k in sprite for k in ['name', 'size', 'is_mask', 'frames']):
+            raise InvalidSpriteError("Each sprite must have 'name', 'size', 'is_mask', and 'frames' fields", info_yml_path)
+        
+        if not isinstance(sprite['size'], dict) or not all(k in sprite['size'] for k in ['x', 'y']):
+            raise InvalidSpriteError("Each sprite 'size' must be a dictionary with 'x' and 'y' fields", info_yml_path)
+        
+        frames = sprite['frames']
+        if not isinstance(frames, int) or frames < 0:
+            raise InvalidSpriteError(f"Frame count must be a non-negative integer", info_yml_path)
+
+def check_files_exist(folder_path: str, sprites: List[Dict[str, Union[str, Dict[str, int], bool]]]) -> None:
     """Проверяет наличие файлов, указанных в info.yml.
 
     Args:
         folder_path (str): Путь к папке.
-        files_list (List[str]): Список файлов.
+        sprites (List[Dict[str, Union[str, Dict[str, int], bool]]]): Список спрайтов.
 
     Raises:
-        InvalidSpriteError: Исключение, если файл из списка не найден.
-
-    Returns:
-        bool: True, если все файлы найдены.
+        InvalidSpriteError: Если файл из списка не найден.
     """
     missing_files = []
-    for file_name in files_list:
+    for sprite in sprites:
+        file_name = sprite['name']
         file_path = os.path.join(folder_path, f"{file_name}.png")
         if not os.path.isfile(file_path):
             missing_files.append(f"{file_name}.png")
     
     if missing_files:
         raise InvalidSpriteError("Missing files", folder_path, missing_files=missing_files)
-    
-    return True
 
-# Основная функция для проверки папки
-def validate_folder(folder_path: str) -> bool:
+def validate_folder(folder_path: str) -> None:
     """Проверяет папку на наличие файла info.yml и соответствующих файлов спрайтов.
 
     Args:
         folder_path (str): Путь к папке.
 
-    Returns:
-        bool: True, если папка валидна, иначе исключение.
+    Raises:
+        InvalidSpriteError: Если файл info.yml не найден или содержит неверные данные.
     """
-    check_info_yml_exists(folder_path)
-    info_data = validate_info_yml(folder_path)
-    check_files_exist(folder_path, info_data['Sprites'])
-    
-    return True
+    info_yml_path = get_info_yml_path(folder_path)
+    data = read_info_yml(info_yml_path)
+    validate_required_fields(data, ['Author', 'License', 'Sprites'], info_yml_path)
+    validate_sprites_format(data['Sprites'], info_yml_path)
+    check_files_exist(folder_path, data['Sprites'])
 
-# Функция для поиска всех папок с расширением .dms в корневой директории и их проверки
 def validate_all_dms_folders(root_path: str) -> Dict[str, bool]:
     """Ищет все папки с расширением .dms в корневой директории и проверяет их.
 
@@ -131,9 +156,13 @@ def validate_all_dms_folders(root_path: str) -> Dict[str, bool]:
         item_path = os.path.join(root_path, item)
         
         if os.path.isdir(item_path) and item.endswith('.dms'):
-            is_valid = validate_folder(item_path)
-            results[item] = is_valid
+            try:
+                validate_folder(item_path)
+                results[item] = True
             
+            except InvalidSpriteError:
+                results[item] = False
+    
     return results
 
 class TestSpriteFolders(unittest.TestCase):
@@ -141,6 +170,7 @@ class TestSpriteFolders(unittest.TestCase):
         self.root_path = 'Sprites'
 
     def test_validate_all_dms_folders(self):
+        """Тестирует функцию validate_all_dms_folders на корневой директории."""
         results = validate_all_dms_folders(self.root_path)
         
         for folder, is_valid in results.items():
