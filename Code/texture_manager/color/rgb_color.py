@@ -52,7 +52,7 @@ class RGBColor:
         Raises:
             ValueError: Если значения каналов выходят за пределы допустимого диапазона (0-255).
         """
-        self._validate_color_value(*values)
+        self._validate_color_value(values)
         self._r, self._g, self._b, self._a = values
 
     def get_hex(self) -> str:
