@@ -11,6 +11,7 @@ class TestRGBColor(unittest.TestCase):
     def test_initialization_invalid(self):
         with self.assertRaises(ValueError):
             RGBColor((256, 100, 50, 255))
+        
         with self.assertRaises(ValueError):
             RGBColor((255, 100, 50, -1))
 
@@ -23,6 +24,7 @@ class TestRGBColor(unittest.TestCase):
         color = RGBColor((0, 0, 0, 0))
         with self.assertRaises(ValueError):
             color.cur_value = (300, 0, 0, 0)
+        
         with self.assertRaises(ValueError):
             color.cur_value = (0, 0, 0, 256)
 
