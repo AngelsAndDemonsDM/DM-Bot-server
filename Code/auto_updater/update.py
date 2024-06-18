@@ -19,11 +19,15 @@ def load_config() -> dict:
 def get_remote_version_and_zip_url(releases_url: str) -> Tuple[Optional[str], Optional[str]]:
     response = requests.get(releases_url)
     if response.status_code == 200:
-        latest_release = response.json()
-        version = latest_release['tag_name']
-        zip_url = latest_release['zipball_url']
-        return version, zip_url
-    logging.error("Failed to fetch the latest release information.")
+        try:
+            latest_release = response.json()
+            version = latest_release['tag_name']
+            zip_url = latest_release['zipball_url']
+            return version, zip_url
+        except (ValueError, KeyError) as e:
+            logging.error(f"Error parsing JSON response: {e}")
+            return None, None
+    logging.error(f"Failed to fetch the latest release information. Status code: {response.status_code}")
     return None, None
 
 def download_and_extract_zip(url: str, extract_to: str) -> None:
@@ -52,11 +56,9 @@ def clean_old_version(app_dir: str, exclude_dirs: list, merge_dirs: list, user_d
                         if os.path.isdir(subitem_path) and not is_user_dir(subitem_path, user_dir_prefix):
                             shutil.rmtree(subitem_path)
                             logging.info(f"Removed directory: {subitem_path}")
-                
                 else:
                     shutil.rmtree(item_path)
                     logging.info(f"Removed directory: {item_path}")
-            
             else:
                 os.remove(item_path)
                 logging.info(f"Removed file: {item_path}")
@@ -117,7 +119,7 @@ def run_update(main_script: str) -> None:
     config = load_config()
 
     releases_url = config["RELEASES_URL"]
-    exclude_dirs = config["EXCLUDE_DIRS"] + ['data', 'settings']
+    exclude_dirs = config["EXCLUDE_DIRS"]
     merge_dirs = config["MERGE_DIRS"]
     user_dir_prefix = config["USER_DIR_PREFIX"]
     current_version = config["VERSION"]
@@ -154,5 +156,6 @@ if __name__ == "__main__":
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
     
+    logging.basicConfig(level=logging.INFO)
     MAIN_SCRIPT = os.path.join(BASE_DIR, "Code", "main.py")
     run_update(MAIN_SCRIPT)
