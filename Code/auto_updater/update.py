@@ -49,12 +49,14 @@ def clean_old_version(app_dir: str, exclude_dirs: list, merge_dirs: list, user_d
                 if item in merge_dirs:
                     for subitem in os.listdir(item_path):
                         subitem_path = os.path.join(item_path, subitem)
-                        if not is_user_dir(subitem_path, user_dir_prefix):
+                        if os.path.isdir(subitem_path) and not is_user_dir(subitem_path, user_dir_prefix):
                             shutil.rmtree(subitem_path)
                             logging.info(f"Removed directory: {subitem_path}")
+                
                 else:
                     shutil.rmtree(item_path)
                     logging.info(f"Removed directory: {item_path}")
+            
             else:
                 os.remove(item_path)
                 logging.info(f"Removed file: {item_path}")
@@ -115,7 +117,7 @@ def run_update(main_script: str) -> None:
     config = load_config()
 
     releases_url = config["RELEASES_URL"]
-    exclude_dirs = config["EXCLUDE_DIRS"]
+    exclude_dirs = config["EXCLUDE_DIRS"] + ['data', 'settings']
     merge_dirs = config["MERGE_DIRS"]
     user_dir_prefix = config["USER_DIR_PREFIX"]
     current_version = config["VERSION"]
