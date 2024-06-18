@@ -157,6 +157,17 @@ button:hover {
     padding: 15px; /* Внутренние отступы */
 }
 
+/* Добавление стилей для заголовков внутри карточек */
+.card-content h1,
+.card-content h2,
+.card-content h3,
+.card-content h4,
+.card-content h5,
+.card-content h6 {
+    margin-top: 0; /* Убираем верхний отступ */
+    margin-bottom: 15px; /* Устанавливаем нижний отступ */
+}
+
 /* Стили для таблицы */
 table {
     width: 100%; /* Ширина таблицы занимает всю доступную ширину контейнера */

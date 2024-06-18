@@ -25,13 +25,5 @@ venv.bak/
 .vscode/*
 
 # Data
-Data.DM-Bot/*
-settings/*
+[Ss]ettings/*
 [Dd]ata/*
-
-# Build
-DevTool/*.exe
-DevTool/DM-Bot/*
-DevTool/DM-Bot.zip
-DevTool/*.build
-DevTool/*.dist
