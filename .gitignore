@@ -25,8 +25,7 @@ venv.bak/
 .vscode/*
 
 # Data
-Data.DM-Bot/*
-settings/*
+[Ss]ettings/*
 [Dd]ata/*
 
 # Build
