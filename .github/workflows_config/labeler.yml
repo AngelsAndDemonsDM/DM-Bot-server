@@ -2,7 +2,7 @@
 - all:
   - changed-files:
       - any-glob-to-any-file: ['Code/**', 'Code/*', 'Prototype/class_mappings.yml']
-      - all-globs-to-all-files: ['!Code/bot/**', '!Code/templates/**', '!Code/static/**', '!Code/html/**']
+      - all-globs-to-all-files: ['!Code/bot/**', '!Code/templates/**', '!Code/static/**', '!Code/py_html/**']
 
 "Changes: Bot":
 - changed-files:
@@ -10,7 +10,7 @@
 
 "Changes: UI":
 - changed-files:
-  - any-glob-to-any-file: ['Code/templates/**', 'Code/static/**', 'Code/html/**', 'Code/templates/*', 'Code/static/*', 'Code/html/*']
+  - any-glob-to-any-file: ['Code/templates/**', 'Code/static/**', 'Code/py_html/**', 'Code/templates/*', 'Code/static/*', 'Code/py_html/*']
 
 "Changes: Sprites":
 - changed-files:
