@@ -7,6 +7,7 @@ import zipfile
 from typing import Optional, Tuple
 
 import requests
+from colorlog import ColoredFormatter
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 CONFIG_FILE = os.path.join(BASE_DIR, "updater_config.json")
@@ -132,5 +133,24 @@ def run_update(main_script: str) -> None:
     run_main_script(main_script)
 
 if __name__ == "__main__":
+    logger = logging.getLogger()
+    console_handler = logging.StreamHandler()
+    formatter = ColoredFormatter(
+        "[%(asctime)s] [%(log_color)s%(levelname)s%(reset)s] - %(message)s",
+        datefmt=None,
+        reset=True,
+        log_colors={
+            'DEBUG': 'cyan',
+            'INFO': 'green',
+            'WARNING': 'yellow',
+            'ERROR': 'red',
+            'CRITICAL': 'purple',
+        },
+        secondary_log_colors={},
+        style='%'
+    )
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+    
     MAIN_SCRIPT = os.path.join(BASE_DIR, "Code", "main.py")
     run_update(MAIN_SCRIPT)

@@ -1,7 +1,7 @@
 {
     "VERSION": "0.0.04",
     "RELEASES_URL": "https://api.github.com/repos/AngelsAndDemonsDM/DM-Bot/releases/latest",
-    "EXCLUDE_DIRS": ["settings", "data"],
+    "EXCLUDE_DIRS": ["settings", "data", ".git", ".github"],
     "MERGE_DIRS": ["Sprites", "Prototype"],
     "USER_DIR_PREFIX": "user_"
 }
