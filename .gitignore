@@ -27,10 +27,3 @@ venv.bak/
 # Data
 [Ss]ettings/*
 [Dd]ata/*
-
-# Build
-DevTool/*.exe
-DevTool/DM-Bot/*
-DevTool/DM-Bot.zip
-DevTool/*.build
-DevTool/*.dist
