@@ -68,7 +68,6 @@ def run_file_in_new_console(file_path):
 # Start program
 if __name__ == "__main__":
     args = parse_arguments()
-    version = args.version
     debug = args.debug
     
     if asyncio.run(SettingsManager().get_setting("app.auto_update")):
