@@ -24,23 +24,31 @@ def get_remote_version_and_zip_url(releases_url: str) -> Tuple[Optional[str], Op
             version = latest_release['tag_name']
             zip_url = latest_release['zipball_url']
             return version, zip_url
+        
         except (ValueError, KeyError) as e:
             logging.error(f"Error parsing JSON response: {e}")
             return None, None
+    
     logging.error(f"Failed to fetch the latest release information. Status code: {response.status_code}")
+    
     return None, None
 
-def download_and_extract_zip(url: str, extract_to: str) -> None:
+def download_and_extract_zip(url: str, extract_to: str) -> str:
     local_filename = url.split('/')[-1] + ".zip"
     logging.info(f"Downloading {url}")
+    
     with requests.get(url, stream=True) as r:
         with open(local_filename, 'wb') as f:
             for chunk in r.iter_content(chunk_size=8192):
                 f.write(chunk)
     logging.info(f"Extracting {local_filename}")
+    
     with zipfile.ZipFile(local_filename, 'r') as zip_ref:
         zip_ref.extractall(extract_to)
     os.remove(local_filename)
+    extracted_dir = os.path.join(extract_to, zip_ref.namelist()[0].split('/')[0])
+    
+    return extracted_dir
 
 def is_user_dir(dirpath: str, user_dir_prefix: str) -> bool:
     return any(part.startswith(user_dir_prefix) for part in dirpath.split(os.sep))
@@ -72,7 +80,7 @@ def merge_directories(src_dir: str, dest_dir: str) -> None:
                 shutil.copytree(src_item, dest_item)
                 logging.info(f"Copied directory: {src_item} to {dest_item}")
             else:
-                merge_directories(src_item, dest_item)
+                merge_directories(src_item, dest_dir)
         else:
             shutil.copy2(src_item, dest_item)
             logging.info(f"Copied file: {src_item} to {dest_item}")
@@ -92,22 +100,11 @@ def needs_update() -> bool:
 
 def update_application(zip_url: str, temp_dir: str, app_dir: str, exclude_dirs: list, merge_dirs: list, user_dir_prefix: str, script_name: str) -> None:
     logging.info("Starting application update...")
-    download_and_extract_zip(zip_url, extract_to=temp_dir)
+    extracted_dir = download_and_extract_zip(zip_url, extract_to=temp_dir)
     logging.info("Removing old version...")
     clean_old_version(app_dir, exclude_dirs, merge_dirs, user_dir_prefix, script_name)
     logging.info("Installing new version...")
-    for item in os.listdir(temp_dir):
-        s = os.path.join(temp_dir, item)
-        d = os.path.join(app_dir, item)
-        if item in merge_dirs and os.path.exists(d):
-            merge_directories(s, d)
-        else:
-            if os.path.isdir(s):
-                shutil.move(s, d)
-                logging.info(f"Moved directory: {s} to {d}")
-            else:
-                shutil.copy2(s, d)
-                logging.info(f"Copied file: {s} to {d}")
+    merge_directories(extracted_dir, app_dir)
     shutil.rmtree(temp_dir)
     logging.info("Update complete.")
 
