@@ -88,15 +88,16 @@ def merge_directories(src_dir: str, dest_dir: str) -> None:
 def version_tuple(version: str) -> Tuple[int, ...]:
     return tuple(map(int, (version.split("."))))
 
-def needs_update() -> bool:
+def needs_update() -> Tuple[bool, Optional[str], Optional[str]]:
     config = load_config()
     current_version = config["VERSION"]
     releases_url = config["RELEASES_URL"]
     
     remote_version, _ = get_remote_version_and_zip_url(releases_url)
     if remote_version and version_tuple(current_version) < version_tuple(remote_version):
-        return True
-    return False
+        return True, current_version, remote_version
+    
+    return False, current_version, remote_version
 
 def update_application(zip_url: str, temp_dir: str, app_dir: str, exclude_dirs: list, merge_dirs: list, user_dir_prefix: str, script_name: str) -> None:
     logging.info("Starting application update...")
