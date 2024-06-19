@@ -6,7 +6,7 @@ import signal
 import subprocess
 import sys
 import webbrowser
-
+ 
 from auto_updater import needs_update
 from bot import bot_close, bot_start
 from colorlog import ColoredFormatter
