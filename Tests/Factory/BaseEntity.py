@@ -1,5 +1,4 @@
 import unittest
-from abc import ABC, abstractmethod
 
 from Code.factory import Entity
 
