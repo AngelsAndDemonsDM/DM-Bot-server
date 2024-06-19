@@ -20,10 +20,10 @@ class PrototypeFactory:
             prototype_dir (str, optional): Директория с файлами прототипов. По умолчанию './Prototype'.
 
         Raises:
-            FileNotFoundError: Если файл class_mappings.yml не найден в указанной директории.
+            FileNotFoundError: Если файл factory_mappings.yml не найден в указанной директории.
         """
         self.prototype_dir = prototype_dir
-        self.MAPPING_FILE_PATH = os.path.join(prototype_dir, 'class_mappings.yml')
+        self.MAPPING_FILE_PATH = os.path.join(prototype_dir, 'factory_mappings.yml')
         
         if not os.path.exists(self.MAPPING_FILE_PATH):
             raise FileNotFoundError(f"The prototype mapping file '{self.MAPPING_FILE_PATH}' does not exist.")
@@ -156,7 +156,7 @@ class PrototypeFactory:
         entities = []
         yaml = YAML()
         for filename in glob(os.path.join(self.prototype_dir, '**', '*.yml'), recursive=True):
-            if 'class_mappings.yml' in filename:
+            if 'factory_mappings.yml' in filename:
                 continue
             
             with open(filename, 'r', encoding='utf-8') as file:
