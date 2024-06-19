@@ -1,10 +1,11 @@
 import asyncio
-from html.init_socketio import socketio
 
 import requests
+from auto_updater import needs_update
 from bot.main_bot_core import bot_start
 from db_work import SettingsManager
 from flask import render_template
+from py_html.init_socketio import socketio
 
 
 def render_settings_main_page():
@@ -82,3 +83,35 @@ def handle_start_bot():
 
     except Exception as e:
         socketio.emit('settingsBotStartStatus', {'status': 'error', 'message': str(e)})
+
+# Работа с автоматическим обновлением
+@socketio.on('settingSetUpAutoUpdate')
+def get_auto_update(data) -> None:
+    flag: bool
+    
+    try:
+        asyncio.run(SettingsManager().set_setting("app.auto_update", data))
+        flag = True
+    
+    except Exception:
+        flag = False
+    
+    socketio.emit("settingAutoUpdateStatusPopup", flag)
+    handle_check_auto_update_status()
+
+@socketio.on('settingCheckAutoUpdate')
+def handle_check_auto_update_status():
+    auto_update = asyncio.run(SettingsManager().get_setting("app.auto_update"))
+    socketio.emit('settingAutoUpdateStatusUpdate', auto_update)
+
+# Получение информации о версиях
+@socketio.on('getVersionInfo')
+def handle_get_version_info():
+    _, current_version, latest_version = needs_update()
+    
+    version_info = {
+        "currentVersion": current_version,
+        "latestVersion": latest_version
+    }
+    
+    socketio.emit('versionInfo', version_info)

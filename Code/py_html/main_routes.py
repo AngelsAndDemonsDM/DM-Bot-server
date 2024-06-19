@@ -1,7 +1,7 @@
-from html.pages import (render_about_main_page, render_index_main_page,
-                        render_players_main_page, render_settings_main_page)
-
 from flask import Blueprint
+from py_html.pages import (render_about_main_page, render_changelog_main_page,
+                           render_index_main_page, render_players_main_page,
+                           render_settings_main_page)
 
 main_bp = Blueprint('main', __name__)
 
@@ -18,6 +18,10 @@ def players_page():
 @main_bp.route('/about')
 def about_page():
     return render_about_main_page()
+
+@main_bp.route('/changelog', methods=['GET'])
+def changelog_page():
+    return render_changelog_main_page()
 
 # # НАСТРОЙКИ
 # Общие

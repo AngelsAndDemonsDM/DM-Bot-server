@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from datetime import datetime
@@ -8,6 +9,7 @@ import yaml
 logging.basicConfig(level=logging.INFO)
 
 REPO = "AngelsAndDemonsDM/DM-Bot"
+CONFIG_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "updater_config.json"))
 
 def get_pull_request_data(pull_number, token=None):
     url = f"https://api.github.com/repos/{REPO}/pulls/{pull_number}"
@@ -70,19 +72,30 @@ def parse_pr_description(description):
     return changes, version_update, author
 
 def save_changelog(changelog, changelog_file):
-
-    
-    with open(changelog_file, 'w') as file:
+    with open(changelog_file, 'w', encoding='utf-8') as file:
         yaml.dump(changelog, file, allow_unicode=True, default_flow_style=False)
+
+def update_config_version(version):
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, 'r', encoding='utf-8') as file:
+            config = json.load(file)
+        
+        config["VERSION"] = version
+        
+        with open(CONFIG_FILE, 'w', encoding='utf-8') as file:
+            json.dump(config, file, indent=4)
+        logging.info(f"Обновлено поле VERSION в {CONFIG_FILE} до {version}")
 
 def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelog.yml'):
     changelog = {'changelog': []}
     init_version = "0.0.0"
     
     if os.path.exists(changelog_file):
-        with open(changelog_file, 'r') as file:
+        with open(changelog_file, 'r', encoding='utf-8') as file:
             changelog = yaml.safe_load(file) or {'changelog': []}
     
+    latest_version = init_version
+
     for pr_number in range(start_pr, end_pr + 1):
         pr_data = get_pull_request_data(pr_number, token)
        
@@ -99,7 +112,7 @@ def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelo
                     changelog_entry = {
                         "author": parsed_author if parsed_author else author,
                         "changes": changes,
-                        "date": datetime.now().strftime('%Y-%m-%d'),
+                        "date": datetime.strptime(pr_data['merged_at'], '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d'),
                         "version": version_update
                     }
                     
@@ -107,8 +120,10 @@ def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelo
                     
                     if version_update:
                         init_version = version_update
+                        latest_version = version_update
     
     save_changelog(changelog, changelog_file)
+    update_config_version(latest_version)
 
 if __name__ == "__main__":
     try:
@@ -122,4 +137,4 @@ if __name__ == "__main__":
         process_pull_requests(start_pr, end_pr, token)
     
     except KeyboardInterrupt:
-        print ("Exiting...")
+        print("Exiting...")
