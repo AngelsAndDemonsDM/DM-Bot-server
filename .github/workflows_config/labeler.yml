@@ -44,7 +44,7 @@
 
 "Changes: GitHub template":
 - changed-files:
-  - any-glob-to-any-file: ['.github/ISSUE_TEMPLATE/**', 'PULL_REQUEST_TEMPLATE.md']
+  - any-glob-to-any-file: ['.github/ISSUE_TEMPLATE/**', '.github/PULL_REQUEST_TEMPLATE.md']
 
 "Update: Changelog":
 - changed-files:
