@@ -1,46 +1,50 @@
 "Changes: Code":
 - all:
   - changed-files:
-      - any-glob-to-any-file: ['Code/**', 'Code/*', 'Prototype/class_mappings.yml']
-      - all-globs-to-all-files: ['!Code/bot/**', '!Code/templates/**', '!Code/static/**', '!Code/py_html/**']
+      - any-glob-to-any-file: ['Code/**', 'Prototype/class_mappings.yml']
+      - any-glob-to-all-files: ['!Code/bot/**', '!Code/templates/**', '!Code/static/**', '!Code/py_html/**']
 
 "Changes: Bot":
 - changed-files:
-  - any-glob-to-any-file: ['Code/bot/**', 'Code/bot/*']
+  - any-glob-to-any-file: ['Code/bot/**']
 
 "Changes: UI":
 - changed-files:
-  - any-glob-to-any-file: ['Code/templates/**', 'Code/static/**', 'Code/py_html/**', 'Code/templates/*', 'Code/static/*', 'Code/py_html/*']
+  - any-glob-to-any-file: ['Code/templates/**', 'Code/static/**', 'Code/py_html/**']
 
 "Changes: Sprites":
 - changed-files:
-  - any-glob-to-any-file: ['Sprites/**', 'Sprites/*']
+  - any-glob-to-any-file: ['Sprites/**']
 
 "Changes: Prototypes":
 - all:
   - changed-files:
-      - any-glob-to-any-file: ['Prototype/**', 'Prototype/*']
+      - any-glob-to-any-file: ['Prototype/**']
       - all-globs-to-all-files: ['!Prototype/class_mappings.yml']
 
 "Changes: Locale":
 - changed-files:
-  - any-glob-to-any-file: ['Loc/**', 'Loc/*']
+  - any-glob-to-any-file: ['Loc/**']
 
 "Changes: Docs":
 - changed-files:
-  - any-glob-to-any-file: ['README.md', 'LICENSE.md', 'Docs/**', 'Libriary_Of_Ruina/**', 'Docs/*', 'Libriary_Of_Ruina/*']
+  - any-glob-to-any-file: ['README.md', 'LICENSE.md', 'Docs/**', 'Libriary_Of_Ruina/**']
 
 "Changes: Unit test":
 - changed-files:
-  - any-glob-to-any-file: ['Tests/**', 'Tests/*']
+  - any-glob-to-any-file: ['Tests/**']
 
 "Changes: Workflows":
 - changed-files:
-  - any-glob-to-any-file: ['.github/workflows/**', '.github/workflows/*']
+  - any-glob-to-any-file: ['.github/workflows/**']
 
 "Changes: Workflows config":
 - changed-files:
-  - any-glob-to-any-file: ['.github/workflows_config/**', '.github/workflows_config/*']
+  - any-glob-to-any-file: ['.github/workflows_config/**']
+
+"Changes: GitHub template":
+- changed-files:
+  - any-glob-to-any-file: ['.github/ISSUE_TEMPLATE/**', 'PULL_REQUEST_TEMPLATE.md']
 
 "Update: Changelog":
 - changed-files:
