@@ -1,10 +1,9 @@
-import importlib
 import os
 import shutil
 import tempfile
 import unittest
 
-from Code.factory import PrototypeError, PrototypeFactory
+from Code.factory import PrototypeFactory
 
 
 class TestPrototypeFactory(unittest.TestCase):
