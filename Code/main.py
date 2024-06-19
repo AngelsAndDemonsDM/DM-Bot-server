@@ -1,44 +1,43 @@
 import argparse
 import asyncio
 import logging
+import os
 import signal
+import subprocess
 import sys
 import webbrowser
-from html.init_socketio import handle_show_popup, socketio
-from html.main_routes import main_bp
 
+from auto_updater import needs_update
 from bot import bot_close, bot_start
 from colorlog import ColoredFormatter
 from db_work import SettingsManager
 from flask import Flask
-
-VERSION: str = "0.0.04"
+from py_html import handle_show_popup, main_bp, socketio
 
 app = Flask(__name__)
 
 socketio.init_app(app)
 
 # Blueprint
-app.register_blueprint(main_bp)
+app.register_blueprint(main_bp, url_prefix='/')
 
 # Argument parsing
 def parse_arguments():
     parser = argparse.ArgumentParser(description='DM-Bot')
     parser.add_argument('--debug', action='store_true', help='Включить режим отладки')
-    parser.add_argument('--version', action='store_true', help='Возвращает версию приложения')
     return parser.parse_args()
 
 # Async helper function
 async def async_main_bg_task():
     if await SettingsManager().get_setting("bot.auto_start"):
-        await SettingsManager().set_setting("bot.is_run", False) # Хуйня ебаная. async_main_bg_task должна быть вызвана только при запуске, так что оправдано.
+        await SettingsManager().set_setting("bot.is_run", False)
         await bot_start()
 
 async def shutdown_app():
     logging.info("Shutdown bot...")
     await bot_close()
     logging.info("Done!")
-    
+
 # Background task function
 def main_bg_task():
     asyncio.run(async_main_bg_task())
@@ -53,19 +52,33 @@ def handle_exit_signal(signum, frame):
 
 signal.signal(signal.SIGINT, handle_exit_signal)
 
+# Function to run a file in a new console
+def run_file_in_new_console(file_path):
+    absolute_path = os.path.abspath(file_path)
+    if sys.platform == "win32":
+        # For Windows
+        subprocess.Popen(["start", "cmd", "/c", f"python {absolute_path}"], shell=True)
+    elif sys.platform == "darwin":
+        # For macOS
+        subprocess.Popen(["open", "-a", "Terminal", absolute_path])
+    else:
+        # For Linux
+        subprocess.Popen(["x-terminal-emulator", "-e", f"python {absolute_path}"])
+
 # Start program
 if __name__ == "__main__":
     args = parse_arguments()
-    version = args.version
     debug = args.debug
     
-    if version:
-        print(VERSION)
-        sys.exit(0)
+    if asyncio.run(SettingsManager().get_setting("app.auto_update")):
+        if needs_update():
+            logging.info("Updating application...")
+            run_file_in_new_console(os.path.join("Code", "auto_updater", "update.py"))
+            sys.exit(0)
     
     logger = logging.getLogger()
     if debug:
-        logger.setLevel(logging.DEBUG)        
+        logger.setLevel(logging.DEBUG)
     else:
         logger.setLevel(logging.INFO)
     logger.handlers.clear()
