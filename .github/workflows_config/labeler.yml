@@ -2,7 +2,7 @@
 - all:
   - changed-files:
       - any-glob-to-any-file: ['Code/**', 'Prototype/class_mappings.yml']
-      - all-globs-to-all-files: ['!Code/bot/**', '!Code/templates/**', '!Code/static/**', '!Code/py_html/**']
+      - any-glob-to-all-files: ['!Code/bot/**', '!Code/templates/**', '!Code/static/**', '!Code/py_html/**']
 
 "Changes: Bot":
 - changed-files:
