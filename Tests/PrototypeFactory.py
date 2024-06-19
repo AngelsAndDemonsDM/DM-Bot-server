@@ -1,3 +1,5 @@
+import importlib
+import os
 import unittest
 from unittest.mock import MagicMock, mock_open, patch
 
@@ -5,8 +7,14 @@ from Code.factory import PrototypeError, PrototypeFactory
 
 
 class TestPrototypeFactory(unittest.TestCase):
-    @patch('prototype_factory.os.path.exists', return_value=True)
-    @patch('prototype_factory.open', new_callable=mock_open, read_data="""
+    def setUp(self):
+        # Mock os.path.exists to always return True
+        patcher_exists = patch('os.path.exists', return_value=True)
+        self.mock_exists = patcher_exists.start()
+        self.addCleanup(patcher_exists.stop)
+
+        # Mock open to provide dummy class mappings
+        self.dummy_class_mappings = """
 components:
   HealthComponent: "Code.factory.base_component.HealthComponent"
   PositionComponent: "Code.factory.base_component.PositionComponent"
@@ -14,27 +22,35 @@ components:
 entities:
   PlayerEntity: "Code.factory.base_entity.PlayerEntity"
   EnemyEntity: "Code.factory.base_entity.EnemyEntity"
-""")
-    @patch('prototype_factory.importlib.import_module')
-    def setUp(self, mock_import_module, mock_open, mock_exists):
-        # Mock the imported classes
+"""
+        patcher_open = patch('builtins.open', mock_open(read_data=self.dummy_class_mappings))
+        self.mock_open = patcher_open.start()
+        self.addCleanup(patcher_open.stop)
+
+        # Mock importlib.import_module to return mock classes
         self.MockHealthComponent = MagicMock()
         self.MockPositionComponent = MagicMock()
         self.MockPlayerEntity = MagicMock()
         self.MockEnemyEntity = MagicMock()
 
-        # Configure the return values of the import_module mock
-        mock_import_module.side_effect = lambda name: {
-            'Code.factory.base_component': MagicMock(
-                HealthComponent=self.MockHealthComponent,
-                PositionComponent=self.MockPositionComponent
-            ),
-            'Code.factory.base_entity': MagicMock(
-                PlayerEntity=self.MockPlayerEntity,
-                EnemyEntity=self.MockEnemyEntity
-            )
-        }[name]
+        def import_module_mock(name):
+            if name == 'Code.factory.base_component':
+                return MagicMock(
+                    HealthComponent=self.MockHealthComponent,
+                    PositionComponent=self.MockPositionComponent
+                )
+            elif name == 'Code.factory.base_entity':
+                return MagicMock(
+                    PlayerEntity=self.MockPlayerEntity,
+                    EnemyEntity=self.MockEnemyEntity
+                )
+            raise ImportError(f"No module named '{name}'")
 
+        patcher_import = patch('importlib.import_module', side_effect=import_module_mock)
+        self.mock_import_module = patcher_import.start()
+        self.addCleanup(patcher_import.stop)
+
+        # Create the factory instance
         self.factory = PrototypeFactory()
 
     def test_create_component(self):
@@ -77,16 +93,25 @@ entities:
         
         self.assertEqual(entity, found_entity)
     
-    @patch('prototype_factory.glob', return_value=['dummy_path.yml'])
-    @patch('prototype_factory.open', new_callable=mock_open, read_data="""
+    def test_load_all_entities(self):
+        # Mock glob to return a dummy file list
+        patcher_glob = patch('glob.glob', return_value=['dummy_path.yml'])
+        mock_glob = patcher_glob.start()
+        self.addCleanup(patcher_glob.stop)
+
+        # Mock open to provide dummy entity data
+        dummy_entity_data = """
 - type: PlayerEntity
   id: player1
   name: Hero
   components:
     - type: HealthComponent
       health: 100
-""")
-    def test_load_all_entities(self, mock_open, mock_glob):
+"""
+        patcher_open = patch('builtins.open', mock_open(read_data=dummy_entity_data))
+        mock_open = patcher_open.start()
+        self.addCleanup(patcher_open.stop)
+
         self.MockPlayerEntity.default_values.return_value = {'name': 'Default Player'}
         self.MockHealthComponent.default_values.return_value = {'health': 100}
         
