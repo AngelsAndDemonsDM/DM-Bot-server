@@ -42,6 +42,10 @@
 - changed-files:
   - any-glob-to-any-file: ['.github/workflows_config/**']
 
+"Changes: GitHub template"
+- changed-files:
+  - any-glob-to-any-file: ['.github/ISSUE_TEMPLATE/**', 'PULL_REQUEST_TEMPLATE.md']
+
 "Update: Changelog":
 - changed-files:
   - any-glob-to-any-file: ['changelog.yml', 'updater_config.json']
