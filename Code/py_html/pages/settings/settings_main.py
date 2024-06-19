@@ -1,11 +1,12 @@
 import asyncio
 
 import requests
+from auto_updater import needs_update
 from bot.main_bot_core import bot_start
 from db_work import SettingsManager
 from flask import render_template
 from py_html.init_socketio import socketio
-from auto_updater import needs_update
+
 
 def render_settings_main_page():
     return render_template('settings/settings_main.html')

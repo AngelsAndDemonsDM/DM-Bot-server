@@ -199,3 +199,30 @@ td {
 .red {
     color: red;
 }
+
+/* Для навигации */
+/* Стили для навигационного меню */
+.nav-menu {
+    list-style-type: none; /* Убираем маркеры списка */
+    margin: 0; /* Убираем внешние отступы */
+    padding: 0; /* Убираем внутренние отступы */
+    overflow: hidden; /* Прячем содержимое, которое не помещается */
+    background-color: #333; /* Тёмно-серый фон */
+}
+
+.nav-item {
+    float: left; /* Элементы списка располагаются горизонтально */
+}
+
+.nav-item a {
+    display: block; /* Блочный элемент */
+    text-align: center; /* Выравнивание текста по центру */
+    padding: 14px 16px; /* Внутренние отступы */
+    text-decoration: none; /* Убираем подчеркивание */
+    color: white; /* Белый текст */
+    transition: background-color 0.3s ease; /* Плавное изменение цвета фона */
+}
+
+.nav-item a:hover {
+    background-color: #222; /* Темно-серый фон при наведении */
+}
