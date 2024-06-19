@@ -12,12 +12,12 @@ class TestPrototypeFactory(unittest.TestCase):
 
         self.class_mappings = """
 components:
-  HealthComponent: "Code.factory.test_fold.component.HealthComponent"
+  HealthComponent: "factory.test_fold.component.HealthComponent"
   PositionComponent: "Code.factory.test_fold.component.PositionComponent"
 
 entities:
   PlayerEntity: "Code.factory.test_fold.entity.PlayerEntity"
-  EnemyEntity: "Code.factory.test_fold.entity.EnemyEntity"
+  EnemyEntity: "factory.test_fold.entity.EnemyEntity"
 """
         self.class_mappings_path = os.path.join(self.test_dir, 'class_mappings.yml')
         with open(self.class_mappings_path, 'w', encoding='utf-8') as f:
