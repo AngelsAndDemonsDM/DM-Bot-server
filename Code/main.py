@@ -13,7 +13,7 @@ from colorlog import ColoredFormatter
 from db_work import SettingsManager
 from flask import Flask
 from py_html import handle_show_popup, main_bp, socketio
- 
+
 app = Flask(__name__)
 
 socketio.init_app(app)
