@@ -1,6 +1,13 @@
 "Changes: Code":
-- changed-files:
-  - any-glob-to-any-file: [ 'Code/**', 'Prototype/class_mappings.yml', '!Code/bot/**', '!Code/templates/**', '!Code/static/**', '!Code/py_html/**']
+- any:
+  - changed-files:
+      - any-glob-to-any-file: 
+          - 'Code/**'
+          - 'Prototype/class_mappings.yml'
+          - '!Code/bot/**'
+          - '!Code/templates/**'
+          - '!Code/static/**'
+          - '!Code/py_html/**'
 
 "Changes: Bot":
 - changed-files:
