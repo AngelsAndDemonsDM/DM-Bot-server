@@ -72,17 +72,17 @@ def parse_pr_description(description):
     return changes, version_update, author
 
 def save_changelog(changelog, changelog_file):
-    with open(changelog_file, 'w') as file:
+    with open(changelog_file, 'w', encoding='utf-8') as file:
         yaml.dump(changelog, file, allow_unicode=True, default_flow_style=False)
 
 def update_config_version(version):
     if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, 'r') as file:
+        with open(CONFIG_FILE, 'r', encoding='utf-8') as file:
             config = json.load(file)
         
         config["VERSION"] = version
         
-        with open(CONFIG_FILE, 'w') as file:
+        with open(CONFIG_FILE, 'w', encoding='utf-8') as file:
             json.dump(config, file, indent=4)
         logging.info(f"Обновлено поле VERSION в {CONFIG_FILE} до {version}")
 
@@ -91,7 +91,7 @@ def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelo
     init_version = "0.0.0"
     
     if os.path.exists(changelog_file):
-        with open(changelog_file, 'r') as file:
+        with open(changelog_file, 'r', encoding='utf-8') as file:
             changelog = yaml.safe_load(file) or {'changelog': []}
     
     latest_version = init_version
@@ -112,7 +112,7 @@ def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelo
                     changelog_entry = {
                         "author": parsed_author if parsed_author else author,
                         "changes": changes,
-                        "date": datetime.now().strftime('%Y-%m-%d'),
+                        "date": datetime.strptime(pr_data['merged_at'], '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d'),
                         "version": version_update
                     }
                     
