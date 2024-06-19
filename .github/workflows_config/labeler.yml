@@ -2,7 +2,7 @@
 - all:
   - changed-files:
       - any-glob-to-any-file: ['Code/**', 'Prototype/class_mappings.yml']
-      - all-globs-to-any-file: ['!Code/bot/**', '!Code/templates/**', '!Code/static/**', '!Code/py_html/**']
+      - all-globs-to-all-files: ['!Code/bot/**', '!Code/templates/**', '!Code/static/**', '!Code/py_html/**']
 
 "Changes: Bot":
 - changed-files:
@@ -20,7 +20,7 @@
 - all:
   - changed-files:
       - any-glob-to-any-file: ['Prototype/**']
-      - all-globs-to-any-file: ['!Prototype/class_mappings.yml']
+      - all-globs-to-all-files: ['!Prototype/class_mappings.yml']
 
 "Changes: Locale":
 - changed-files:
