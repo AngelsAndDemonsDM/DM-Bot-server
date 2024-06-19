@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ченджлог</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+
+<body>
+    {% include 'base_modules/navigation.html' %}
+    
+    <div class="container">
+        <header>
+            <h1>Ченджлог</h1>
+        </header>
+        
+        <main>
+            {% for entry in changelog %}
+                <div class="card card-content">
+                    <section class="version-block">
+                        <h2>Версия: {{ entry.version }}</h2>
+                        <p><strong>Автор:</strong> {{ entry.author }}</p>
+                        <p><strong>Дата:</strong> {{ entry.date }}</p>
+                        <div class="changes-list">
+                            {% for change in entry.changes %}
+                                <p>- {{ change }}</p>
+                            {% endfor %}
+                        </div>
+                    </section>
+                </div>
+            {% endfor %}
+        </main>
+        
+        <nav class="pagination">
+            <span>Страницы:</span>
+            {% if pagination.prev %}
+                <a href="{{ pagination.prev }}" class="pagination-link">Предыдущая</a>
+            {% endif %}
+            {% for p, url in pagination.pages %}
+                {% if p == pagination.current_page %}
+                    <span class="pagination-current">{{ p }}</span>
+                {% else %}
+                    <a href="{{ url }}" class="pagination-link">{{ p }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if pagination.next %}
+                <a href="{{ pagination.next }}" class="pagination-link">Следующая</a>
+            {% endif %}
+        </nav>
+    </div>
+    
+    {% include 'base_modules/footer.html' %}
+</body>
+
+</html>

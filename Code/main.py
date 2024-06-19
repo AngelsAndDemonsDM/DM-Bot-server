@@ -19,7 +19,7 @@ app = Flask(__name__)
 socketio.init_app(app)
 
 # Blueprint
-app.register_blueprint(main_bp)
+app.register_blueprint(main_bp, url_prefix='/')
 
 # Argument parsing
 def parse_arguments():
