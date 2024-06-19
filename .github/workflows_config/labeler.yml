@@ -1,10 +1,9 @@
 "Changes: Code":
-- any:
+- all:
   - changed-files:
       - any-glob-to-any-file: 
           - 'Code/**'
-          - 'Prototype/class_mappings.yml'
-      - all-globs-to-all-files:
+      - all-globs-to-any-file: 
           - '!Code/bot/**'
           - '!Code/templates/**'
           - '!Code/static/**'
@@ -23,8 +22,10 @@
   - any-glob-to-any-file: ['Sprites/**']
 
 "Changes: Prototypes":
-- changed-files:
-  - any-glob-to-any-file: ['Prototype/**', '!Prototype/class_mappings.yml']
+- all:
+  - changed-files:
+      - any-glob-to-any-file: ['Prototype/**']
+      - all-globs-to-all-files: ['!Prototype/class_mappings.yml']
 
 "Changes: Locale":
 - changed-files:
