@@ -10,7 +10,7 @@ class TestPrototypeFactory(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
 
-        self.class_mappings = """
+        self.factory_mappings = """
 components:
   HealthComponent: "factory.test_fold.component.HealthComponent"
   PositionComponent: "Code.factory.test_fold.component.PositionComponent"
@@ -19,9 +19,9 @@ entities:
   PlayerEntity: "Code.factory.test_fold.entity.PlayerEntity"
   EnemyEntity: "factory.test_fold.entity.EnemyEntity"
 """
-        self.class_mappings_path = os.path.join(self.test_dir, 'class_mappings.yml')
-        with open(self.class_mappings_path, 'w', encoding='utf-8') as f:
-            f.write(self.class_mappings)
+        self.factory_mappings_path = os.path.join(self.test_dir, 'factory_mappings.yml')
+        with open(self.factory_mappings_path, 'w', encoding='utf-8') as f:
+            f.write(self.factory_mappings)
 
         self.entity_data = """
 - type: PlayerEntity
