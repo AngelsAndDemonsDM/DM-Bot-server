@@ -20,7 +20,7 @@
 - all:
   - changed-files:
       - any-glob-to-any-file: ['Prototype/**']
-      - all-globs-to-any-files: ['!Prototype/class_mappings.yml']
+      - all-globs-to-any-file: ['!Prototype/class_mappings.yml']
 
 "Changes: Locale":
 - changed-files:
