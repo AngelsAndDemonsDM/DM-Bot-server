@@ -8,10 +8,8 @@ from Code.factory import PrototypeFactory
 
 class TestPrototypeFactory(unittest.TestCase):
     def setUp(self):
-        # Создаем временную директорию
         self.test_dir = tempfile.mkdtemp()
 
-        # Создаем файл class_mappings.yml
         self.class_mappings = """
 components:
   HealthComponent: "Code.factory.test_fold.component.HealthComponent"
@@ -25,7 +23,6 @@ entities:
         with open(self.class_mappings_path, 'w', encoding='utf-8') as f:
             f.write(self.class_mappings)
 
-        # Создаем файл для сущностей
         self.entity_data = """
 - type: PlayerEntity
   id: player1
@@ -38,11 +35,9 @@ entities:
         with open(self.entity_file_path, 'w', encoding='utf-8') as f:
             f.write(self.entity_data)
 
-        # Создаем экземпляр PrototypeFactory
         self.factory = PrototypeFactory(prototype_dir=self.test_dir)
 
     def tearDown(self):
-        # Удаляем временную директорию после тестов
         shutil.rmtree(self.test_dir)
 
     def test_create_component(self):
