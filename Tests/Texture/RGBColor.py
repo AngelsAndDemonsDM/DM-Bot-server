@@ -31,6 +31,7 @@ class TestRGBColor(unittest.TestCase):
     def test_get_hex(self):
         color = RGBColor((255, 0, 0, 255))
         self.assertEqual(color.get_hex(), '#FF0000')
+        
         color_with_alpha = RGBColor((255, 0, 0, 128))
         self.assertEqual(color_with_alpha.get_hex(), '#FF000080')
 
