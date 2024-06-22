@@ -25,5 +25,4 @@ venv.bak/
 .vscode/*
 
 # Data
-[Ss]ettings/*
 [Dd]ata/*

@@ -48,4 +48,8 @@
 
 "Update: Changelog":
 - changed-files:
-  - any-glob-to-any-file: ['changelog.yml', 'updater_config.json']
+  - any-glob-to-any-file: ['changelog.yml']
+
+"Update: Changelog config":
+- changed-files:
+  - any-glob-to-any-file: ['updater_config.json']
