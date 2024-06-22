@@ -1,8 +1,7 @@
 from typing import Union
 
 from PIL import Image
-
-from Code.texture_manager import HEXColor, RGBColor
+from texture_manager.color import HEXColor, RGBColor
 
 
 class TextureManager:

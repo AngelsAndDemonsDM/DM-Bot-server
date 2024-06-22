@@ -1,5 +1,8 @@
 import unittest
-from Code.texture_manager import DMSValidator, SpriteValidationError, InvalidSpriteError
+
+from Code.texture_manager import (DMSValidator, InvalidSpriteError,
+                                  SpriteValidationError)
+
 
 class TestSpriteFolders(unittest.TestCase):
     def setUp(self):

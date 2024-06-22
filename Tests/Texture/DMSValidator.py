@@ -1,6 +1,9 @@
-import unittest
 import os
-from Code.texture_manager import DMSValidator, InvalidSpriteError, SpriteValidationError
+import unittest
+
+from Code.texture_manager import (DMSValidator, InvalidSpriteError,
+                                  SpriteValidationError)
+
 
 class TestDMSValidator(unittest.TestCase):
     def setUp(self):
