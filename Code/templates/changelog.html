@@ -2,9 +2,8 @@
 <html lang="ru">
 
 <head>
-    <meta charset="UTF-8">
+    {% include 'base_modules/base_head.html' %}
     <title>Ченджлог</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 
 <body>
@@ -49,7 +48,7 @@
             {% endif %}
         </nav>
     </div>
-    
+    <br><br><br><br><br>
     {% include 'base_modules/footer.html' %}
 </body>
 
