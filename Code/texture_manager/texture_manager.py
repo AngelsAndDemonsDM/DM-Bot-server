@@ -6,10 +6,13 @@ from Code.texture_manager import HEXColor, RGBColor
 
 
 class TextureManager:
+    __slots__ = []
+    
     def __init__(self) -> None:
         pass
 
-    def recolor_mask(self, mask_path: str, color: Union[HEXColor, RGBColor]) -> Image.Image:
+    @staticmethod
+    def recolor_mask(mask_path: str, color: Union[HEXColor, RGBColor]) -> Image.Image:
         if isinstance(color, HEXColor):
             color = color.get_rgba()
         
