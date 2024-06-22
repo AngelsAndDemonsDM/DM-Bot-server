@@ -1,1 +1,1 @@
-from Tests.ValidateSprite import InvalidSpriteError, SpriteValidationError
+from Tests.Texture.ValidateSprite import InvalidSpriteError, SpriteValidationError

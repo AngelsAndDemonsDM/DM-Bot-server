@@ -5,7 +5,7 @@ from PIL import Image
 from Code.texture_manager import HEXColor, RGBColor
 
 
-class Texture:
+class TextureManager:
     def __init__(self) -> None:
         pass
 
