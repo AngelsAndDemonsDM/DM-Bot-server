@@ -13,8 +13,6 @@ class TestDMSValidator(unittest.TestCase):
         self.info_yml_path = os.path.join(self.dms_dir, 'info.yml')
 
         os.makedirs(self.dms_dir, exist_ok=True)
-
-        self.validator = DMSValidator('test_sprites')
         
         with open(self.info_yml_path, 'w') as f:
             f.write("""
@@ -30,10 +28,12 @@ class TestDMSValidator(unittest.TestCase):
                 is_mask: true
                 frames: 10
             """)
-        
+
         for sprite in ['sprite1', 'sprite2']:
             open(os.path.join(self.dms_dir, f"{sprite}.png"), 'a').close()
-    
+
+        self.validator = DMSValidator('test_sprites')
+
     def tearDown(self):
         for root, dirs, files in os.walk(self.test_dir, topdown=False):
             for name in files:
