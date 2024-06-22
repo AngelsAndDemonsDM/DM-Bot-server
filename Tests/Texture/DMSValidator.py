@@ -45,7 +45,7 @@ class TestDMSValidator(unittest.TestCase):
 
     def test_validate_dms(self):
         """Тестирует метод validate_dms."""
-        self.assertTrue(self.validator.validate_dms('test_sprites/test.dms'))
+        self.assertTrue(self.validator.validate_dms('test.dms'))
 
     def test_validate_all_dms(self):
         """Тестирует метод validate_all_dms."""
@@ -55,7 +55,7 @@ class TestDMSValidator(unittest.TestCase):
         """Тестирует метод validate_dms при отсутствии файла info.yml."""
         os.remove(self.info_yml_path)
         with self.assertRaises(SpriteValidationError) as context:
-            self.validator.validate_dms('test_sprites/test.dms')
+            self.validator.validate_dms('test.dms')
         
         self.assertEqual(str(context.exception), "info.yml not found")
 
@@ -73,7 +73,7 @@ class TestDMSValidator(unittest.TestCase):
             """)
         
         with self.assertRaises(InvalidSpriteError) as context:
-            self.validator.validate_dms('test_sprites/test.dms')
+            self.validator.validate_dms('test.dms')
         
         self.assertTrue("Each sprite 'size' must be a dictionary with 'x' and 'y' fields" in str(context.exception))
 
@@ -81,7 +81,7 @@ class TestDMSValidator(unittest.TestCase):
         """Тестирует метод validate_dms при отсутствии файлов спрайтов."""
         os.remove(os.path.join(self.dms_dir, 'sprite1.png'))
         with self.assertRaises(InvalidSpriteError) as context:
-            self.validator.validate_dms('test_sprites/test.dms')
+            self.validator.validate_dms('test.dms')
         
         self.assertTrue("Missing files" in str(context.exception))
 
