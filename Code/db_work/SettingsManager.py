@@ -21,7 +21,7 @@ class SettingsManager:
         settings_manager = SettingsManager("app_settings")
         ```
         """
-        self._path: str = os.path.join(os.getcwd(), 'settings', f'{settings_name}.json')
+        self._path: str = os.path.join(os.getcwd(), 'data', 'settings', f'{settings_name}.json')
         self._lock = asyncio.Lock()
 
     async def _create_file(self) -> bool:
