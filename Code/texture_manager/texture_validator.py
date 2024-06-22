@@ -123,6 +123,24 @@ class DMSValidator:
         if missing_files:
             raise InvalidSpriteError("Missing files", folder_path, missing_files=missing_files)
 
+    @staticmethod
+    def validate_dms_dirrect(dms_path: str) -> bool:
+        """_summary_
+
+        Args:
+            dms_path (str): _description_
+
+        Returns:
+            bool: _description_
+        """
+        DMSValidator._raise_dms_file(dms_path)
+        
+        info_yml = DMSValidator._load_dms_info(dms_path)
+        DMSValidator._validate_sprites_format(info_yml['Sprites'], dms_path)
+        DMSValidator._check_files_exist(dms_path, info_yml['Sprites'])
+        
+        return True
+
     def validate_dms(self, dms_path: str) -> bool:
         """
         Проверяет папку DMS.
