@@ -3,7 +3,6 @@ import os
 from Code.texture_manager import DMSValidator, InvalidSpriteError, SpriteValidationError
 
 class TestDMSValidator(unittest.TestCase):
-    
     def setUp(self):
         self.base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
         self.validator = DMSValidator('test_sprites')
