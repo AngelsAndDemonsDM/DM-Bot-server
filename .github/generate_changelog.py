@@ -1,19 +1,29 @@
 import json
 import logging
 import os
-from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
 
 import requests
 import yaml
 
 logging.basicConfig(level=logging.INFO)
 
-REPO = "AngelsAndDemonsDM/DM-Bot"
 CONFIG_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "updater_config.json"))
 
-def get_pull_request_data(pull_number, token=None):
-    url = f"https://api.github.com/repos/{REPO}/pulls/{pull_number}"
+def load_config(config_file):
+    try:
+        with open(config_file, 'r', encoding='utf-8') as file:
+            config = json.load(file)
+        
+        return config
+    
+    except Exception as e:
+        logging.error(f"Ошибка при загрузке конфигурационного файла: {e}")
+        return None
+
+def get_pull_request_data(pull_number, repo, token=None):
+    url = f"https://api.github.com/repos/{repo}/pulls/{pull_number}"
     headers = {}
     if token:
         headers['Authorization'] = f'token {token}'
@@ -76,21 +86,24 @@ def save_changelog(changelog, changelog_file):
     with open(changelog_file, 'w', encoding='utf-8') as file:
         yaml.dump(changelog, file, allow_unicode=True, default_flow_style=False)
 
-def update_config_version(version):
-    if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, 'r', encoding='utf-8') as file:
+def update_config_version(version, config_file):
+    try:
+        with open(config_file, 'r', encoding='utf-8') as file:
             config = json.load(file)
         
         config["VERSION"] = version
         
-        with open(CONFIG_FILE, 'w', encoding='utf-8') as file:
+        with open(config_file, 'w', encoding='utf-8') as file:
             json.dump(config, file, indent=4)
-        logging.info(f"Обновлено поле VERSION в {CONFIG_FILE} до {version}")
+        logging.info(f"Обновлено поле VERSION в {config_file} до {version}")
+    
+    except Exception as e:
+        logging.error(f"Ошибка при обновлении конфигурации: {e}")
 
-def fetch_pr_data(pr_numbers, token):
+def fetch_pr_data(pr_numbers, repo, token):
     pr_list = []
     with ThreadPoolExecutor() as executor:
-        future_to_pr = {executor.submit(get_pull_request_data, pr_number, token): pr_number for pr_number in pr_numbers}
+        future_to_pr = {executor.submit(get_pull_request_data, pr_number, repo, token): pr_number for pr_number in pr_numbers}
         for future in as_completed(future_to_pr):
             pr_number = future_to_pr[future]
             try:
@@ -99,11 +112,17 @@ def fetch_pr_data(pr_numbers, token):
                     pr_list.append(pr_data)
             
             except Exception as exc:
-                logging.error(f"PR #{pr_number} generated an exception: {exc}")
+                logging.error(f"PR #{pr_number} сгенерировал исключение: {exc}")
     
     return pr_list
 
 def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelog.yml'):
+    config = load_config(CONFIG_FILE)
+    if not config:
+        raise Exception("Не удалось загрузить конфигурационный файл.")
+
+    repo = f"{config['USER']}/{config['REPO']}"
+
     changelog = {'changelog': []}
     init_version = "0.0.0"
     
@@ -112,7 +131,7 @@ def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelo
             changelog = yaml.safe_load(file) or {'changelog': []}
     
     pr_numbers = range(start_pr, end_pr + 1)
-    pr_list = fetch_pr_data(pr_numbers, token)
+    pr_list = fetch_pr_data(pr_numbers, repo, token)
     
     pr_list.sort(key=lambda pr: datetime.strptime(pr['merged_at'], '%Y-%m-%dT%H:%M:%SZ'))
 
@@ -137,7 +156,7 @@ def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelo
             changelog['changelog'].append(changelog_entry)
     
     save_changelog(changelog, changelog_file)
-    update_config_version(latest_version)
+    update_config_version(latest_version, CONFIG_FILE)
 
 if __name__ == "__main__":
     try:
