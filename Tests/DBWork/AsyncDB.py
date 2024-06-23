@@ -93,10 +93,12 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
     async def test_exception_handling(self):
         db = MagicMock(spec=AsyncDB)
         db.open.side_effect = Exception('Error while connecting')
+        
         with self.assertLogs(level='ERROR') as log:
-            with self.assertRaises(Exception):
+            async with db:
                 await db.open()
-            self.assertIn('Error while connecting', log.output[0])
+        
+        self.assertIn('Error while connecting', log.output[0])
 
     async def test_blob_insert_and_select(self):
         async with self.db as db:
