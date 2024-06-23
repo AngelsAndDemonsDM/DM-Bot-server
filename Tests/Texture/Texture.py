@@ -65,7 +65,7 @@ Sprites:
         cached_mask_path = os.path.join(self.test_dir, f'cached_state1_{color.get_hex()}.png')
         self.assertTrue(os.path.exists(cached_mask_path))
         self.assertIsNotNone(cached_mask)
-        self.assertEqual(cached_mask.size, (64, 64))
+        self.assertEqual(cached_mask.size, (128, 128))
 
     def test_get_cached_gif(self):
         texture = Texture(self.test_dir)
