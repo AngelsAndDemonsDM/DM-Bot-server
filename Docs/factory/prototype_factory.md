@@ -6,7 +6,7 @@
 **Args:**<br>
 prototype_dir (str, optional): Директория с файлами прототипов. По умолчанию './Prototype'.<br>
 **Raises:**<br>
-FileNotFoundError: Если файл class_mappings.yml не найден в указанной директории.<br>
+FileNotFoundError: Если файл factory_mappings.yml не найден в указанной директории.<br>
 <br>
 
 ## `PrototypeFactory.find_entity`<br>
