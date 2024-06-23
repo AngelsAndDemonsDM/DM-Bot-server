@@ -1,8 +1,7 @@
 name: "Set labels for PR"
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened]
+- pull_request
 
 jobs:
   labeler:
@@ -21,3 +20,5 @@ jobs:
         with:
           configuration-path: .github/workflows_config/labeler.yml
           sync-labels: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
