@@ -11,7 +11,7 @@ class TextureManager:
         pass
 
     @staticmethod
-    def recolor_mask(mask_path: str, color: Union[HEXColor, RGBColor]) -> Image.Image:
+    def recolor_mask(mask_image: Image.Image, color: Union[HEXColor, RGBColor]) -> Image.Image:
         if isinstance(color, HEXColor):
             color = color.get_rgba()
         
@@ -21,8 +21,6 @@ class TextureManager:
         else:
             raise ValueError("The color passed to recolor_mask must be an instance of HEXColor or RGBColor")
 
-        mask_image = Image.open(mask_path).convert("RGBA")
-       
         new_data = [
             (
                 int(pixel[0] * color[0] / 255),

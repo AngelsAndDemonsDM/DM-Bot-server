@@ -3,7 +3,6 @@ import shutil
 import tempfile
 import unittest
 
-import yaml
 from PIL import Image
 
 from Code.texture_manager import DMSValidator, RGBColor, Texture
@@ -44,7 +43,7 @@ Sprites:
         texture = Texture(self.test_dir)
         texture._load_states()
         self.assertEqual(len(texture._allow_state), 1)
-        self.assertEqual(texture._allow_state[0], ('state1', 1, 10, (64, 64)))
+        self.assertEqual(texture._allow_state[0], ('state1', True, 10, (64, 64)))
 
     def test_get_image(self):
         texture = Texture(self.test_dir)
@@ -54,7 +53,7 @@ Sprites:
 
     def test_create_gif(self):
         texture = Texture(self.test_dir)
-        texture._allow_state = [('state1', 1, 10, (64, 64))]
+        texture._allow_state = [('state1', True, 10, (64, 64))]
         texture.create_gif('state1')
         gif_path = os.path.join(self.test_dir, 'state1.gif')
         self.assertTrue(os.path.exists(gif_path))
@@ -78,14 +77,13 @@ Sprites:
 
     def test_create_colored_gif(self):
         texture = Texture(self.test_dir)
-        texture._allow_state = [('state1', 1, 10, (64, 64))]
+        texture._allow_state = [('state1', True, 10, (64, 64))]
         color = RGBColor((255, 0, 0, 255))
         colored_gif = texture.create_colored_gif('state1', color)
         colored_gif_path = os.path.join(self.test_dir, f'cached_state1_{color.get_hex()}.gif')
         self.assertTrue(os.path.exists(colored_gif_path))
         self.assertIsNotNone(colored_gif)
         self.assertEqual(colored_gif.size, (128, 128))
-
 
 if __name__ == '__main__':
     unittest.main()
