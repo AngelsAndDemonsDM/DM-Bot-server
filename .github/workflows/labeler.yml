@@ -18,7 +18,6 @@ jobs:
       - name: Set labels
         uses: actions/labeler@v5
         with:
+          repo-token: ${{ secrets.PAT }}
           configuration-path: .github/workflows_config/labeler.yml
           sync-labels: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
