@@ -17,7 +17,7 @@ class Texture:
         Args:
             path_to_dms (str): Путь к директории с данными DMS.
         """
-        DMSValidator().validate_dms_dirrect(path_to_dms)
+        DMSValidator.validate_dms_dirrect(path_to_dms)
         self._path: str = path_to_dms
 
         self._allow_state: List[Tuple[str, int, bool, Tuple[int, int]]] = []
