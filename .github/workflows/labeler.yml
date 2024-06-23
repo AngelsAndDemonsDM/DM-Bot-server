@@ -1,9 +1,7 @@
 name: "Set labels for PR"
 
 on:
-  pull_request:
-    branches:
-      - master
+- pull_request
 
 jobs:
   labeler:
