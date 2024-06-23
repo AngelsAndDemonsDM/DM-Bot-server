@@ -1,6 +1,7 @@
 import os
 import shutil
 import unittest
+from unittest import mock
 
 from Code.auto_updater.update import (download_and_extract_zip,
                                       get_remote_version_and_zip_url,
@@ -41,9 +42,7 @@ class TestUpdater(unittest.TestCase):
             else:
                 return MockResponse(None, 404)
         
-        original_requests_get = unittest.mock.patch('requests.get', side_effect=mock_requests_get)
-        
-        with original_requests_get:
+        with mock.patch('requests.get', side_effect=mock_requests_get):
             version, zip_url = get_remote_version_and_zip_url(user, repo)
         
         self.assertEqual(version, "v1.0.0")
@@ -60,8 +59,7 @@ class TestUpdater(unittest.TestCase):
             def iter_content(self, chunk_size):
                 return iter([self.content])
 
-        original_requests_get = unittest.mock.patch('requests.get')
-        with unittest.mock.patch('open', unittest.mock.mock_open()), original_requests_get as mocked_get:
+        with mock.patch('requests.get') as mocked_get:
             mocked_get.return_value = MockResponse(b'test content')
             extracted_dir = download_and_extract_zip(url, extract_to)
         
@@ -69,8 +67,8 @@ class TestUpdater(unittest.TestCase):
         self.assertTrue(os.path.isdir(extracted_dir))
 
     def test_needs_update(self):
-        with unittest.mock.patch('updater.load_config', return_value={"VERSION": "1.0.0", "USER": "test_user", "REPO": "test_repo"}):
-            with unittest.mock.patch('updater.get_remote_version_and_zip_url', return_value=("v2.0.0", "https://example.com/update.zip")):
+        with mock.patch('Code.auto_updater.update.load_config', return_value={"VERSION": "1.0.0", "USER": "test_user", "REPO": "test_repo"}):
+            with mock.patch('Code.auto_updater.update.get_remote_version_and_zip_url', return_value=("v2.0.0", "https://example.com/update.zip")):
                 needs_update_result = needs_update()
         
         self.assertTrue(needs_update_result[0])
