@@ -96,6 +96,9 @@ class Texture:
         name, is_mask, frames, (frame_width, frame_height) = state_info
         sprite_image = self.get_image(state)
         
+        if sprite_image is None:
+            raise FileNotFoundError(f"Image for state '{state}' not found.")
+
         sprite_width, sprite_height = sprite_image.size
         gif_frames = []
         frame_duration = int(1000 / fps)
