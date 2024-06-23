@@ -1,16 +1,16 @@
 name: "Set labels for PR"
 on: 
-  pull_request_target:
-    branches: master
-  pull_request:
-    branches: master
+- pull_request_target
+
 
 jobs:
   labeler:
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       pull-requests: write
+
     steps:
     - uses: actions/labeler@v5
         configuration-path: .github/workflows_config/labeler.yml
