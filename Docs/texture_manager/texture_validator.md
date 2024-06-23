@@ -2,31 +2,37 @@
 
 
 ## `DMSValidator.__init__`<br>
-Инициализирует DMSValidator с указанным путем.<br>
+Инициализирует объект DMSValidator.<br>
 **Args:**<br>
-path (str): Относительный путь к папке.<br>
+path (str): Путь к директории с текстурами.<br>
 **Raises:**<br>
 FileNotFoundError: Если директория не существует.<br>
 <br>
 
 ## `DMSValidator.validate_dms_dirrect`<br>
-_summary_<br>
+Валидирует директорию DMS.<br>
 **Args:**<br>
-dms_path (str): _description_<br>
+dms_path (str): Путь к директории DMS.<br>
 **Returns:**<br>
-bool: _description_<br>
+bool: True, если валидация прошла успешно.<br>
+**Raises:**<br>
+SpriteValidationError: Если директория не существует, не является директорией или некорректна структура.<br>
 <br>
 
 ## `DMSValidator.validate_dms`<br>
-Проверяет папку DMS.<br>
+Валидирует конкретную директорию DMS относительно пути, указанного в конструкторе.<br>
 **Args:**<br>
-dms_path (str): Путь к папке DMS относительно корневой папки.<br>
+dms_path (str): Путь к директории DMS относительно базового пути.<br>
 **Returns:**<br>
-bool: Результат проверки папки.<br>
+bool: True, если валидация прошла успешно.<br>
+**Raises:**<br>
+SpriteValidationError: Если директория не существует, не является директорией или некорректна структура.<br>
 <br>
 
 ## `DMSValidator.validate_all_dms`<br>
-Проверяет все папки с расширением .dms в корневой директории.<br>
+Валидирует все директории DMS в базовой директории.<br>
 **Returns:**<br>
-bool: Результат проверки всех папок.<br>
+bool: True, если валидация всех директорий прошла успешно.<br>
+**Raises:**<br>
+SpriteValidationError: Если хотя бы одна директория некорректна.<br>
 <br>

@@ -12,6 +12,18 @@ class TextureManager:
 
     @staticmethod
     def recolor_mask(mask_image: Image.Image, color: Union[HEXColor, RGBColor]) -> Image.Image:
+        """Перекрашивает маску изображения в заданный цвет.
+
+        Args:
+            mask_image (Image.Image): Изображение маски, которое нужно перекрасить.
+            color (Union[HEXColor, RGBColor]): Цвет, в который будет перекрашена маска. Может быть представлен как HEXColor или RGBColor.
+
+        Raises:
+            ValueError: Если цвет не является экземпляром HEXColor или RGBColor.
+
+        Returns:
+            Image.Image: Перекрашенное изображение маски.
+        """
         if isinstance(color, HEXColor):
             color = color.get_rgba()
         

@@ -12,11 +12,10 @@ class DMSValidator:
     SPRITE_REQUIRED_FIELDS: List[str] = ['name', 'size', 'is_mask', 'frames']
     
     def __init__(self, path: str) -> None:
-        """
-        Инициализирует DMSValidator с указанным путем.
+        """Инициализирует объект DMSValidator.
 
         Args:
-            path (str): Относительный путь к папке.
+            path (str): Путь к директории с текстурами.
 
         Raises:
             FileNotFoundError: Если директория не существует.
@@ -31,14 +30,13 @@ class DMSValidator:
 
     @staticmethod
     def _raise_dms_file(path: str) -> None:
-        """
-        Проверяет, существует ли папка и является ли она директорией.
+        """Проверяет существование директории DMS и является ли она директорией.
 
         Args:
-            path (str): Путь к проверяемой папке.
+            path (str): Путь к директории.
 
         Raises:
-            SpriteValidationError: Если папка не существует или не является директорией.
+            SpriteValidationError: Если DMS не существует или не является директорией.
         """
         if not os.path.exists(path):
             raise SpriteValidationError("DMS does not exist", path)
@@ -48,17 +46,16 @@ class DMSValidator:
     
     @staticmethod
     def _load_dms_info(path: str) -> Dict:
-        """
-        Загружает и проверяет файл info.yml.
+        """Загружает информацию из файла info.yml.
 
         Args:
-            path (str): Путь к папке.
+            path (str): Путь к директории DMS.
 
         Raises:
-            SpriteValidationError: Если файл info.yml не найден или отсутствует обязательное поле.
+            SpriteValidationError: Если файл info.yml не найден или отсутствуют обязательные поля.
 
         Returns:
-            Dict: Содержимое файла info.yml.
+            Dict: Содержимое info.yml.
         """
         yml_path = os.path.join(path, "info.yml")
         if not os.path.isfile(yml_path):
@@ -75,15 +72,14 @@ class DMSValidator:
     
     @staticmethod
     def _validate_sprites_format(sprites: List[Dict], info_yml_path: str) -> None:
-        """
-        Проверяет формат поля 'Sprites'.
+        """Проверяет формат спрайтов в info.yml.
 
         Args:
-            sprites (List[Dict]): Список спрайтов для проверки.
-            info_yml_path (str): Путь к файлу info.yml.
+            sprites (List[Dict]): Список спрайтов.
+            info_yml_path (str): Путь к info.yml.
 
         Raises:
-            InvalidSpriteError: Если формат спрайтов неверен.
+            InvalidSpriteError: Если формат спрайтов некорректен или отсутствуют обязательные поля.
         """
         if not isinstance(sprites, list) or not all(isinstance(item, dict) for item in sprites):
             raise InvalidSpriteError(f"Field 'Sprites' must be a list of dictionaries", info_yml_path)
@@ -102,15 +98,14 @@ class DMSValidator:
     
     @staticmethod
     def _check_files_exist(folder_path: str, sprites: List[Dict[str, Union[str, Dict[str, int], bool]]]) -> None:
-        """
-        Проверяет наличие файлов, указанных в info.yml.
+        """Проверяет наличие файлов спрайтов в директории.
 
         Args:
-            folder_path (str): Путь к папке.
+            folder_path (str): Путь к директории.
             sprites (List[Dict[str, Union[str, Dict[str, int], bool]]]): Список спрайтов.
 
         Raises:
-            InvalidSpriteError: Если файл из списка не найден.
+            InvalidSpriteError: Если один или несколько файлов спрайтов отсутствуют.
         """
         missing_files = []
         
@@ -125,13 +120,16 @@ class DMSValidator:
 
     @staticmethod
     def validate_dms_dirrect(dms_path: str) -> bool:
-        """_summary_
+        """Валидирует директорию DMS.
 
         Args:
-            dms_path (str): _description_
+            dms_path (str): Путь к директории DMS.
 
         Returns:
-            bool: _description_
+            bool: True, если валидация прошла успешно.
+
+        Raises:
+            SpriteValidationError: Если директория не существует, не является директорией или некорректна структура.
         """
         DMSValidator._raise_dms_file(dms_path)
         
@@ -142,14 +140,16 @@ class DMSValidator:
         return True
 
     def validate_dms(self, dms_path: str) -> bool:
-        """
-        Проверяет папку DMS.
+        """Валидирует конкретную директорию DMS относительно пути, указанного в конструкторе.
 
         Args:
-            dms_path (str): Путь к папке DMS относительно корневой папки.
+            dms_path (str): Путь к директории DMS относительно базового пути.
 
         Returns:
-            bool: Результат проверки папки.
+            bool: True, если валидация прошла успешно.
+
+        Raises:
+            SpriteValidationError: Если директория не существует, не является директорией или некорректна структура.
         """
         dms_path = os.path.join(self._sprite_path, dms_path.replace('/', os.sep))
         
@@ -162,11 +162,13 @@ class DMSValidator:
         return True
 
     def validate_all_dms(self) -> bool:
-        """
-        Проверяет все папки с расширением .dms в корневой директории.
+        """Валидирует все директории DMS в базовой директории.
 
         Returns:
-            bool: Результат проверки всех папок.
+            bool: True, если валидация всех директорий прошла успешно.
+
+        Raises:
+            SpriteValidationError: Если хотя бы одна директория некорректна.
         """
         for item in os.listdir(self._sprite_path):
             item_path = os.path.join(self._sprite_path, item)
