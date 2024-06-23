@@ -22,3 +22,5 @@ jobs:
       with:
           assignees: themanyfaceddemon
           numOfAssignee: 1
+      env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
