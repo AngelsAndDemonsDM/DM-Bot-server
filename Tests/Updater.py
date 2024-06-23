@@ -1,7 +1,7 @@
 import os
 import shutil
 import unittest
-from unittest import mock
+from unittest.mock import MagicMock, patch
 
 from Code.auto_updater.update import (download_and_extract_zip,
                                       get_remote_version_and_zip_url,
@@ -9,7 +9,6 @@ from Code.auto_updater.update import (download_and_extract_zip,
 
 
 class TestUpdater(unittest.TestCase):
-
     def setUp(self):
         self.test_dir = os.path.join(os.path.dirname(__file__), 'test_data')
         os.makedirs(self.test_dir, exist_ok=True)
@@ -39,10 +38,11 @@ class TestUpdater(unittest.TestCase):
 
             if url == f"https://api.github.com/repos/{user}/{repo}/releases/latest":
                 return MockResponse({"tag_name": "v1.0.0"}, 200)
+            
             else:
                 return MockResponse(None, 404)
         
-        with mock.patch('requests.get', side_effect=mock_requests_get):
+        with patch('requests.get', side_effect=mock_requests_get):
             version, zip_url = get_remote_version_and_zip_url(user, repo)
         
         self.assertEqual(version, "v1.0.0")
@@ -52,23 +52,21 @@ class TestUpdater(unittest.TestCase):
         url = 'https://example.com/test.zip'
         extract_to = self.test_dir
         
-        class MockResponse:
-            def __init__(self, content):
-                self.content = content
+        mock_response = MagicMock()
+        mock_response.content = b'test content'
+        
+        mock_get = MagicMock()
+        mock_get.return_value = mock_response
 
-            def iter_content(self, chunk_size):
-                return iter([self.content])
-
-        with mock.patch('requests.get') as mocked_get:
-            mocked_get.return_value = MockResponse(b'test content')
+        with patch('requests.get', mock_get):
             extracted_dir = download_and_extract_zip(url, extract_to)
         
         self.assertTrue(os.path.exists(extracted_dir))
         self.assertTrue(os.path.isdir(extracted_dir))
 
     def test_needs_update(self):
-        with mock.patch('Code.auto_updater.update.load_config', return_value={"VERSION": "1.0.0", "USER": "test_user", "REPO": "test_repo"}):
-            with mock.patch('Code.auto_updater.update.get_remote_version_and_zip_url', return_value=("v2.0.0", "https://example.com/update.zip")):
+        with patch('Code.auto_updater.update.load_config', return_value={"VERSION": "1.0.0", "USER": "test_user", "REPO": "test_repo"}):
+            with patch('Code.auto_updater.update.get_remote_version_and_zip_url', return_value=("v2.0.0", "https://example.com/update.zip")):
                 needs_update_result = needs_update()
         
         self.assertTrue(needs_update_result[0])
