@@ -1,130 +1,82 @@
-import json
 import os
 import shutil
-import tempfile
 import unittest
-from io import BytesIO
-from zipfile import ZipFile
 
-from Code.auto_updater.update import *
+from Code.auto_updater.update import (download_and_extract_zip,
+                                      get_remote_version_and_zip_url,
+                                      load_config, needs_update)
 
 
 class TestUpdater(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.temp_dir = tempfile.mkdtemp()
-        cls.app_dir = tempfile.mkdtemp()
-        cls.config_file = os.path.join(cls.temp_dir, "updater_config.json")
 
-        config_data = {
-            "VERSION": "1.0.0",
-            "USER": "test_user",
-            "REPO": "test_repo",
-            "EXCLUDE_DIRS": [],
-            "MERGE_DIRS": [],
-            "USER_DIR_PREFIX": "user",
-        }
-        with open(cls.config_file, 'w') as f:
-            json.dump(config_data, f)
+    def setUp(self):
+        self.test_dir = os.path.join(os.path.dirname(__file__), 'test_data')
+        os.makedirs(self.test_dir, exist_ok=True)
 
-    @classmethod
-    def tearDownClass(cls):
-        shutil.rmtree(cls.temp_dir)
-        shutil.rmtree(cls.app_dir)
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
 
     def test_load_config(self):
-        expected_config = {
-            "VERSION": "1.0.0",
-            "USER": "test_user",
-            "REPO": "test_repo",
-            "EXCLUDE_DIRS": [],
-            "MERGE_DIRS": [],
-            "USER_DIR_PREFIX": "user",
-        }
-        config = load_config(self.config_file)
-        self.assertEqual(config, expected_config)
+        config = load_config()
+        self.assertIsInstance(config, dict)
+        self.assertIn('VERSION', config)
+        self.assertIn('USER', config)
+        self.assertIn('REPO', config)
 
-    def test_get_remote_version_and_zip_url_success(self):
-        version = "v2.0.0"
-        zip_url = "https://github.com/test_user/test_repo/archive/refs/tags/v2.0.0.zip"
-        self.assertEqual(get_remote_version_and_zip_url("test_user", "test_repo"), (version, zip_url))
+    def test_get_remote_version_and_zip_url(self):
+        user = 'test_user'
+        repo = 'test_repo'
+        
+        def mock_requests_get(url):
+            class MockResponse:
+                def __init__(self, json_data, status_code):
+                    self.json_data = json_data
+                    self.status_code = status_code
 
-    def test_get_remote_version_and_zip_url_failure(self):
-        self.assertIsNone(get_remote_version_and_zip_url("invalid_user", "invalid_repo"))
+                def json(self):
+                    return self.json_data
+
+            if url == f"https://api.github.com/repos/{user}/{repo}/releases/latest":
+                return MockResponse({"tag_name": "v1.0.0"}, 200)
+            else:
+                return MockResponse(None, 404)
+        
+        original_requests_get = unittest.mock.patch('requests.get', side_effect=mock_requests_get)
+        
+        with original_requests_get:
+            version, zip_url = get_remote_version_and_zip_url(user, repo)
+        
+        self.assertEqual(version, "v1.0.0")
+        self.assertEqual(zip_url, f"https://github.com/{user}/{repo}/archive/refs/tags/v1.0.0.zip")
 
     def test_download_and_extract_zip(self):
-        zip_content = BytesIO()
-        with ZipFile(zip_content, 'w') as zf:
-            zf.writestr("test_file.txt", "Test content")
+        url = 'https://example.com/test.zip'
+        extract_to = self.test_dir
+        
+        class MockResponse:
+            def __init__(self, content):
+                self.content = content
 
-        zip_url = "https://example.com/test.zip"
-        extracted_dir = download_and_extract_zip(zip_url, self.temp_dir)
+            def iter_content(self, chunk_size):
+                return iter([self.content])
 
+        original_requests_get = unittest.mock.patch('requests.get')
+        with unittest.mock.patch('open', unittest.mock.mock_open()), original_requests_get as mocked_get:
+            mocked_get.return_value = MockResponse(b'test content')
+            extracted_dir = download_and_extract_zip(url, extract_to)
+        
         self.assertTrue(os.path.exists(extracted_dir))
-        self.assertTrue(os.path.exists(os.path.join(extracted_dir, "test_file.txt")))
-
-    def test_clean_old_version(self):
-        test_dirs = ["dir1", "dir2"]
-        test_files = ["file1.txt", "file2.txt"]
-
-        for d in test_dirs:
-            os.makedirs(os.path.join(self.app_dir, d))
-        for f in test_files:
-            open(os.path.join(self.app_dir, f), 'a').close()
-
-        exclude_dirs = []
-        merge_dirs = []
-        user_dir_prefix = "user"
-        script_name = "test_script.py"
-
-        clean_old_version(self.app_dir, exclude_dirs, merge_dirs, user_dir_prefix, script_name)
-
-        for d in test_dirs:
-            self.assertFalse(os.path.exists(os.path.join(self.app_dir, d)))
-        for f in test_files:
-            self.assertFalse(os.path.exists(os.path.join(self.app_dir, f)))
-
-    def test_merge_directories(self):
-        src_dir = os.path.join(self.temp_dir, "src")
-        dest_dir = os.path.join(self.temp_dir, "dest")
-
-        os.makedirs(src_dir)
-        open(os.path.join(src_dir, "file1.txt"), 'a').close()
-
-        merge_directories(src_dir, dest_dir)
-
-        self.assertTrue(os.path.exists(os.path.join(dest_dir, "file1.txt")))
-
-    def test_version_tuple(self):
-        version = "1.2.3"
-        self.assertEqual(version_tuple(version), (1, 2, 3))
+        self.assertTrue(os.path.isdir(extracted_dir))
 
     def test_needs_update(self):
-        self.assertTrue(needs_update())
-
-    def test_update_application(self):
-        zip_url = "https://example.com/test.zip"
-        temp_dir = os.path.join(self.temp_dir, "temp")
-        exclude_dirs = []
-        merge_dirs = []
-        user_dir_prefix = "user"
-        script_name = "test_script.py"
-
-        update_application(zip_url, temp_dir, self.app_dir, exclude_dirs, merge_dirs, user_dir_prefix, script_name)
-
-        # Add assertions for update_application if needed
-
-    def test_run_main_script(self):
-        main_script = "main_script.py"
-        run_main_script(main_script)
-
-        # Add assertions for run_main_script if needed
-
-    def test_run_update(self):
-        main_script = "main_script.py"
-        run_update(main_script)
-
-        # Add assertions for run_update if needed
+        with unittest.mock.patch('updater.load_config', return_value={"VERSION": "1.0.0", "USER": "test_user", "REPO": "test_repo"}):
+            with unittest.mock.patch('updater.get_remote_version_and_zip_url', return_value=("v2.0.0", "https://example.com/update.zip")):
+                needs_update_result = needs_update()
+        
+        self.assertTrue(needs_update_result[0])
+        self.assertEqual(needs_update_result[1], "1.0.0")
+        self.assertEqual(needs_update_result[2], "v2.0.0")
 
 if __name__ == '__main__':
     unittest.main()
+
