@@ -10,13 +10,12 @@ from Code.texture_manager import DMSValidator, RGBColor, Texture
 
 
 class TestTexture(unittest.TestCase):
-
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
 
         self.info_yml_path = os.path.join(self.test_dir, "info.yml")
         with open(self.info_yml_path, 'w') as file:
-            yaml.dump({'Sprites': [{'name': 'state1', 'is_mask': 1, 'frames': 10, 'size': {'x': 64, 'y': 64}}]}, file)
+            yaml.dump({"Author": "themanyfaceddemon", "License": "NONE. IT IS TEST FOLD", 'Sprites': [{'name': 'state1', 'is_mask': 1, 'frames': 10, 'size': {'x': 64, 'y': 64}}]}, file)
 
         self.image_path = os.path.join(self.test_dir, "state1.png")
         image = Image.new('RGBA', (128, 128))
