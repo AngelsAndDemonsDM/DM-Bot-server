@@ -122,6 +122,8 @@ def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelo
                         init_version = version_update
                         latest_version = version_update
     
+    changelog['changelog'] = sorted(changelog['changelog'], key=lambda entry: datetime.strptime(entry['date'], '%Y-%m-%d'))
+    
     save_changelog(changelog, changelog_file)
     update_config_version(latest_version)
 
