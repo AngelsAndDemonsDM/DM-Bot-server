@@ -16,14 +16,14 @@ class TestDMSValidator(unittest.TestCase):
         
         with open(self.info_yml_path, 'w') as f:
             f.write("""
-            Author: Test Author
-            License: Test License
+            Author: "themanyfaceddemon"
+            License: "NONE. IT IS TEST"
             Sprites:
-              - name: sprite1
+              - name: "sprite1"
                 size: {x: 10, y: 20}
                 is_mask: false
                 frames: 5
-              - name: sprite2
+              - name: "sprite2"
                 size: {x: 15, y: 25}
                 is_mask: true
                 frames: 10

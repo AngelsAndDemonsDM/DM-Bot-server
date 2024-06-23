@@ -15,7 +15,17 @@ class TestTexture(unittest.TestCase):
 
         self.info_yml_path = os.path.join(self.test_dir, "info.yml")
         with open(self.info_yml_path, 'w') as file:
-            yaml.dump({"Author": "themanyfaceddemon", "License": "NONE. IT IS TEST FOLD", 'Sprites': [{'name': 'state1', 'is_mask': 1, 'frames': 10, 'size': {'x': 64, 'y': 64}}]}, file)
+            file.write("""
+Author: "themanyfaceddemon"
+License: "NONE. IT IS TEST"
+Sprites:
+  - name: "state1"
+    size: 
+      x: 64
+      y: 64
+    is_mask: true
+    frames: 10
+""")
 
         self.image_path = os.path.join(self.test_dir, "state1.png")
         image = Image.new('RGBA', (128, 128))
