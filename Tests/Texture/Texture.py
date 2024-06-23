@@ -79,7 +79,8 @@ class TestTexture(unittest.TestCase):
         self.assertIsNone(state_info)
 
     @patch('PIL.Image.open')
-    def test_create_gif_from_sprite(self, mock_open):
+    @patch('PIL.Image.Image.save')
+    def test_create_gif_from_sprite(self, mock_save, mock_open):
         """Тестирует метод create_gif_from_sprite."""
         mock_image = MagicMock()
         mock_image.size = (50, 20)
