@@ -85,10 +85,13 @@ class TestTexture(unittest.TestCase):
         mock_image.size = (50, 20)
         mock_open.return_value = mock_image
 
+        cropped_images = [MagicMock() for _ in range(5)]
+        mock_image.crop.side_effect = cropped_images
+
         self.texture.create_gif_from_sprite('sprite1', fps=10)
         output_path = os.path.join(self.dms_dir, 'sprite1.gif')
         mock_image.crop.assert_called()
-        mock_image.save.assert_called_once_with(output_path, save_all=True, append_images=mock_image.crop.return_value, optimize=False, duration=100, loop=0)
+        cropped_images[0].save.assert_called_once_with(output_path, save_all=True, append_images=cropped_images[1:], optimize=False, duration=100, loop=0)
 
     def test_create_gif_from_sprite_missing_state(self):
         """Тестирует метод create_gif_from_sprite при отсутствии состояния."""
