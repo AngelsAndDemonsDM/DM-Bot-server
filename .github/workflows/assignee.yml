@@ -4,7 +4,8 @@ on:
   issues:
     types: [opened]
   pull_request:
-    types: [opened]
+    branches:
+      - master
 
 jobs:
   run:
@@ -19,6 +20,7 @@ jobs:
     - name: 'Auto-assign issue'
       uses: pozil/auto-assign-issue@v1
       with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
           assignees: themanyfaceddemon
           numOfAssignee: 1
+      env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
