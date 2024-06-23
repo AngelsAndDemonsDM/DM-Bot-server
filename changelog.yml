@@ -7,6 +7,12 @@ changelog:
   version: 0.0.3
 - author: themanyfaceddemon
   changes:
+  - Все changelogs написанные руками были утеряны из-за ручной генерации changelog.
+  - Теперь changelogs по правде могут быть собраны сразу. Ей.
+  date: '2024-06-02'
+  version: 0.0.04
+- author: themanyfaceddemon
+  changes:
   - Добавлено меню настроек.
   - Добавлены попап уведомления.
   - Добавлен менеджер загрузок настроек.
@@ -14,12 +20,6 @@ changelog:
   - Добавлены настройки для автоматического запуска бота.
   - Добавлен корректное выключение через ctrl + c.
   date: '2024-06-14'
-  version: 0.0.04
-- author: themanyfaceddemon
-  changes:
-  - Все changelogs написанные руками были утеряны из-за ручной генерации changelog.
-  - Теперь changelogs по правде могут быть собраны сразу. Ей.
-  date: '2024-06-02'
   version: 0.0.04
 - author: themanyfaceddemon
   changes:
@@ -32,3 +32,14 @@ changelog:
   - Добавлена отдельная страница с отображением ченджлогов основного репозитория
   date: '2024-06-19'
   version: 0.0.05
+- author: themanyfaceddemon
+  changes:
+  - Исправлена ошибка на странице ченджлога. Теперь видны страницы для переключения.
+  - Добавлена иконка для UI страниц
+  date: '2024-06-22'
+  version: 0.0.05
+- author: '"themanyfaceddemon"'
+  changes:
+  - Добавлена поддержка динамических спрайтов
+  date: '2024-06-23'
+  version: 0.0.3
