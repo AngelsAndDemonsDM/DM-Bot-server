@@ -1,5 +1,5 @@
 name: "Set labels for PR"
-on: pull_request_target
+on: pull_request
 
 jobs:
   labeler:
