@@ -1,5 +1,6 @@
 aiofiles
 aiosqlite
+beautifulsoup4
 colorlog
 flask
 flask-socketio

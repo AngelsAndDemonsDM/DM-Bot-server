@@ -1,6 +1,7 @@
 {
     "VERSION": "0.0.05",
-    "RELEASES_URL": "https://api.github.com/repos/AngelsAndDemonsDM/DM-Bot/releases/latest",
+    "USER": "AngelsAndDemonsDM",
+    "REPO": "DM-Bot",
     "EXCLUDE_DIRS": [
         "data",
         ".git",
