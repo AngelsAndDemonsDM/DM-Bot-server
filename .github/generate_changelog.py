@@ -1,8 +1,8 @@
 import json
 import logging
 import os
-from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
 
 import requests
 import yaml

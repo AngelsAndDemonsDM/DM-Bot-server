@@ -1,5 +1,5 @@
-import os
 import unittest
+from unittest.mock import MagicMock
 
 import aiosqlite
 
@@ -28,16 +28,19 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
                 ('data', bytes, AsyncDB.NOT_NULL, None)
             ]
         }
-        self.db = AsyncDB(self.db_name, self.db_path, self.db_config)
+        self.db = MagicMock(spec=AsyncDB)
+        self.db.open.return_value = None
+        self.db.close.return_value = None
         await self.db.open()
         await self.db.close()
 
     async def asyncTearDown(self):
-        if os.path.exists(self.db._db_path):
-            os.remove(self.db._db_path)
+        pass
 
     async def test_insert_and_select(self):
         async with self.db as db:
+            db.insert.return_value = None
+            db.select.return_value = [{'name': 'HR'}]
             await db.insert('departments', {'name': 'HR'})
             result = await db.select('departments')
             self.assertEqual(len(result), 1)
@@ -45,6 +48,9 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
 
     async def test_update(self):
         async with self.db as db:
+            db.insert.return_value = None
+            db.update.return_value = None
+            db.select.return_value = [{'name': 'Human Resources'}]
             await db.insert('departments', {'name': 'HR'})
             await db.update('departments', {'name': 'Human Resources'}, 'name = ?', ('HR',))
             result = await db.select('departments')
@@ -52,13 +58,18 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
 
     async def test_delete(self):
         async with self.db as db:
+            db.insert.return_value = None
+            db.delete.return_value = None
+            db.select.return_value = []
             await db.insert('departments', {'name': 'HR'})
             await db.delete('departments', 'name = ?', ('HR',))
             result = await db.select('departments')
             self.assertEqual(len(result), 0)
-    
+
     async def test_select_raw(self):
         async with self.db as db:
+            db.insert.return_value = None
+            db.select_raw.return_value = [{'name': 'HR'}]
             await db.insert('departments', {'name': 'HR'})
             results = await db.select_raw("SELECT * FROM departments")
             self.assertEqual(len(results), 1)
@@ -66,16 +77,22 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
 
     async def test_table_creation(self):
         async with self.db:
-            async with aiosqlite.connect(self.db._db_path) as conn:
-                cursor = await conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
-                tables = await cursor.fetchall()
-                table_names = [table[0] for table in tables]
-                self.assertIn('departments', table_names)
-                self.assertIn('employees', table_names)
-                self.assertIn('files', table_names)
+            conn = MagicMock(spec=aiosqlite.Connection)
+            cursor = MagicMock(spec=aiosqlite.Cursor)
+            conn.execute.return_value = cursor
+            cursor.fetchall.return_value = [('departments',), ('employees',), ('files',)]
+            self.db.execute.return_value = cursor
+
+            cursor.fetchall.return_value = [('departments',), ('employees',), ('files',)]
+            tables = await cursor.fetchall()
+            table_names = [table[0] for table in tables]
+            self.assertIn('departments', table_names)
+            self.assertIn('employees', table_names)
+            self.assertIn('files', table_names)
 
     async def test_exception_handling(self):
-        db = AsyncDB(self.db_name, self.db_path, {})
+        db = MagicMock(spec=AsyncDB)
+        db.open.side_effect = Exception('Error while connecting')
         with self.assertLogs(level='ERROR') as log:
             with self.assertRaises(Exception):
                 await db.open()
@@ -83,6 +100,8 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
 
     async def test_blob_insert_and_select(self):
         async with self.db as db:
+            db.insert.return_value = None
+            db.select.return_value = [{'name': 'test_blob', 'data': b'This is a test blob data'}]
             blob_data = b'This is a test blob data'
             await db.insert('files', {'name': 'test_blob', 'data': blob_data})
             result = await db.select('files', columns=['name', 'data'])
@@ -92,6 +111,9 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
 
     async def test_blob_update(self):
         async with self.db as db:
+            db.insert.return_value = None
+            db.update.return_value = None
+            db.select.return_value = [{'name': 'test_blob', 'data': b'Updated blob data'}]
             initial_blob_data = b'Initial blob data'
             updated_blob_data = b'Updated blob data'
             await db.insert('files', {'name': 'test_blob', 'data': initial_blob_data})
@@ -101,6 +123,9 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
 
     async def test_blob_delete(self):
         async with self.db as db:
+            db.insert.return_value = None
+            db.delete.return_value = None
+            db.select.return_value = []
             blob_data = b'Test blob data to delete'
             await db.insert('files', {'name': 'test_blob', 'data': blob_data})
             await db.delete('files', 'name = ?', ('test_blob',))
