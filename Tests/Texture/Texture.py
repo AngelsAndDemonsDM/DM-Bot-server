@@ -53,7 +53,7 @@ class TestTexture(unittest.TestCase):
     def test_cash_mask(self):
         """Тестирует метод _cash_mask."""
         mask_name = 'sprite1.png'
-        color = RGBColor(255, 0, 0, 255)
+        color = RGBColor((255, 0, 0, 255))
         self.texture._cash_mask(mask_name, color)
         save_path = os.path.join(self.dms_dir, 'cached_sprite1.png')
         self.assertTrue(os.path.exists(save_path))
