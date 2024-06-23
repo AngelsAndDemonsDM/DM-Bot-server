@@ -57,7 +57,7 @@ class TestTexture(unittest.TestCase):
         mock_image = MagicMock()
         mock_recolor_mask.return_value = mock_image
 
-        self.texture._cash_mask('sprite1.png', RGBColor(255, 0, 0))
+        self.texture._cash_mask('sprite1.png', RGBColor((255, 0, 0, 255)))
         save_path = os.path.join(self.dms_dir, 'cached_sprite1.png')
         mock_image.save.assert_called_once_with(save_path, format='PNG')
 
