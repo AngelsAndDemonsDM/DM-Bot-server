@@ -5,7 +5,7 @@ import unittest
 
 from PIL import Image
 
-from Code.texture_manager import DMSValidator, RGBColor, Texture
+from Code.texture_manager import RGBColor, Texture
 
 
 class TestTexture(unittest.TestCase):
@@ -36,8 +36,7 @@ Sprites:
     def test_initialization(self):
         texture = Texture(self.test_dir)
         self.assertEqual(texture._path, self.test_dir)
-        self.assertEqual(texture._allow_state, [])
-        DMSValidator.validate_dms_dirrect(self.test_dir)
+        self.assertEqual(texture._allow_state, [('state1', True, 10, (64, 64))])
 
     def test_load_states(self):
         texture = Texture(self.test_dir)
