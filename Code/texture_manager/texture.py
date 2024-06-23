@@ -1,10 +1,12 @@
 import os
 from typing import List, Optional, Tuple
+
 import yaml
 from PIL import Image
 from texture_manager.color import RGBColor
 from texture_manager.texture_manager import TextureManager
 from texture_manager.texture_validator import DMSValidator
+
 
 class Texture:
     __slots__ = ['_path', '_allow_state']
@@ -79,6 +81,7 @@ class Texture:
         gif_file = os.path.join(self._path, f"{state}.gif")
         if not os.path.exists(gif_file):
             self.create_gif(state, fps)
+        
         return Image.open(gif_file)
 
     def create_colored_gif(self, state: str, color: RGBColor, fps: int = 60) -> Image.Image:

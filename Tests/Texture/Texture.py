@@ -73,7 +73,7 @@ Sprites:
         cached_gif_path = os.path.join(self.test_dir, 'state1.gif')
         self.assertTrue(os.path.exists(cached_gif_path))
         self.assertIsNotNone(cached_gif)
-        self.assertEqual(cached_gif.size, (128, 128))
+        self.assertEqual(cached_gif.size, (64, 64))
 
     def test_create_colored_gif(self):
         texture = Texture(self.test_dir)
@@ -83,7 +83,7 @@ Sprites:
         colored_gif_path = os.path.join(self.test_dir, f'cached_state1_{color.get_hex()}.gif')
         self.assertTrue(os.path.exists(colored_gif_path))
         self.assertIsNotNone(colored_gif)
-        self.assertEqual(colored_gif.size, (128, 128))
+        self.assertEqual(colored_gif.size, (64, 64))
 
 if __name__ == '__main__':
     unittest.main()
