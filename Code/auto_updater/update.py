@@ -66,9 +66,11 @@ def clean_old_version(app_dir: str, exclude_dirs: list, merge_dirs: list, user_d
                         if os.path.isdir(subitem_path) and not is_user_dir(subitem_path, user_dir_prefix):
                             shutil.rmtree(subitem_path)
                             logging.info(f"Removed directory: {subitem_path}")
+            
                 else:
                     shutil.rmtree(item_path)
                     logging.info(f"Removed directory: {item_path}")
+            
             else:
                 os.remove(item_path)
                 logging.info(f"Removed file: {item_path}")
@@ -81,8 +83,10 @@ def merge_directories(src_dir: str, dest_dir: str) -> None:
             if not os.path.exists(dest_item):
                 shutil.copytree(src_item, dest_item)
                 logging.info(f"Copied directory: {src_item} to {dest_item}")
+        
             else:
                 merge_directories(src_item, dest_dir)
+        
         else:
             shutil.copy2(src_item, dest_item)
             logging.info(f"Copied file: {src_item} to {dest_item}")
@@ -105,10 +109,13 @@ def needs_update() -> Tuple[bool, Optional[str], Optional[str]]:
 def update_application(zip_url: str, temp_dir: str, app_dir: str, exclude_dirs: list, merge_dirs: list, user_dir_prefix: str, script_name: str) -> None:
     logging.info("Starting application update...")
     extracted_dir = download_and_extract_zip(zip_url, extract_to=temp_dir)
+    
     logging.info("Removing old version...")
     clean_old_version(app_dir, exclude_dirs, merge_dirs, user_dir_prefix, script_name)
+    
     logging.info("Installing new version...")
     merge_directories(extracted_dir, app_dir)
+    
     shutil.rmtree(temp_dir)
     logging.info("Update complete.")
 
