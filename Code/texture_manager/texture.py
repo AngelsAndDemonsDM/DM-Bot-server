@@ -15,7 +15,7 @@ class Texture:
         DMSValidator().validate_dms_dirrect(path_to_dms)
         self._path: str = path_to_dms
 
-        self._allow_state: List[Tuple[str, int, bool]] = []
+        self._allow_state: List[Tuple[str, int, bool, Tuple[int, int]]] = []
         self._get_states()
 
     def _cash_mask(self, mask: str, color: RGBColor) -> None:
@@ -30,13 +30,21 @@ class Texture:
             info_yml = yaml.safe_load(file)
         
         for item in info_yml['Sprites']:
-            self._allow_state.append((item['name'], item['is_mask'], item['frames']))
+            self._allow_state.append((item['name'], item['is_mask'], item['frames'], (item['size']['x'], item['size']['y'])))
 
-    def get_state_image(self, state: str) -> Optional[Image.Image]:
-        if state in self._allow_state:
-            image_path = os.path.join(self._path, f"{state}.png")
-            if os.path.exists(image_path):
-                image = Image.open(image_path)
-                return image
+    def get_image(self, state: str) -> Optional[Image.Image]:
+        for item in self._allow_state:
+            if item[0] == state:
+                image_path = os.path.join(self._path, f"{state}.png")
+                if os.path.exists(image_path):
+                    image = Image.open(image_path)
+                    return image
+        
+        return None
+
+    def __getitem__(self, key: str) -> Optional[Tuple[str, int, bool, Tuple[int, int]]]:
+        for item in self._allow_state:
+            if item[0] == key:
+                return item
         
         return None
