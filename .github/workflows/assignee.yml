@@ -1,8 +1,6 @@
 name: Auto Assign
 
 on:
-  issues:
-    types: [opened]
   pull_request:
     types: [opened]
 
@@ -19,6 +17,6 @@ jobs:
     - name: 'Auto-assign issue'
       uses: pozil/auto-assign-issue@v1
       with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          assignees: themanyfaceddemon
-          numOfAssignee: 1
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        assignees: themanyfaceddemon
+        numOfAssignee: 1
