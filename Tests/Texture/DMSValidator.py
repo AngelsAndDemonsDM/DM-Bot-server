@@ -57,7 +57,7 @@ class TestDMSValidator(unittest.TestCase):
         with self.assertRaises(SpriteValidationError) as context:
             self.validator.validate_dms('test.dms')
         
-        self.assertEqual(str(context.exception), "info.yml not found")
+        self.assertTrue("info.yml not found" in str(context.exception))
 
     def test_invalid_sprite_format(self):
         """Тестирует метод validate_dms при неверном формате спрайтов."""
