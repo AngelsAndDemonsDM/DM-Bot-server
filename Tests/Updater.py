@@ -9,6 +9,7 @@ from Code.auto_updater.update import (download_and_extract_zip,
 
 
 class TestUpdater(unittest.TestCase):
+
     def setUp(self):
         self.test_dir = os.path.join(os.path.dirname(__file__), 'test_data')
         os.makedirs(self.test_dir, exist_ok=True)
@@ -38,7 +39,6 @@ class TestUpdater(unittest.TestCase):
 
             if url == f"https://api.github.com/repos/{user}/{repo}/releases/latest":
                 return MockResponse({"tag_name": "v1.0.0"}, 200)
-            
             else:
                 return MockResponse(None, 404)
         
@@ -54,7 +54,7 @@ class TestUpdater(unittest.TestCase):
         
         mock_response = MagicMock()
         mock_response.content = b'test content'
-        
+
         mock_get = MagicMock()
         mock_get.return_value = mock_response
 
@@ -63,6 +63,9 @@ class TestUpdater(unittest.TestCase):
         
         self.assertTrue(os.path.exists(extracted_dir))
         self.assertTrue(os.path.isdir(extracted_dir))
+
+        files_in_dir = os.listdir(extracted_dir)
+        self.assertGreater(len(files_in_dir), 0)
 
     def test_needs_update(self):
         with patch('Code.auto_updater.update.load_config', return_value={"VERSION": "1.0.0", "USER": "test_user", "REPO": "test_repo"}):
