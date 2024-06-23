@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests
 import yaml
@@ -86,6 +87,22 @@ def update_config_version(version):
             json.dump(config, file, indent=4)
         logging.info(f"Обновлено поле VERSION в {CONFIG_FILE} до {version}")
 
+def fetch_pr_data(pr_numbers, token):
+    pr_list = []
+    with ThreadPoolExecutor() as executor:
+        future_to_pr = {executor.submit(get_pull_request_data, pr_number, token): pr_number for pr_number in pr_numbers}
+        for future in as_completed(future_to_pr):
+            pr_number = future_to_pr[future]
+            try:
+                pr_data = future.result()
+                if pr_data and pr_data['merged']:
+                    pr_list.append(pr_data)
+            
+            except Exception as exc:
+                logging.error(f"PR #{pr_number} generated an exception: {exc}")
+    
+    return pr_list
+
 def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelog.yml'):
     changelog = {'changelog': []}
     init_version = "0.0.0"
@@ -94,33 +111,30 @@ def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelo
         with open(changelog_file, 'r', encoding='utf-8') as file:
             changelog = yaml.safe_load(file) or {'changelog': []}
     
+    pr_numbers = range(start_pr, end_pr + 1)
+    pr_list = fetch_pr_data(pr_numbers, token)
+    
+    pr_list.sort(key=lambda pr: datetime.strptime(pr['merged_at'], '%Y-%m-%dT%H:%M:%SZ'))
+
     latest_version = init_version
 
-    for pr_number in range(start_pr, end_pr + 1):
-        pr_data = get_pull_request_data(pr_number, token)
-       
-        if pr_data:
-            if pr_data['merged']:
-                changes, version_update, parsed_author = parse_pr_description(pr_data['description'])
-                
-                if changes and len(changes) > 0:
-                    author = pr_data.get("author")
-                    
-                    if not version_update:
-                        version_update = init_version
-                    
-                    changelog_entry = {
-                        "author": parsed_author if parsed_author else author,
-                        "changes": changes,
-                        "date": datetime.strptime(pr_data['merged_at'], '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d'),
-                        "version": version_update
-                    }
-                    
-                    changelog['changelog'].append(changelog_entry)
-                    
-                    if version_update:
-                        init_version = version_update
-                        latest_version = version_update
+    for pr_data in pr_list:
+        changes, version_update, parsed_author = parse_pr_description(pr_data['description'])
+        
+        if changes and len(changes) > 0:
+            author = pr_data.get("author")
+            
+            if version_update:
+                latest_version = version_update
+            
+            changelog_entry = {
+                "author": parsed_author if parsed_author else author,
+                "changes": changes,
+                "date": datetime.strptime(pr_data['merged_at'], '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d'),
+                "version": latest_version
+            }
+            
+            changelog['changelog'].append(changelog_entry)
     
     save_changelog(changelog, changelog_file)
     update_config_version(latest_version)
