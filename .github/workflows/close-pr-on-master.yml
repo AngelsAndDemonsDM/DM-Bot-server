@@ -1,5 +1,4 @@
 name: Close PRs on master
-
 on:
   pull_request_target:
     types: [opened, ready_for_review]
@@ -12,4 +11,4 @@ jobs:
     steps:    
     - uses: superbrothers/close-pull-request@v3
       with:
-        comment: "Вы не можете использовать ветку master для внесения изменений в репозиторий. \n\n Пожалуйста, создайте новую ветку для вашей работы. Вы можете сделать это, выполнив команду `git branch <название_ветки>` и переместив ваши изменения из ветки master."
+        comment: "Вы не можете использовать ветку master для внесения изменений в репозиторий. \n\n Пожалуйста, создайте новую ветку для вашей работы. \n\n Просьба ознакомиться с гайдами на [вики](https://github.com/AngelsAndDemonsDM/DM-Bot/wiki/Главная) как работать в репозитории"

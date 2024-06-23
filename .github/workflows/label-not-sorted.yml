@@ -1,5 +1,4 @@
 name: "Label new issues with 'Not sorted'"
-
 on:
   issues:
     types: [opened]
