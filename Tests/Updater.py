@@ -1,7 +1,8 @@
 import os
 import shutil
 import unittest
-from unittest.mock import MagicMock, patch
+import zipfile
+from unittest.mock import patch
 
 from Code.auto_updater.update import (download_and_extract_zip,
                                       get_remote_version_and_zip_url,
@@ -9,7 +10,6 @@ from Code.auto_updater.update import (download_and_extract_zip,
 
 
 class TestUpdater(unittest.TestCase):
-
     def setUp(self):
         self.test_dir = os.path.join(os.path.dirname(__file__), 'test_data')
         os.makedirs(self.test_dir, exist_ok=True)
@@ -39,6 +39,7 @@ class TestUpdater(unittest.TestCase):
 
             if url == f"https://api.github.com/repos/{user}/{repo}/releases/latest":
                 return MockResponse({"tag_name": "v1.0.0"}, 200)
+            
             else:
                 return MockResponse(None, 404)
         
@@ -49,18 +50,17 @@ class TestUpdater(unittest.TestCase):
         self.assertEqual(zip_url, f"https://github.com/{user}/{repo}/archive/refs/tags/v1.0.0.zip")
 
     def test_download_and_extract_zip(self):
+        zip_file_path = os.path.join(self.test_dir, 'test.zip')
+        with zipfile.ZipFile(zip_file_path, 'w') as zipf:
+            zipf.writestr('test_file.txt', b'test content')
+
         url = 'https://example.com/test.zip'
         extract_to = self.test_dir
-        
-        mock_response = MagicMock()
-        mock_response.content = b'test content'
 
-        mock_get = MagicMock()
-        mock_get.return_value = mock_response
-
-        with patch('requests.get', mock_get):
+        with patch('requests.get') as mock_get:
+            mock_get.return_value.content = open(zip_file_path, 'rb').read()
             extracted_dir = download_and_extract_zip(url, extract_to)
-        
+
         self.assertTrue(os.path.exists(extracted_dir))
         self.assertTrue(os.path.isdir(extracted_dir))
 
