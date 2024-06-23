@@ -1,6 +1,5 @@
 import os
 import unittest
-from unittest.mock import MagicMock, patch
 
 from PIL import Image
 
@@ -15,7 +14,7 @@ class TestTexture(unittest.TestCase):
         self.info_yml_path = os.path.join(self.dms_dir, 'info.yml')
 
         os.makedirs(self.dms_dir, exist_ok=True)
-        
+
         with open(self.info_yml_path, 'w') as f:
             f.write("""
             Author: Test Author
@@ -32,8 +31,8 @@ class TestTexture(unittest.TestCase):
             """)
 
         for sprite in ['sprite1', 'sprite2']:
-            with open(os.path.join(self.dms_dir, f"{sprite}.png"), 'a'):
-                pass
+            image = Image.new('RGBA', (50, 20), (255, 255, 255, 0))
+            image.save(os.path.join(self.dms_dir, f"{sprite}.png"))
 
         self.texture = Texture(self.dms_dir)
 
@@ -43,7 +42,7 @@ class TestTexture(unittest.TestCase):
                 os.remove(os.path.join(root, name))
             for name in dirs:
                 os.rmdir(os.path.join(root, name))
-        
+
         os.rmdir(self.test_dir)
 
     def test_init(self):
@@ -51,15 +50,13 @@ class TestTexture(unittest.TestCase):
         self.assertEqual(self.texture._path, self.dms_dir)
         self.assertEqual(len(self.texture._allow_state), 2)
 
-    @patch('texture_manager.texture_manager.TextureManager.recolor_mask')
-    def test_cash_mask(self, mock_recolor_mask):
+    def test_cash_mask(self):
         """Тестирует метод _cash_mask."""
-        mock_image = MagicMock()
-        mock_recolor_mask.return_value = mock_image
-
-        self.texture._cash_mask('sprite1.png', RGBColor((255, 0, 0, 255)))
+        mask_name = 'sprite1.png'
+        color = RGBColor(255, 0, 0, 255)
+        self.texture._cash_mask(mask_name, color)
         save_path = os.path.join(self.dms_dir, 'cached_sprite1.png')
-        mock_image.save.assert_called_once_with(save_path, format='PNG')
+        self.assertTrue(os.path.exists(save_path))
 
     def test_get_image(self):
         """Тестирует метод get_image."""
@@ -78,21 +75,13 @@ class TestTexture(unittest.TestCase):
         state_info = self.texture['nonexistent']
         self.assertIsNone(state_info)
 
-    @patch('PIL.Image.open')
-    @patch('PIL.Image.Image.save')
-    def test_create_gif_from_sprite(self, mock_save, mock_open):
+    def test_create_gif_from_sprite(self):
         """Тестирует метод create_gif_from_sprite."""
-        mock_image = MagicMock()
-        mock_image.size = (50, 20)
-        mock_open.return_value = mock_image
-
-        cropped_images = [MagicMock() for _ in range(5)]
-        mock_image.crop.side_effect = cropped_images
-
-        self.texture.create_gif_from_sprite('sprite1', fps=10)
-        output_path = os.path.join(self.dms_dir, 'sprite1.gif')
-        mock_image.crop.assert_called()
-        cropped_images[0].save.assert_called_once_with(output_path, save_all=True, append_images=cropped_images[1:], optimize=False, duration=100, loop=0)
+        state = 'sprite1'
+        fps = 10
+        self.texture.create_gif_from_sprite(state, fps=fps)
+        output_path = os.path.join(self.dms_dir, f"{state}.gif")
+        self.assertTrue(os.path.exists(output_path))
 
     def test_create_gif_from_sprite_missing_state(self):
         """Тестирует метод create_gif_from_sprite при отсутствии состояния."""
@@ -101,8 +90,10 @@ class TestTexture(unittest.TestCase):
 
     def test_create_gif_from_sprite_missing_image(self):
         """Тестирует метод create_gif_from_sprite при отсутствии изображения."""
+        os.remove(os.path.join(self.dms_dir, 'sprite2.png'))
         with self.assertRaises(FileNotFoundError):
             self.texture.create_gif_from_sprite('sprite2')
+
 
 if __name__ == '__main__':
     unittest.main()
