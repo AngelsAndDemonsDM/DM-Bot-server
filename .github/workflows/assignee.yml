@@ -9,6 +9,7 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+    if: ${{ github.actor != 'themanyfaceddemon' }}
 
     permissions:
       issues: write
