@@ -1,0 +1,48 @@
+/* Стили для навигационного меню */
+.nav-menu {
+    list-style-type: none; /* Убираем маркеры списка */
+    margin: 0; /* Убираем внешние отступы */
+    padding: 0; /* Убираем внутренние отступы */
+    overflow: hidden; /* Прячем содержимое, которое не помещается */
+    background-color: #333; /* Тёмно-серый фон */
+    display: flex;
+    justify-content: space-between; /* Распределяем пространство между элементами */
+    align-items: center; /* Выравниваем элементы по центру по вертикали */
+}
+
+.nav-item {
+    float: left; /* Элементы списка располагаются горизонтально */
+}
+
+.nav-item a {
+    display: block; /* Блочный элемент */
+    text-align: center; /* Выравнивание текста по центру */
+    padding: 14px 16px; /* Внутренние отступы */
+    text-decoration: none; /* Убираем подчеркивание */
+    color: white; /* Белый текст */
+    transition: background-color 0.3s ease; /* Плавное изменение цвета фона */
+}
+
+.nav-item a:hover {
+    background-color: #222; /* Темно-серый фон при наведении */
+}
+
+/* Кнопка выключения меню */
+.shutdown-button {
+    background-color: transparent; /* Прозрачный фон */
+    border: none;
+    color: #ff7e00; /* Оранжевый цвет */
+    font-size: 20px; /* Размер иконки */
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.shutdown-button:hover {
+    color: #e69500; /* Темно-оранжевый цвет при наведении */
+}
+
+.shutdown-icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
