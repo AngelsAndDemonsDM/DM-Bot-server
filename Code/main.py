@@ -8,11 +8,12 @@ import sys
 import webbrowser
 
 from auto_updater import needs_update
-from bot import bot_close, bot_start
+from bot import bot_start
 from colorlog import ColoredFormatter
 from db_work import SettingsManager
 from flask import Flask
-from py_html import handle_show_popup, main_bp, socketio
+from py_html import main_bp, socketio
+from py_html.api import api_bp, handle_show_popup, shutdown_start
 
 app = Flask(__name__)
 
@@ -20,6 +21,7 @@ socketio.init_app(app)
 
 # Blueprint
 app.register_blueprint(main_bp, url_prefix='/')
+app.register_blueprint(api_bp, url_prefix='/api')
 
 # Argument parsing
 def parse_arguments():
@@ -33,24 +35,9 @@ async def async_main_bg_task():
         await SettingsManager().set_setting("bot.is_run", False)
         await bot_start()
 
-async def shutdown_app():
-    logging.info("Shutdown bot...")
-    await bot_close()
-    logging.info("Done!")
-
 # Background task function
 def main_bg_task():
     asyncio.run(async_main_bg_task())
-
-# Signals
-def handle_exit_signal(signum, frame):
-    logging.info("Shutdown start")
-    asyncio.run(shutdown_app())
-    
-    logging.info("Shutdown app is done!")
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, handle_exit_signal)
 
 # Function to run a file in a new console
 def run_file_in_new_console(file_path):
@@ -100,6 +87,11 @@ if __name__ == "__main__":
     )
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
+    
+    def signal_handler(signal, frame):
+        sys.exit(0)
+    
+    signal.signal(signal.SIGINT, signal_handler)
     
     if not debug:
         webbrowser.open("http://127.0.0.1:5000")
