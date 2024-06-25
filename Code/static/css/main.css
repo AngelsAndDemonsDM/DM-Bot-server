@@ -3,11 +3,11 @@
 Индикаторные цвета: ярко красный и зелёный.
 */
 body {
-    background-color: #111; /* Чёрный фон */
-    color: white; /* Белый текст */
-    font-family: Arial, sans-serif; /* Шрифт Arial или аналогичный без засечек */
-    margin: 5px; /* Отступы вокруг содержимого */
-    padding: 5px; /* Внутренние отступы */
+    background-color: #111;
+    color: white;
+    font-family: Arial, sans-serif;
+    margin: 5px;
+    padding: 5px;
 }
 
 label {
@@ -20,16 +20,16 @@ input[type="checkbox"] {
     height: 20px;
     margin-right: 10px;
     vertical-align: middle;
-    background-color: #333; /* Тёмно-серый фон */
-    border: 2px solid #ffa500; /* Оранжевая граница */
-    border-radius: 4px; /* Скругленные углы */
+    background-color: #333;
+    border: 2px solid #ffa500;
+    border-radius: 4px;
     cursor: pointer;
-    appearance: none; /* Убираем стандартный стиль */
-    position: relative; /* Для позиционирования псевдоэлементов */
+    appearance: none;
+    position: relative;
 }
 
 input[type="checkbox"]:checked {
-    background-color: #ffa500; /* Оранжевый фон при установленном флажке */
+    background-color: #ffa500;
 }
 
 input[type="checkbox"]:checked::before {
@@ -38,9 +38,9 @@ input[type="checkbox"]:checked::before {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 12px; /* Размер галочки */
-    height: 12px; /* Размер галочки */
-    background-color: #000; /* Черный цвет галочки */
+    width: 12px;
+    height: 12px;
+    background-color: #000;
     clip-path: polygon(14% 44%, 0% 64%, 44% 100%, 100% 0%, 77% 0%, 39% 86%);
 }
 
@@ -48,113 +48,76 @@ input[type="text"] {
     padding: 10px;
     margin-top: 5px;
     margin-bottom: 20px;
-    background-color: #333; /* Тёмно-серый фон */
-    color: white; /* Белый текст */
-    border: 1px solid #ffa500; /* Оранжевая граница */
-    border-radius: 4px; /* Скругленные углы */
-    box-sizing: border-box; /* Включаем padding и border в общую ширину */
+    background-color: #333;
+    color: white;
+    border: 1px solid #ffa500;
+    border-radius: 4px;
+    box-sizing: border-box;
 }
 
 input[type="submit"] {
-    background-color: #333; /* Тёмно-серый фон */
-    color: white; /* Белый текст */
-    padding: 10px 20px; /* Внутренние отступы */
-    border: none; /* Убираем границу */
-    border-radius: 4px; /* Скругленные углы */
-    cursor: pointer; /* Курсор в виде указателя */
-    transition: background-color 0.3s ease; /* Плавное изменение цвета фона */
-    display: inline-block; /* Показать как блочный элемент, чтобы выглядело как кнопка */
-    text-align: center; /* Выравнивание текста по центру */
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: inline-block;
+    text-align: center;
 }
 
 input[type="submit"]:hover {
-    background-color: #222; /* Темно-серый фон при наведении */
+    background-color: #222;
 }
 
 /* Стили для ссылок */
 a {
-    color: #ff7e00; /* Оранжевый цвет */
-    text-decoration: none; /* Убираем подчеркивание */
+    color: #ff7e00;
+    text-decoration: none;
 }
 
 a:visited {
-    color: #ffa500; /* Оранжевый цвет для посещенных ссылок */
+    color: #ffa500;
 }
 
 a:hover {
-    text-decoration: underline; /* Подчеркивание при наведении */
-}
-
-/* Стили для навигационного меню */
-ul {
-    list-style-type: none; /* Убираем маркеры списка */
-    margin: 0; /* Убираем внешние отступы */
-    padding: 0; /* Убираем внутренние отступы */
-    overflow: hidden; /* Прячем содержимое, которое не помещается */
-    background-color: #333; /* Тёмно-серый фон */
-}
-
-li {
-    float: left; /* Элементы списка располагаются горизонтально */
-}
-
-li a {
-    display: block; /* Блочный элемент */
-    text-align: center; /* Выравнивание текста по центру */
-    padding: 14px 16px; /* Внутренние отступы */
-    text-decoration: none; /* Убираем подчеркивание */
-    transition: background-color 0.3s ease; /* Плавное изменение цвета фона */
-}
-
-li a:hover {
-    background-color: #222; /* Темно-серый фон при наведении */
+    text-decoration: underline;
 }
 
 /* Стили для кнопок */
 button {
-    background-color: #333; /* Тёмно-серый фон */
-    color: white; /* Белый цвет текста */
-    padding: 10px 20px; /* Внутренние отступы */
-    border: none; /* Убираем границу */
-    border-radius: 4px; /* Скругленные углы */
-    cursor: pointer; /* Курсор в виде указателя */
-    transition: background-color 0.3s ease; /* Плавное изменение цвета фона */
+    background-color: #333; 
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: #222; /* Темно-серый фон при наведении */
+    background-color: #222;
 }
 
 /* Стили для шапки */
 .header {
-    background-color: #f2f2f2; /* Светло-серый фон */
-    padding: 20px; /* Внутренние отступы */
-    text-align: center; /* Выравнивание текста по центру */
-}
-
-/* Стили для нижней панели */
-.footer {
-    background-color: #333; /* Тёмно-серый фон */
-    color: white; /* Белый цвет текста */
-    text-align: center; /* Выравнивание текста по центру */
-    position: fixed; /* Фиксированное положение */
-    bottom: 5px; /* Отступ снизу */
-    left: 5px; /* Отступ слева */
-    right: 5px; /* Отступ справа */
-    width: auto; /* Ширина по содержимому */
+    background-color: #f2f2f2;
+    padding: 20px;
+    text-align: center;
 }
 
 /* Стили для карточек */
 .card {
-    border: 1px solid #e0e0e0; /* Светло-серая граница */
-    border-radius: 8px; /* Скругленные углы */
-    overflow: hidden; /* Обрезание содержимого */
-    margin: 20px; /* Отступы вокруг */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Тень */
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .card-content {
-    padding: 15px; /* Внутренние отступы */
+    padding: 15px;
 }
 
 /* Добавление стилей для заголовков внутри карточек */
@@ -164,31 +127,31 @@ button:hover {
 .card-content h4,
 .card-content h5,
 .card-content h6 {
-    margin-top: 0; /* Убираем верхний отступ */
-    margin-bottom: 15px; /* Устанавливаем нижний отступ */
+    margin-top: 0;
+    margin-bottom: 15px;
 }
 
 /* Стили для таблицы */
 table {
-    width: 100%; /* Ширина таблицы занимает всю доступную ширину контейнера */
-    border-collapse: collapse; /* Объединяем границы ячеек */
-    margin-top: 20px; /* Отступ сверху */
-    margin-bottom: 20px; /* Отступ снизу */
+    width: 100%;
+    border-collapse: collapse; 
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 /* Стили для заголовков таблицы */
 th {
-    background-color: #333; /* Тёмно-серый фон */
-    color: white; /* Белый цвет текста */
-    padding: 10px 15px; /* Внутренние отступы */
-    text-align: left; /* Выравнивание текста по левому краю */
-    border: 1px solid #555; /* Граница */
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    text-align: left;
+    border: 1px solid #555;
 }
 
 /* Стили для ячеек таблицы */
 td {
-    padding: 8px 15px; /* Внутренние отступы */
-    border: 1px solid #e0e0e0; /* Светло-серая граница */
+    padding: 8px 15px;
+    border: 1px solid #e0e0e0;
 }
 
 /* Цвета */
@@ -200,29 +163,18 @@ td {
     color: red;
 }
 
-/* Для навигации */
-/* Стили для навигационного меню */
-.nav-menu {
-    list-style-type: none; /* Убираем маркеры списка */
-    margin: 0; /* Убираем внешние отступы */
-    padding: 0; /* Убираем внутренние отступы */
-    overflow: hidden; /* Прячем содержимое, которое не помещается */
-    background-color: #333; /* Тёмно-серый фон */
+/* Стили для полосы прокрутки */
+::-webkit-scrollbar {
+    width: 12px;
+    background-color: #111;
 }
 
-.nav-item {
-    float: left; /* Элементы списка располагаются горизонтально */
+::-webkit-scrollbar-thumb {
+    background-color: #ffa500;
+    border-radius: 6px;
+    border: 3px solid #111;
 }
 
-.nav-item a {
-    display: block; /* Блочный элемент */
-    text-align: center; /* Выравнивание текста по центру */
-    padding: 14px 16px; /* Внутренние отступы */
-    text-decoration: none; /* Убираем подчеркивание */
-    color: white; /* Белый текст */
-    transition: background-color 0.3s ease; /* Плавное изменение цвета фона */
-}
-
-.nav-item a:hover {
-    background-color: #222; /* Темно-серый фон при наведении */
+::-webkit-scrollbar-thumb:hover {
+    background-color: #ff7e00;
 }

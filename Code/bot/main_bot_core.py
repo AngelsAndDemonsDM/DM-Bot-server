@@ -20,4 +20,4 @@ async def bot_start():
 
 async def bot_close():
     await SettingsManager().set_setting("bot.is_run", False)
-    # Тут надо что-то сделать. Позже. Мне похеру сейчас.
+    # await bot.close()
