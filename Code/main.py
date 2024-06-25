@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import logging
 import os
+import platform
 import signal
 import subprocess
 import sys
@@ -42,14 +43,15 @@ def main_bg_task():
 # Function to run a file in a new console
 def run_file_in_new_console(file_path):
     absolute_path = os.path.abspath(file_path)
-    if sys.platform == "win32":
-        # For Windows
+    system = platform.system()
+    
+    if system == "Windows":
         subprocess.Popen(["start", "cmd", "/c", f"python {absolute_path}"], shell=True)
-    elif sys.platform == "darwin":
-        # For macOS
+    
+    elif system == "Darwin":
         subprocess.Popen(["open", "-a", "Terminal", absolute_path])
+    
     else:
-        # For Linux
         subprocess.Popen(["x-terminal-emulator", "-e", f"python {absolute_path}"])
 
 # Start program
