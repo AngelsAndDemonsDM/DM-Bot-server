@@ -2,14 +2,32 @@
 <html lang="ru">
 
 <head>
-    {% include 'base_modules/base_head.html' %}
+    {% include 'base_modules/head_ru.html' %}
     <title>Main</title>
 </head>
 
 <body>
     {% include 'base_modules/navigation.html' %}
-</body>
+    <div class="card card-content">
+        <h1>О программе DM-Bot</h1>
+        
+        <h2>Введение</h2>
+        <p>Приветствую вас на странице разработки утилиты DM-Bot организации A&D (angels and demons).</p>
+        
+        <h2>Что такое DM-Bot?</h2>
+        <p>DM-Bot — это утилита для проведения текстовых ролевых игр на платформе Discord. Наша цель — создать максимально глубокий и проработанный игровой опыт для всех участников.</p>
+        
+        <h2>Техническая часть</h2>
+        <p>DM-Bot написан на Python. Исходный код открыт и его можно найти на <a href="https://github.com/AngelsAndDemonsDM/DM-Bot">Github</a>. Утилита будет поддерживать гибкую систему настроек и добавления собственного контента через yml файлы.</p>
+    
+        <h2>Ссылки</h2>
+        <p><a href="https://discord.gg/vxzegFkRjB">Discord</a></p>
+        <p><a href="https://boosty.to/themanyfaceddemon">Boosty</a></p>
+        <p><a href="https://github.com/AngelsAndDemonsDM/DM-Bot">Github</a></p>
+    </div>
 
-{% include 'base_modules/footer.html' %}
+    <script src="{{ url_for('static', filename='js/base.js') }}"></script>
+    {% include 'base_modules/footer.html' %}
+</body>
 
 </html>
