@@ -162,3 +162,19 @@ td {
 .red {
     color: red;
 }
+
+/* Стили для полосы прокрутки */
+::-webkit-scrollbar {
+    width: 12px;
+    background-color: #111;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #ffa500;
+    border-radius: 6px;
+    border: 3px solid #111;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #ff7e00;
+}
