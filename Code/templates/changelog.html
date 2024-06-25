@@ -4,16 +4,37 @@
 <head>
     {% include 'base_modules/head_ru.html' %}
     <title>Ченджлог</title>
+    <style>
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .pagination button {
+            margin: 0 5px;
+            padding: 10px 15px;
+            background-color: #333; /* Тёмно-серый фон */
+            color: white; /* Белый текст */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .pagination button:hover {
+            background-color: #222; /* Темно-серый фон при наведении */
+        }
+        .pagination .pagination-current {
+            font-weight: bold;
+            background-color: #555; /* Темно-серый фон для текущей страницы */
+        }
+    </style>
 </head>
 
 <body>
     {% include 'base_modules/navigation.html' %}
     
     <div class="container">
-        <header>
-            <h1>Ченджлог</h1>
-        </header>
-        
         <main>
             {% for entry in changelog %}
                 <div class="card card-content">
@@ -32,19 +53,18 @@
         </main>
         
         <nav class="pagination">
-            <span>Страницы:</span>
             {% if pagination.prev %}
-                <a href="{{ pagination.prev }}" class="pagination-link">Предыдущая</a>
+                <a href="{{ pagination.prev }}"><button class="pagination-link">Предыдущая</button></a>
             {% endif %}
             {% for p, url in pagination.pages %}
                 {% if p == pagination.current_page %}
-                    <span class="pagination-current">{{ p }}</span>
+                    <button class="pagination-link pagination-current">{{ p }}</button>
                 {% else %}
-                    <a href="{{ url }}" class="pagination-link">{{ p }}</a>
+                    <a href="{{ url }}"><button class="pagination-link">{{ p }}</button></a>
                 {% endif %}
             {% endfor %}
             {% if pagination.next %}
-                <a href="{{ pagination.next }}" class="pagination-link">Следующая</a>
+                <a href="{{ pagination.next }}"><button class="pagination-link">Следующая</button></a>
             {% endif %}
         </nav>
     </div>
