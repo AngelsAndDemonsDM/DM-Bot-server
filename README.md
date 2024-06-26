@@ -6,13 +6,6 @@
 ## Бейджи
 [![Tests](https://github.com/AngelsAndDemonsDM/DM-Bot/actions/workflows/unittest.yml/badge.svg?branch=master)](https://github.com/AngelsAndDemonsDM/DM-Bot/actions/workflows/unittest.yml)
 
-## Оглавление
-- [Общая информация](#общая-информация)
-- [Про контрибьютинг](#про-контрибьютинг)
-- [Про использование](#про-использование)
-- [Установка и запуск](#установка-и-запуск)
-- [Ссылки и контакты](#ссылки-и-контакты)
-
 ## Про контрибьютинг
 Pull request открыт для всех желающих. Просьба соблюдать темплейт, если вы желаете что-либо добавить. Темплейт можно найти в директории `.github/PULL_REQUEST_TEMPLATE.md`.
 > [!TIP]
