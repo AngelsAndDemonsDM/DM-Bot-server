@@ -17,9 +17,22 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          github.rest.issues.addLabels({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number,
-            labels: ["Issue: Not sorted"]
+          const { owner, repo } = context.repo;
+          const issue_number = context.issue.number;
+
+          // Get issue details
+          const { data: issue } = await github.rest.issues.get({
+            owner,
+            repo,
+            issue_number
           });
+
+          // Check if author is "themanyfaceddemon"
+          if (issue.user.login !== "themanyfaceddemon" || issue.labels.length === 0) {
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number,
+              labels: ["Issue: Not sorted"]
+            });
+          }
