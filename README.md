@@ -18,7 +18,7 @@ Pull request открыт для всех желающих. Просьба со�
 > [!TIP]
 > Все текущие задачи указаны в [issues](https://github.com/AngelsAndDemonsDM/DM-Bot/issues)
 
-Если вы новичёк и уже изучили [wiki](https://github.com/AngelsAndDemonsDM/DM-Bot/wiki/%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F),  вы можете посмотреть issues с таким лейблом [![Issue: good first issue](https://img.shields.io/github/labels/AngelsAndDemonsDM/DM-Bot/Issue:%20good%20first%20issue)](https://github.com/AngelsAndDemonsDM/DM-Bot/labels/Issue%3A%20good%20first%20issue)
+Если вы новичёк и уже изучили [wiki](https://github.com/AngelsAndDemonsDM/DM-Bot/wiki/%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F),  вы можете посмотреть issues с таким лейблом [![Good first issue](https://img.shields.io/github/labels/AngelsAndDemonsDM/DM-Bot/Good%20first%20issue)](https://github.com/AngelsAndDemonsDM/DM-Bot/labels/Good%20first%20issue)
 
 ## Про использование
 Вы можете свободно использовать и распространять данную утилиту в соответствии с условиями лицензии GNU General Public License Version 3. Также убедительная просьба оставлять ссылку на исходный репозиторий.
