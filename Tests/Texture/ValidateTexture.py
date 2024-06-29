@@ -4,7 +4,7 @@ from Code.texture_manager import (DMSValidator, InvalidSpriteError,
                                   SpriteValidationError)
 
 
-class TestSpriteFolders(unittest.TestCase):
+class TestTextureFolders(unittest.TestCase):
     def setUp(self):
         self.dms_validator = DMSValidator('Sprites')
 
