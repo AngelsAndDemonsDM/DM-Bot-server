@@ -3,7 +3,7 @@ import os
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import yaml
-from PIL import Image, ImageSequence
+from PIL import Image
 from texture_manager.texture_validator import DMSValidator
 
 
@@ -313,69 +313,58 @@ class TextureSystem:
         Returns:
             Union[Image.Image, List[Image.Image]]: Результирующее изображение или список изображений для анимации.
         """
-        max_frames = 1
-        max_width, max_height = 0, 0
-        layer_frames = []
-
-        # Определяем максимальное количество кадров и максимальный размер холста
+        base_images = []
         for layer in layers:
             path = layer['path']
             state = layer['state']
-            color = tuple(layer.get('color', [255, 255, 255, 255]))
+            color = layer.get('color')
 
-            if self.is_mask(path, state):
-                if self._is_animated(path, state):
-                    frames = list(ImageSequence.Iterator(self.get_recolor_gif(path, state, color, fps)))
-                else:
-                    frames = [self.get_recolor_mask(path, state, color)]
+            if color:
+                base_image = self.get_compiled_texture(path, state, color, fps)
             else:
-                if self._is_animated(path, state):
-                    frames = list(ImageSequence.Iterator(self.get_gif(path, state, fps)))
-                else:
-                    texture_info = self.get_texture_and_info(path, state)
-                    if texture_info:
-                        frames = [texture_info[0]]
+                base_image = self.get_compiled_texture(path, state, (255, 255, 255, 255), fps)
 
-            max_frames = max(max_frames, len(frames))
-            layer_frames.append(frames)
+            if isinstance(base_image, list):
+                base_images.append(base_image)
+            else:
+                base_images.append([base_image])
 
-            for frame in frames:
-                max_width = max(max_width, frame.width)
-                max_height = max(max_height, frame.height)
+        if any(isinstance(images, list) for images in base_images):
+            max_frames = max(len(images) for images in base_images)
+            merged_frames = []
 
-        # Создаем пустые кадры для конечной анимации
-        all_frames = []
+            for frame_index in range(max_frames):
+                merged_frame = Image.new('RGBA', base_images[0][0].size)
+                
+                for images in base_images:
+                    if frame_index < len(images):
+                        merged_frame = Image.alpha_composite(merged_frame, images[frame_index])
+                    else:
+                        merged_frame = Image.alpha_composite(merged_frame, images[-1])
+                
+                merged_frames.append(merged_frame)
 
-        for i in range(max_frames):
-            frame = Image.new("RGBA", (max_width, max_height))
+            return merged_frames
+        
+        else:
+            merged_image = Image.new('RGBA', base_images[0][0].size)
 
-            for frames in layer_frames:
-                frame_to_add = frames[i % len(frames)]
+            for images in base_images:
+                merged_image = Image.alpha_composite(merged_image, images[0])
 
-                if frame_to_add.size != (max_width, max_height):
-                    new_frame = Image.new("RGBA", (max_width, max_height))
-                    new_frame.paste(frame_to_add, (0, 0), frame_to_add)
-                    frame_to_add = new_frame
+            return merged_image
 
-                frame = Image.alpha_composite(frame, frame_to_add)
-
-            all_frames.append(frame)
-
-        if max_frames > 1:
-            return all_frames
-
-        return all_frames[0]
-
-    def _is_animated(self, path: str, state: str) -> bool:
-        """
-        Проверка, является ли текстура анимацией.
-
-        Args:
-            path (str): Путь до папки с изображениями.
-            state (str): Имя состояния изображения.
-
-        Returns:
-            bool: True, если текстура является анимацией, иначе False.
-        """
-        texture_info = next((sprite for sprite in self._get_texture_states(path) if sprite['name'] == state), None)
-        return texture_info['frames'] > 1
+    def get_compiled_texture(self, path: str, state: str, color: Tuple[int, int, int, int], fps: int) -> Union[Image.Image, List[Image.Image]]:
+        img, x, y, is_mask, frames = self.get_texture_and_info(path, state)
+        
+        if is_mask:
+            if frames > 1:
+                return self.get_recolor_gif(path, state, color, fps)
+            else:
+                return self.get_recolor_mask(path, state, color)
+        
+        else:
+            if frames > 1:
+                return self.get_gif(path, state, fps)
+            else:
+                return img
