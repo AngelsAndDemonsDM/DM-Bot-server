@@ -313,12 +313,11 @@ class TextureSystem:
         Returns:
             Union[Image.Image, List[Image.Image]]: Результирующее изображение или список изображений для анимации.
         """
-        all_frames = []
-        base_image = None
-        max_frames = 1
+        max_frames = 0
+        width, height = 0, 0
         layer_frames = []
 
-        # Определяем максимальное количество кадров и размер базового изображения
+        # Определяем максимальное количество кадров и максимальный размер холста
         for layer in layers:
             path = layer['path']
             state = layer['state']
@@ -339,17 +338,25 @@ class TextureSystem:
 
             max_frames = max(max_frames, len(frames))
             layer_frames.append(frames)
-            if base_image is None:
-                base_image = frames[0]
 
-        width, height = base_image.size
+            for frame in frames:
+                width = max(width, frame.width)
+                height = max(height, frame.height)
 
         # Создаем пустые кадры для конечной анимации
+        all_frames = []
+
         for i in range(max_frames):
             frame = Image.new("RGBA", (width, height))
 
             for frames in layer_frames:
                 frame_to_add = frames[i % len(frames)]
+
+                if frame_to_add.size != (width, height):
+                    new_frame = Image.new("RGBA", (width, height))
+                    new_frame.paste(frame_to_add, (0, 0))
+                    frame_to_add = new_frame
+
                 frame = Image.alpha_composite(frame, frame_to_add)
 
             all_frames.append(frame)
