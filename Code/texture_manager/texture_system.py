@@ -314,7 +314,8 @@ class TextureSystem:
             Union[Image.Image, List[Image.Image]]: Результирующее изображение или список изображений для анимации.
         """
         base_images = []
-        common_size = (0, 0)
+        max_frames = 1
+        common_size = None
 
         for layer in layers:
             path = layer['path']
@@ -322,52 +323,43 @@ class TextureSystem:
             color = layer.get('color')
 
             if color:
-                base_image = self.get_compiled_texture(path, state, color, fps)
+                img = self.get_recolor_gif(path, state, color, fps) if self.is_mask(path, state) else self.get_recolor_mask(path, state, color)
             else:
-                base_image = self.get_compiled_texture(path, state, (255, 255, 255, 255), fps)
+                img, _, _, _, frames = self.get_texture_and_info(path, state)
+                img = [img.copy()] * frames if frames > 1 else [img]
 
-            if isinstance(base_image, list):
-                base_images.append(base_image)
-                common_size = (max(common_size[0], base_image[0].size[0]), max(common_size[1], base_image[0].size[1]))
+            if isinstance(img, list):
+                base_images.append(img)
+                max_frames = max(max_frames, len(img))
             else:
-                base_images.append([base_image])
-                common_size = (max(common_size[0], base_image.size[0]), max(common_size[1], base_image.size[1]))
+                base_images.append([img])
 
-        print(f"Common size: {common_size}")
+            if common_size is None:
+                common_size = img[0].size
+            else:
+                common_size = (max(common_size[0], img[0].size[0]), max(common_size[1], img[0].size[1]))
 
         for images in base_images:
             for i in range(len(images)):
                 if images[i].size != common_size:
                     images[i] = images[i].resize(common_size, Image.ANTIALIAS)
-                    print(f"Resized image to: {images[i].size}")
+                if images[i].mode != "RGBA":
+                    images[i] = images[i].convert("RGBA")
 
-        for images in base_images:
-            for img in images:
-                print(f"Image size after resize: {img.size}")
-
-        if any(isinstance(images, list) for images in base_images):
-            max_frames = max(len(images) for images in base_images)
+        if max_frames > 1:
             merged_frames = []
-
             for frame_index in range(max_frames):
                 merged_frame = Image.new('RGBA', common_size)
-                
                 for images in base_images:
-                    if frame_index < len(images):
-                        merged_frame = Image.alpha_composite(merged_frame, images[frame_index])
-                    else:
-                        merged_frame = Image.alpha_composite(merged_frame, images[-1])
-                
+                    img = images[frame_index] if frame_index < len(images) else images[-1]
+                    merged_frame = Image.alpha_composite(merged_frame, img)
                 merged_frames.append(merged_frame)
-
             return merged_frames
-        
+
         else:
             merged_image = Image.new('RGBA', common_size)
-
             for images in base_images:
                 merged_image = Image.alpha_composite(merged_image, images[0])
-
             return merged_image
 
     def get_compiled_texture(self, path: str, state: str, color: Tuple[int, int, int, int], fps: int) -> Union[Image.Image, List[Image.Image]]:
