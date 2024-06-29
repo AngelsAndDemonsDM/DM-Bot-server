@@ -333,14 +333,17 @@ class TextureSystem:
                 base_images.append([base_image])
                 common_size = (max(common_size[0], base_image.size[0]), max(common_size[1], base_image.size[1]))
 
+        print(f"Common size: {common_size}")
+
         for images in base_images:
             for i in range(len(images)):
                 if images[i].size != common_size:
                     images[i] = images[i].resize(common_size, Image.ANTIALIAS)
+                    print(f"Resized image to: {images[i].size}")
 
         for images in base_images:
             for img in images:
-                logging.error(f"Image size: {img.size}")
+                print(f"Image size after resize: {img.size}")
 
         if any(isinstance(images, list) for images in base_images):
             max_frames = max(len(images) for images in base_images)
