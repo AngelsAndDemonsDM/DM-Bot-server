@@ -1,7 +1,7 @@
 import asyncio
 
 from flask import render_template
-from player import soul_db
+from main_impt import soul_db
 from py_html.init_socketio import socketio
 
 PLAYER_PATH: str = "Discord/players"

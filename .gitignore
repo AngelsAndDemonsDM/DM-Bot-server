@@ -26,3 +26,7 @@ venv.bak/
 
 # Data
 [Dd]ata/*
+
+# Texture compiled
+*_compiled_*.png
+*_compiled_*.gif
