@@ -40,7 +40,7 @@ Image.Image: Измененное изображение.<br>
 **Args:**<br>
 path (str): Путь до папки с изображениями.<br>
 state (str): Имя состояния изображения.<br>
-fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 10 fps.<br>
+fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 24 fps.<br>
 **Returns:**<br>
 Image.Image: GIF-анимация.<br>
 <br>
@@ -51,7 +51,16 @@ Image.Image: GIF-анимация.<br>
 path (str): Путь до папки с изображениями.<br>
 state (str): Имя состояния изображения.<br>
 color (Tuple[int, int, int, int]): Цвет для перекраски маски.<br>
-fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 10 fps.<br>
+fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 24 fps.<br>
 **Returns:**<br>
 Image.Image: Перекрашенная GIF-анимация.<br>
+<br>
+
+## `TextureSystem.merge_layers`<br>
+Метод для сложения всех слоев и возврата результата.<br>
+**Args:**<br>
+layers (List[Dict[str, Any]]): Список словарей, каждый из которых содержит 'path', 'state' и 'color' (необязательно).<br>
+fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 24 fps.<br>
+**Returns:**<br>
+Union[Image.Image, List[Image.Image]]: Результирующее изображение или список изображений для анимации.<br>
 <br>
