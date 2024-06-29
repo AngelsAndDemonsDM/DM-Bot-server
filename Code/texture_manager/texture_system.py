@@ -328,12 +328,10 @@ class TextureSystem:
 
             if isinstance(base_image, list):
                 base_images.append(base_image)
-                if base_image[0].size[0] > common_size[0] and base_image[0].size[1] > common_size[1]:
-                    common_size = base_image[0].size
+                common_size = (max(common_size[0], base_image[0].size[0]), max(common_size[1], base_image[0].size[1]))
             else:
                 base_images.append([base_image])
-                if base_image.size[0] > common_size[0] and base_image.size[1] > common_size[1]:
-                    common_size = base_image.size
+                common_size = (max(common_size[0], base_image.size[0]), max(common_size[1], base_image.size[1]))
 
         # Resize images to common_size
         for images in base_images:
