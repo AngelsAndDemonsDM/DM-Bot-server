@@ -1,5 +1,5 @@
-from Code.db_work import AsyncDB
-from Code.texture_manager import TextureSystem
+from db_work import AsyncDB
+from texture_manager import TextureSystem
 
 soul_db = AsyncDB(
     db_name="souls",
