@@ -1,9 +1,9 @@
 import logging
 import os
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import yaml
-from PIL import Image
+from PIL import Image, ImageChops, ImageSequence
 from texture_manager.texture_validator import DMSValidator
 
 
@@ -175,13 +175,13 @@ class TextureSystem:
         if texture_info['frames'] == 0:
             raise ValueError(f"No frames specified for state '{state}' in {path}")
 
-    def get_gif(self, path: str, state: str, fps: Optional[int] = 10) -> Image.Image:
+    def get_gif(self, path: str, state: str, fps: Optional[int] = 24) -> Image.Image:
         """Получает или создает GIF-анимацию из спрайтового листа.
 
         Args:
             path (str): Путь до папки с изображениями.
             state (str): Имя состояния изображения.
-            fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 10 fps.
+            fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 24 fps.
 
         Returns:
             Image.Image: GIF-анимация.
@@ -219,14 +219,14 @@ class TextureSystem:
         with Image.open(gif_path) as gif_image:
             return gif_image.copy()
 
-    def get_recolor_gif(self, path: str, state: str, color: Tuple[int, int, int, int], fps: Optional[int] = 10) -> Image.Image:
+    def get_recolor_gif(self, path: str, state: str, color: Tuple[int, int, int, int], fps: Optional[int] = 24) -> Image.Image:
         """Получает или создает перекрашенную GIF-анимацию из спрайтового листа.
 
         Args:
             path (str): Путь до папки с изображениями.
             state (str): Имя состояния изображения.
             color (Tuple[int, int, int, int]): Цвет для перекраски маски.
-            fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 10 fps.
+            fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 24 fps.
 
         Returns:
             Image.Image: Перекрашенная GIF-анимация.
@@ -301,3 +301,86 @@ class TextureSystem:
             duration (int): Продолжительность каждого кадра в миллисекундах.
         """
         frames[0].save(gif_path, save_all=True, append_images=frames[1:], duration=duration, loop=0)
+
+    def merge_layers(self, layers: List[Dict[str, Any]], fps: Optional[int] = 24) -> Union[Image.Image, List[Image.Image]]:
+        """
+        Метод для сложения всех слоев и возврата результата.
+
+        Args:
+            layers (List[Dict[str, Any]]): Список словарей, каждый из которых содержит 'path', 'state' и 'color' (необязательно).
+            fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 24 fps.
+
+        Returns:
+            Union[Image.Image, List[Image.Image]]: Результирующее изображение или список изображений для анимации.
+        """
+        base_image = None
+        all_frames = []
+        max_frames = 1
+        width, height = 0, 0
+
+        for layer in layers:
+            path = layer.get('path')
+            state = layer.get('state')
+            color = tuple(layer.get('color', [255, 255, 255, 255]))
+
+            frames = None
+            layer_image = None
+
+            if self.is_mask(path, state):
+                if self._is_animated(path, state):
+                    frames = self.get_recolor_gif(path, state, color, fps)
+                else:
+                    layer_image = self.get_recolor_mask(path, state, color)
+            else:
+                if self._is_animated(path, state):
+                    frames = self.get_gif(path, state, fps)
+                else:
+                    texture_info = self.get_texture_and_info(path, state)
+                    if texture_info:
+                        layer_image, width, height, _, _ = texture_info
+
+            if frames:
+                frames = [frame.copy() for frame in ImageSequence.Iterator(frames)]
+                max_frames = max(max_frames, len(frames))
+            else:
+                if base_image is None:
+                    base_image = layer_image.copy()
+                else:
+                    base_image = ImageChops.add(base_image, layer_image)
+
+        if max_frames > 1:
+            for i in range(max_frames):
+                frame = Image.new("RGBA", (width, height)) if base_image is None else base_image.copy()
+
+                for layer in layers:
+                    path = layer.get('path')
+                    state = layer.get('state')
+                    color = tuple(layer.get('color', [255, 255, 255, 255]))
+
+                    if self.is_mask(path, state):
+                        frames = self.get_recolor_gif(path, state, color, fps) if self._is_animated(path, state) else [self.get_recolor_mask(path, state, color)]
+                    else:
+                        frames = self.get_gif(path, state, fps) if self._is_animated(path, state) else [self.get_texture_and_info(path, state)[0]]
+
+                    frame_to_add = frames[i % len(frames)]
+                    frame = ImageChops.add(frame, frame_to_add)
+
+                all_frames.append(frame)
+
+            return all_frames
+
+        return base_image
+
+    def _is_animated(self, path: str, state: str) -> bool:
+        """
+        Проверка, является ли текстура анимацией.
+
+        Args:
+            path (str): Путь до папки с изображениями.
+            state (str): Имя состояния изображения.
+
+        Returns:
+            bool: True, если текстура является анимацией, иначе False.
+        """
+        texture_info = next((sprite for sprite in self._get_texture_states(path) if sprite['name'] == state), None)
+        return texture_info['frames'] > 1

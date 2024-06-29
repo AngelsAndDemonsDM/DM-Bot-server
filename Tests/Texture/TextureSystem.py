@@ -22,6 +22,10 @@ Sprites:
     size: {x: 32, y: 32}
     is_mask: true
     frames: 4
+  - name: "sprite3"
+    size: {x: 32, y: 32}
+    is_mask: false
+    frames: 0
 """
         with open(os.path.join(self.test_dir, 'info.yml'), 'w') as f:
             f.write(self.info_yml_content)
@@ -31,6 +35,9 @@ Sprites:
         
         self.sprite2 = Image.new('RGBA', (128, 32), color = (0, 255, 0, 255))
         self.sprite2.save(os.path.join(self.test_dir, 'sprite2.png'))
+
+        self.sprite3 = Image.new('RGBA', (32, 32), color = (0, 0, 255, 255))
+        self.sprite3.save(os.path.join(self.test_dir, 'sprite3.png'))
         
         self.texture_system = TextureSystem(self.test_dir)
         
@@ -67,6 +74,57 @@ Sprites:
         gif_image = self.texture_system.get_recolor_gif(self.test_dir, 'sprite2', color, fps=5)
         self.assertIsNotNone(gif_image)
         self.assertTrue(os.path.exists(os.path.join(self.test_dir, 'sprite2_compiled_0_0_255_255.gif')))
+
+    def test_merge_layers_static(self):
+        layers = [
+            {'path': self.test_dir, 'state': 'sprite3', 'color': [255, 0, 0, 255]},
+            {'path': self.test_dir, 'state': 'sprite2', 'color': [0, 255, 0, 255]}
+        ]
+        merged_image = self.texture_system.merge_layers(layers)
+        self.assertIsNotNone(merged_image)
+        self.assertIsInstance(merged_image, Image.Image)
+        self.assertEqual(merged_image.size, (32, 32))
+
+    def test_merge_layers_animated(self):
+        layers = [
+            {'path': self.test_dir, 'state': 'sprite1', 'color': [255, 0, 0, 255]},
+            {'path': self.test_dir, 'state': 'sprite2', 'color': [0, 255, 0, 255]}
+        ]
+        merged_images = self.texture_system.merge_layers(layers, fps=5)
+        self.assertIsNotNone(merged_images)
+        self.assertIsInstance(merged_images, list)
+        self.assertTrue(all(isinstance(frame, Image.Image) for frame in merged_images))
+        self.assertEqual(len(merged_images), 4)
+
+    def test_merge_layers_different_frame_counts(self):
+        layers = [
+            {'path': self.test_dir, 'state': 'sprite1', 'color': [255, 0, 0, 255]},
+            {'path': self.test_dir, 'state': 'sprite3', 'color': [0, 255, 0, 255]}
+        ]
+        merged_images = self.texture_system.merge_layers(layers, fps=5)
+        self.assertIsNotNone(merged_images)
+        self.assertIsInstance(merged_images, list)
+        self.assertTrue(all(isinstance(frame, Image.Image) for frame in merged_images))
+        self.assertEqual(len(merged_images), 4) 
+    
+    def test_merge_layers_invalid_layer(self):
+        layers = [
+            {'path': self.test_dir, 'state': 'invalid_sprite', 'color': [255, 0, 0, 255]},
+            {'path': self.test_dir, 'state': 'sprite2', 'color': [0, 255, 0, 255]}
+        ]
+        with self.assertRaises(ValueError):
+            self.texture_system.merge_layers(layers, fps=5)
+
+    def test_merge_layers_different_colors(self):
+        layers = [
+            {'path': self.test_dir, 'state': 'sprite1', 'color': [255, 255, 0, 255]},
+            {'path': self.test_dir, 'state': 'sprite2', 'color': [0, 255, 255, 255]}
+        ]
+        merged_images = self.texture_system.merge_layers(layers, fps=5)
+        self.assertIsNotNone(merged_images)
+        self.assertIsInstance(merged_images, list)
+        self.assertTrue(all(isinstance(frame, Image.Image) for frame in merged_images))
+        self.assertEqual(len(merged_images), 4)
 
 if __name__ == '__main__':
     unittest.main()
