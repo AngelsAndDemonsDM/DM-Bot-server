@@ -3,7 +3,7 @@ import os
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import yaml
-from PIL import Image, ImageChops, ImageSequence
+from PIL import Image, ImageSequence
 from texture_manager.texture_validator import DMSValidator
 
 
@@ -313,8 +313,8 @@ class TextureSystem:
         Returns:
             Union[Image.Image, List[Image.Image]]: Результирующее изображение или список изображений для анимации.
         """
-        max_frames = 0
-        width, height = 0, 0
+        max_frames = 1
+        max_width, max_height = 0, 0
         layer_frames = []
 
         # Определяем максимальное количество кадров и максимальный размер холста
@@ -340,21 +340,21 @@ class TextureSystem:
             layer_frames.append(frames)
 
             for frame in frames:
-                width = max(width, frame.width)
-                height = max(height, frame.height)
+                max_width = max(max_width, frame.width)
+                max_height = max(max_height, frame.height)
 
         # Создаем пустые кадры для конечной анимации
         all_frames = []
 
         for i in range(max_frames):
-            frame = Image.new("RGBA", (width, height))
+            frame = Image.new("RGBA", (max_width, max_height))
 
             for frames in layer_frames:
                 frame_to_add = frames[i % len(frames)]
 
-                if frame_to_add.size != (width, height):
-                    new_frame = Image.new("RGBA", (width, height))
-                    new_frame.paste(frame_to_add, (0, 0))
+                if frame_to_add.size != (max_width, max_height):
+                    new_frame = Image.new("RGBA", (max_width, max_height))
+                    new_frame.paste(frame_to_add, (0, 0), frame_to_add)
                     frame_to_add = new_frame
 
                 frame = Image.alpha_composite(frame, frame_to_add)
