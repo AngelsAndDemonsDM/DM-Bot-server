@@ -1,10 +1,7 @@
-import os
 import unittest
-
+import os
 from PIL import Image
-
 from Code.texture_manager import TextureSystem
-
 
 class TestTextureSystem(unittest.TestCase):
     

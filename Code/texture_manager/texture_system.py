@@ -97,13 +97,13 @@ class TextureSystem:
             if texture_info is None:
                 raise ValueError(f"State '{state}' not found in info.yml")
             
-            image = Image.open(f"{path}/{texture_info['name']}.png")
-            x = texture_info['size']['x']
-            y = texture_info['size']['y']
-            is_mask = texture_info['is_mask']
-            frame_count = texture_info['frames']
+            with Image.open(f"{path}/{texture_info['name']}.png") as image:
+                x = texture_info['size']['x']
+                y = texture_info['size']['y']
+                is_mask = texture_info['is_mask']
+                frame_count = texture_info['frames']
             
-            return image, x, y, is_mask, frame_count
+                return image.copy(), x, y, is_mask, frame_count
         
         except Exception as err:
             logging.error(f"An error occurred while getting texture '{state}' in '{path}': {err}")
@@ -140,23 +140,24 @@ class TextureSystem:
         """
         image_path = f"{path}/{state}_compiled_{self._get_color_str(color)}.png"
         if os.path.exists(image_path):
-            return Image.open(image_path)
+            with Image.open(image_path) as img:
+                return img.copy()
 
-        image = Image.open(f"{path}/{state}.png").convert("RGBA")
-        new_colored_image = [
-            (
-                int(pixel[0] * color[0] / 255),
-                int(pixel[0] * color[1] / 255),
-                int(pixel[0] * color[2] / 255),
-                pixel[3]
-            ) if pixel[3] != 0 else pixel
-            for pixel in image.getdata()
-        ]
+        with Image.open(f"{path}/{state}.png") as image:
+            image = image.convert("RGBA")
+            new_colored_image = [
+                (
+                    int(pixel[0] * color[0] / 255),
+                    int(pixel[0] * color[1] / 255),
+                    int(pixel[0] * color[2] / 255),
+                    pixel[3]
+                ) if pixel[3] != 0 else pixel
+                for pixel in image.getdata()
+            ]
 
-        image.putdata(new_colored_image)
-        image.save(image_path)
-
-        return image
+            image.putdata(new_colored_image)
+            image.save(image_path)
+            return image
 
     def get_gif(self, path: str, state: str, fps: Optional[int] = 10) -> Image.Image:
         """Получает или создает GIF-анимацию из спрайтового листа.
@@ -202,19 +203,21 @@ class TextureSystem:
             Image.Image: GIF-анимация.
         """
         if os.path.exists(gif_path):
-            return Image.open(gif_path)
+            with Image.open(gif_path) as img:
+                return img.copy()
 
         texture_info = next((sprite for sprite in self._get_texture_states(path) if sprite['name'] == state), None)
         frame_width = texture_info['size']['x']
         frame_height = texture_info['size']['y']
         num_frames = texture_info['frames']
         
-        image = Image.open(f"{path}/{texture_info['name']}.png")
-        frames = self._slice_image(image, frame_width, frame_height, num_frames)
-        duration = int(1000 / fps)
-        self._create_gif(frames, gif_path, duration)
+        with Image.open(f"{path}/{texture_info['name']}.png") as image:
+            frames = self._slice_image(image, frame_width, frame_height, num_frames)
+            duration = int(1000 / fps)
+            self._create_gif(frames, gif_path, duration)
 
-        return Image.open(gif_path)
+        with Image.open(gif_path) as gif_image:
+            return gif_image.copy()
 
     def get_recolor_gif(self, path: str, state: str, color: Tuple[int, int, int, int], fps: Optional[int] = 10) -> Image.Image:
         """Получает или создает перекрашенную GIF-анимацию из спрайтового листа.
@@ -247,7 +250,8 @@ class TextureSystem:
             Image.Image: Перекрашенная GIF-анимация.
         """
         if os.path.exists(gif_path):
-            return Image.open(gif_path)
+            with Image.open(gif_path) as img:
+                return img.copy()
 
         texture_info = next((sprite for sprite in self._get_texture_states(path) if sprite['name'] == state), None)
         frame_width = texture_info['size']['x']
@@ -259,7 +263,8 @@ class TextureSystem:
         duration = int(1000 / fps)
         self._create_gif(frames, gif_path, duration)
 
-        return Image.open(gif_path)
+        with Image.open(gif_path) as gif_image:
+            return gif_image.copy()
 
     @staticmethod
     def _slice_image(image: Image.Image, frame_width: int, frame_height: int, num_frames: int) -> List[Image.Image]:
