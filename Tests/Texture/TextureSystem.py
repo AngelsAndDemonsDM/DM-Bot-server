@@ -9,7 +9,7 @@ from Code.texture_manager import TextureSystem
 class TestTextureSystem(unittest.TestCase):
     
     def setUp(self):
-        self.test_dir = 'test_textures'
+        self.test_dir = 'test_textures.dms'
         os.makedirs(self.test_dir, exist_ok=True)
         
         self.info_yml_content = """
