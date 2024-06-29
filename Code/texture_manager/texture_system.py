@@ -314,6 +314,8 @@ class TextureSystem:
             Union[Image.Image, List[Image.Image]]: Результирующее изображение или список изображений для анимации.
         """
         base_images = []
+        common_size = (0, 0)
+
         for layer in layers:
             path = layer['path']
             state = layer['state']
@@ -326,15 +328,25 @@ class TextureSystem:
 
             if isinstance(base_image, list):
                 base_images.append(base_image)
+                if base_image[0].size[0] > common_size[0] and base_image[0].size[1] > common_size[1]:
+                    common_size = base_image[0].size
             else:
                 base_images.append([base_image])
+                if base_image.size[0] > common_size[0] and base_image.size[1] > common_size[1]:
+                    common_size = base_image.size
+
+        # Resize images to common_size
+        for images in base_images:
+            for i in range(len(images)):
+                if images[i].size != common_size:
+                    images[i] = images[i].resize(common_size, Image.ANTIALIAS)
 
         if any(isinstance(images, list) for images in base_images):
             max_frames = max(len(images) for images in base_images)
             merged_frames = []
 
             for frame_index in range(max_frames):
-                merged_frame = Image.new('RGBA', base_images[0][0].size)
+                merged_frame = Image.new('RGBA', common_size)
                 
                 for images in base_images:
                     if frame_index < len(images):
@@ -347,7 +359,7 @@ class TextureSystem:
             return merged_frames
         
         else:
-            merged_image = Image.new('RGBA', base_images[0][0].size)
+            merged_image = Image.new('RGBA', common_size)
 
             for images in base_images:
                 merged_image = Image.alpha_composite(merged_image, images[0])
