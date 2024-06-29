@@ -159,21 +159,6 @@ class TextureSystem:
             image.save(image_path)
             return image
 
-    def get_gif(self, path: str, state: str, fps: Optional[int] = 10) -> Image.Image:
-        """Получает или создает GIF-анимацию из спрайтового листа.
-
-        Args:
-            path (str): Путь до папки с изображениями.
-            state (str): Имя состояния изображения.
-            fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 10 fps.
-
-        Returns:
-            Image.Image: GIF-анимация.
-        """
-        self._validate_gif_params(path, state)
-        gif_path = os.path.join(path, f"{state}_compiled.gif")
-        return self._get_gif(path, state, gif_path, fps)
-
     def _validate_gif_params(self, path: str, state: str) -> None:
         """Проверка валидности параметров для создания GIF-анимации.
 
@@ -189,6 +174,21 @@ class TextureSystem:
             raise ValueError(f"State '{state}' not found in info.yml")
         if texture_info['frames'] == 0:
             raise ValueError(f"No frames specified for state '{state}' in {path}")
+
+    def get_gif(self, path: str, state: str, fps: Optional[int] = 10) -> Image.Image:
+        """Получает или создает GIF-анимацию из спрайтового листа.
+
+        Args:
+            path (str): Путь до папки с изображениями.
+            state (str): Имя состояния изображения.
+            fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 10 fps.
+
+        Returns:
+            Image.Image: GIF-анимация.
+        """
+        self._validate_gif_params(path, state)
+        gif_path = os.path.join(path, f"{state}_compiled.gif")
+        return self._get_gif(path, state, gif_path, fps)
 
     def _get_gif(self, path: str, state: str, gif_path: str, fps: int) -> Image.Image:
         """Получает или создает GIF-анимацию из спрайтового листа.
