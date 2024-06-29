@@ -313,63 +313,51 @@ class TextureSystem:
         Returns:
             Union[Image.Image, List[Image.Image]]: Результирующее изображение или список изображений для анимации.
         """
-        base_image = None
         all_frames = []
+        base_image = None
         max_frames = 1
-        width, height = 0, 0
+        layer_frames = []
 
+        # Определяем максимальное количество кадров и размер базового изображения
         for layer in layers:
-            path = layer.get('path')
-            state = layer.get('state')
+            path = layer['path']
+            state = layer['state']
             color = tuple(layer.get('color', [255, 255, 255, 255]))
-
-            frames = None
-            layer_image = None
 
             if self.is_mask(path, state):
                 if self._is_animated(path, state):
-                    frames = self.get_recolor_gif(path, state, color, fps)
+                    frames = list(ImageSequence.Iterator(self.get_recolor_gif(path, state, color, fps)))
                 else:
-                    layer_image = self.get_recolor_mask(path, state, color)
+                    frames = [self.get_recolor_mask(path, state, color)]
             else:
                 if self._is_animated(path, state):
-                    frames = self.get_gif(path, state, fps)
+                    frames = list(ImageSequence.Iterator(self.get_gif(path, state, fps)))
                 else:
                     texture_info = self.get_texture_and_info(path, state)
                     if texture_info:
-                        layer_image, width, height, _, _ = texture_info
+                        frames = [texture_info[0]]
 
-            if frames:
-                frames = [frame.copy() for frame in ImageSequence.Iterator(frames)]
-                max_frames = max(max_frames, len(frames))
-            else:
-                if base_image is None:
-                    base_image = layer_image.copy()
-                else:
-                    base_image = ImageChops.add(base_image, layer_image)
+            max_frames = max(max_frames, len(frames))
+            layer_frames.append(frames)
+            if base_image is None:
+                base_image = frames[0]
+
+        width, height = base_image.size
+
+        # Создаем пустые кадры для конечной анимации
+        for i in range(max_frames):
+            frame = Image.new("RGBA", (width, height))
+
+            for frames in layer_frames:
+                frame_to_add = frames[i % len(frames)]
+                frame = Image.alpha_composite(frame, frame_to_add)
+
+            all_frames.append(frame)
 
         if max_frames > 1:
-            for i in range(max_frames):
-                frame = Image.new("RGBA", (width, height)) if base_image is None else base_image.copy()
-
-                for layer in layers:
-                    path = layer.get('path')
-                    state = layer.get('state')
-                    color = tuple(layer.get('color', [255, 255, 255, 255]))
-
-                    if self.is_mask(path, state):
-                        frames = self.get_recolor_gif(path, state, color, fps) if self._is_animated(path, state) else [self.get_recolor_mask(path, state, color)]
-                    else:
-                        frames = self.get_gif(path, state, fps) if self._is_animated(path, state) else [self.get_texture_and_info(path, state)[0]]
-
-                    frame_to_add = frames[i % len(frames)]
-                    frame = ImageChops.add(frame, frame_to_add)
-
-                all_frames.append(frame)
-
             return all_frames
 
-        return base_image
+        return all_frames[0]
 
     def _is_animated(self, path: str, state: str) -> bool:
         """
