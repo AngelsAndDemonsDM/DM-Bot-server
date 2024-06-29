@@ -1,4 +1,4 @@
-from Code.factory import Component
+from factory.base_component import Component
 
 
 class HealthComponent(Component):
