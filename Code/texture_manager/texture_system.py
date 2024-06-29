@@ -340,7 +340,7 @@ class TextureSystem:
 
         for images in base_images:
             for img in images:
-                print(f"Image size: {img.size}")
+                logging.error(f"Image size: {img.size}")
 
         if any(isinstance(images, list) for images in base_images):
             max_frames = max(len(images) for images in base_images)
