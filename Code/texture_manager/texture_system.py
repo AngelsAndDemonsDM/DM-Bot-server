@@ -1,3 +1,4 @@
+from copy import deepcopy
 import logging
 import os
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -325,13 +326,13 @@ class TextureSystem:
         img, _, _, is_mask, frames = self.get_texture_and_info(path, state)
         
         if is_mask:
-            if frames > 1:
+            if frames > 0:
                 return self.get_recolor_gif(path, state, color, fps)
             else:
                 return self.get_recolor_mask(path, state, color)
         
         else:
-            if frames > 1:
+            if frames > 0:
                 return self.get_gif(path, state, fps)
             else:
                 return img.convert("RGBA")
@@ -357,15 +358,23 @@ class TextureSystem:
             cur_img = self.get_compiled_texture(path, state, color)
 
             if not base_images:
-                base_images = cur_img.copy() if isinstance(cur_img, List) else [cur_img]
+                base_images = deepcopy(cur_img) if isinstance(cur_img, List) else deepcopy([cur_img])
+            
+        else:
+            if isinstance(cur_img, list):
+                max_frames = max(len(base_images), len(cur_img))
+                while len(base_images) < max_frames:
+                    base_images.append(base_images[-1])
+                
+                while len(cur_img) < max_frames:
+                    cur_img.append(cur_img[-1])
+                
+                for i in range(max_frames):
+                    base_images[i] = Image.alpha_composite(base_images[i], cur_img[i])
             
             else:
-                if isinstance(cur_img, List):
-                    for i in range(len(base_images)):
-                        base_images[i] = Image.alpha_composite(base_images[i], cur_img[i])
-                else:
-                    for i in range(len(base_images)):
-                        base_images[i] = Image.alpha_composite(base_images[i], cur_img)
+                for i in range(len(base_images)):
+                    base_images[i] = Image.alpha_composite(base_images[i], cur_img)
 
         if len(base_images) == 1 and isinstance(base_images[0], Image.Image):
             return base_images[0]
