@@ -20,31 +20,6 @@ class TextureSystem:
         self._sprite_path = os.path.join(base_path, path.replace('/', os.sep))
 
     @staticmethod
-    def _get_color_str(color: Tuple[int, int, int, int]) -> str:
-        """Преобразует цвет в строку с разделителями.
-
-        Args:
-            color (Tuple[int, int, int, int]): Цвет в формате RGBA.
-
-        Returns:
-            str: Цвет в формате строки.
-        """
-        return '_'.join(map(str, color))
-    
-    @staticmethod
-    def _validate_color(color: Tuple[int, int, int, int]) -> None:
-        """Проверка валидности цвета в формате RGBA.
-
-        Args:
-            color (Tuple[int, int, int, int]): Цвет в формате RGBA.
-
-        Raises:
-            ValueError: Если значения цвета не находятся в диапазоне от 0 до 255.
-        """
-        if not all(0 <= c <= 255 for c in color):
-            raise ValueError("Invalid RGBA color format for texture. All values must be between 0 и 255")
-
-    @staticmethod
     def _slice_image(image: Image.Image, frame_width: int, frame_height: int, num_frames: int) -> List[Image.Image]:
         """Нарезает изображение на кадры.
 
@@ -71,7 +46,32 @@ class TextureSystem:
         return frames
 
     @staticmethod
-    def _get_texture_states(path: str) -> List[Dict[str, Any]]:
+    def get_color_str(color: Tuple[int, int, int, int]) -> str:
+        """Преобразует цвет в строку с разделителями.
+
+        Args:
+            color (Tuple[int, int, int, int]): Цвет в формате RGBA.
+
+        Returns:
+            str: Цвет в формате строки.
+        """
+        return '_'.join(map(str, color))
+    
+    @staticmethod
+    def validate_color(color: Tuple[int, int, int, int]) -> None:
+        """Проверка валидности цвета в формате RGBA.
+
+        Args:
+            color (Tuple[int, int, int, int]): Цвет в формате RGBA.
+
+        Raises:
+            ValueError: Если значения цвета не находятся в диапазоне от 0 до 255.
+        """
+        if not all(0 <= c <= 255 for c in color):
+            raise ValueError("Invalid RGBA color format for texture. All values must be between 0 и 255")
+
+    @staticmethod
+    def get_textures(path: str) -> List[Dict[str, Any]]:
         """Получение списка состояний текстур из файла info.yml.
 
         Args:
@@ -84,3 +84,5 @@ class TextureSystem:
             info = yaml.safe_load(file)
         
         return info.get('Sprites', [])
+
+    
