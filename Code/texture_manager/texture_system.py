@@ -15,26 +15,26 @@ class TextureSystem:
         pass
     
     @staticmethod
-    def _check_and_get_compiled(func: Callable) -> Callable:
+    def _check_and_get_compiled(is_gif: bool = False) -> Callable:
         """Декоратор для проверки наличия скомпилированного изображения или GIF-файла.
 
         Args:
-            func (Callable): Функция, к которой применяется декоратор.
+            is_gif (bool): Флаг, указывающий, что нужно вернуть GIF. По умолчанию False.
 
         Returns:
-            Callable: Обернутая функция, которая сначала проверяет наличие скомпилированного файла. Если файл найден, он возвращается. Если нет, выполняется оригинальная функция.
+            Callable: Декоратор, который сначала проверяет наличие скомпилированного файла. Если файл найден, он возвращается. Если нет, выполняется оригинальная функция.
         """
-        @wraps(func)
-        def wrapper(path: str, state: str, *args, **kwargs) -> Any:
-            color = kwargs.get('color', None)
-            is_gif = kwargs.get('is_gif', False)
-            image = TextureSystem._get_compiled(path, state, color, is_gif)
-            if image:
-                return image
-            
-            return func(path, state, *args, **kwargs)
-        
-        return wrapper
+        def decorator(func: Callable) -> Callable:
+            @wraps(func)
+            def wrapper(path: str, state: str, *args, **kwargs) -> Any:
+                color = kwargs.get('color', None)
+                image = TextureSystem._get_compiled(path, state, color, is_gif)
+                if image:
+                    return image
+                
+                return func(path, state, *args, **kwargs)
+            return wrapper
+        return decorator
     
     @staticmethod
     def _slice_image(image: Image.Image, frame_width: int, frame_height: int, num_frames: int) -> List[Image.Image]:
@@ -133,8 +133,18 @@ class TextureSystem:
             return None
     
     @staticmethod
-    @_check_and_get_compiled
+    @_check_and_get_compiled(is_gif=False)
     def get_image_recolor(path: str, state: str, color: Tuple[int, int, int, int] = DEFAULT_COLOR) -> Image.Image:
+        """_summary_
+
+        Args:
+            path (str): _description_
+            state (str): _description_
+            color (Tuple[int, int, int, int], optional): _description_. Defaults to DEFAULT_COLOR.
+
+        Returns:
+            Image.Image: _description_
+        """
         with Image.open(f"{path}/{state}.png") as image:
             image = image.convert("RGBA")
             new_colored_image = [
@@ -152,17 +162,17 @@ class TextureSystem:
             return image
     
     @staticmethod
-    @_check_and_get_compiled
+    @_check_and_get_compiled(is_gif=False)
     def get_image(path: str, state: str) -> Image.Image:
         raise FileNotFoundError(f"Image file for state '{state}' not found in path '{path}'.") # lol
     
     @staticmethod
-    @_check_and_get_compiled
+    @_check_and_get_compiled(is_gif=True)
     def get_gif_recolor(path: str, state: str, fps: int = DEFAULT_FPS, color: Tuple[int, int, int, int] = DEFAULT_COLOR):
         pass
 
     
     @staticmethod
-    @_check_and_get_compiled
+    @_check_and_get_compiled(is_gif=True)
     def get_gif(path: str, state: str, fps: int = DEFAULT_FPS):
         pass
