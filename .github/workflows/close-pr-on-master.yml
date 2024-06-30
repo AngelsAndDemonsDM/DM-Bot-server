@@ -16,8 +16,8 @@ jobs:
           Похоже, вы новичок в нашем репозитории и пытаетесь внести изменения из ветки master.
 
           Пожалуйста, прочитайте следующие гайды для правильной работы с репозиторием:
-          - [Подготовка окружения](https://github.com/AngelsAndDemonsDM/DM-Bot/wiki/Подготовка-окружения)
-          - [Как начать работу с репозиторием](https://github.com/AngelsAndDemonsDM/DM-Bot/wiki/Как-начать-работу-с-репозиторием)
-          - [Первые изменения](https://github.com/AngelsAndDemonsDM/DM-Bot/wiki/Первые-изменения)
+          - [Подготовка окружения](http://dmbotwiki.a0001.net/ru/guide/prepare-environment.html)
+          - [Как создать форк](http://dmbotwiki.a0001.net/ru/guide/how-to-create-a-fork.html)
+          - [Первые изменения](http://dmbotwiki.a0001.net/ru/guide/first-changes.html)
 
           Данный pull request будет закрыт, так как вы пытаетесь внести изменения из ветки master вашей локальной копии репозитория в ветку master основного репозитория. В будущем, пожалуйста, создавайте отдельные ветки для ваших изменений.
