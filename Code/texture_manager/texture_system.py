@@ -322,7 +322,7 @@ class TextureSystem:
         Returns:
             Union[Image.Image, List[Image.Image]]: Скомпилированная текстура или список кадров анимации.
         """
-        img, x, y, is_mask, frames = self.get_texture_and_info(path, state)
+        img, _, _, is_mask, frames = self.get_texture_and_info(path, state)
         
         if is_mask:
             if frames > 1:
@@ -356,13 +356,8 @@ class TextureSystem:
 
             cur_img = self.get_compiled_texture(path, state, color)
 
-            if isinstance(cur_img, list):
-                cur_img = [img.convert("RGBA") for img in cur_img]
-            else:
-                cur_img = cur_img.convert("RGBA")
-            
             if not base_images:
-                base_images = cur_img if isinstance(cur_img, list) else [cur_img]
+                base_images = cur_img.copy() if isinstance(cur_img, list) else [cur_img]
             
             else:
                 if isinstance(cur_img, list):
