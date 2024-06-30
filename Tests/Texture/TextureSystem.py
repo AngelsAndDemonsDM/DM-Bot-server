@@ -1,5 +1,6 @@
 import os
 import unittest
+from typing import List
 
 from PIL import Image
 
@@ -92,7 +93,7 @@ Sprites:
         ]
         merged_images = self.texture_system.merge_layers(layers, fps=5)
         self.assertIsNotNone(merged_images)
-        self.assertIsInstance(merged_images, list)
+        self.assertIsInstance(merged_images, List)
         self.assertTrue(all(isinstance(frame, Image.Image) for frame in merged_images))
         self.assertEqual(len(merged_images), 4)
 
@@ -103,7 +104,7 @@ Sprites:
         ]
         merged_images = self.texture_system.merge_layers(layers, fps=5)
         self.assertIsNotNone(merged_images)
-        self.assertIsInstance(merged_images, list)
+        self.assertIsInstance(merged_images, List)
         self.assertTrue(all(isinstance(frame, Image.Image) for frame in merged_images))
         self.assertEqual(len(merged_images), 4) 
     
@@ -122,7 +123,7 @@ Sprites:
         ]
         merged_images = self.texture_system.merge_layers(layers, fps=5)
         self.assertIsNotNone(merged_images)
-        self.assertIsInstance(merged_images, list)
+        self.assertIsInstance(merged_images, List)
         self.assertTrue(all(isinstance(frame, Image.Image) for frame in merged_images))
         self.assertEqual(len(merged_images), 4)
 

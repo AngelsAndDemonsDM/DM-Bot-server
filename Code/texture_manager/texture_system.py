@@ -357,9 +357,10 @@ class TextureSystem:
             cur_img = self.get_compiled_texture(path, state, color)
 
             if not base_images:
-                base_images = cur_img.copy() if isinstance(cur_img, list) else [cur_img]
+                base_images = cur_img.copy() if isinstance(cur_img, List) else [cur_img]
+            
             else:
-                if isinstance(cur_img, list):
+                if isinstance(cur_img, List):
                     for i in range(len(base_images)):
                         base_images[i] = Image.alpha_composite(base_images[i], cur_img[i])
                 else:
@@ -368,5 +369,6 @@ class TextureSystem:
 
         if len(base_images) == 1 and isinstance(base_images[0], Image.Image):
             return base_images[0]
+        
         else:
             return base_images
