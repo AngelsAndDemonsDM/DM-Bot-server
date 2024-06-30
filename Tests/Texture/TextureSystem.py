@@ -115,8 +115,7 @@ class TestTextureSystem(unittest.TestCase):
         state = 'state2'
         
         gif = ts.get_gif(path, state, fps=24)
-        self.assertIsInstance(gif, Image.Image)
-        self.assertTrue(gif.is_animated)
+        self.assertIsInstance(gif, list)
 
     def test_get_recolor_gif(self):
         ts = TextureSystem(self.test_dir)
@@ -125,8 +124,7 @@ class TestTextureSystem(unittest.TestCase):
         color = (255, 128, 64, 32)
         
         gif = ts.get_recolor_gif(path, state, color, fps=24)
-        self.assertIsInstance(gif, Image.Image)
-        self.assertTrue(gif.is_animated)
+        self.assertIsInstance(gif, list)
     
     def test_get_compiled_texture_mask(self):
         ts = TextureSystem(self.test_dir)
@@ -143,8 +141,7 @@ class TestTextureSystem(unittest.TestCase):
         state = 'state2'
         
         compiled_texture = ts.get_compiled_texture(path, state, fps=24)
-        self.assertIsInstance(compiled_texture, Image.Image)
-        self.assertTrue(compiled_texture.is_animated)
+        self.assertIsInstance(compiled_texture, list)
 
     def test_slice_image(self):
         image = Image.new("RGBA", (128, 64), (0, 255, 0, 255))
