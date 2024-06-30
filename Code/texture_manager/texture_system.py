@@ -6,28 +6,6 @@ import yaml
 from PIL import Image, ImageSequence
 
 
-def check_and_get_compiled(func: Callable) -> Callable:
-    """Декоратор для проверки наличия скомпилированного изображения или GIF-файла.
-
-    Args:
-        func (Callable): Функция, к которой применяется декоратор.
-
-    Returns:
-        Callable: Обернутая функция, которая сначала проверяет наличие скомпилированного файла. Если файл найден, он возвращается. Если нет, выполняется оригинальная функция.
-    """
-    @wraps(func)
-    def wrapper(path: str, state: str, *args, **kwargs) -> Any:
-        color = kwargs.get('color', None)
-        is_gif = kwargs.get('is_gif', False)
-        image = TextureSystem._get_compiled(path, state, color, is_gif)
-        if image:
-            return image
-        
-        return func(path, state, *args, **kwargs)
-    
-    return wrapper
-
-
 class TextureSystem:
     __slots__ = []
     DEFAULT_FPS: int = 24
@@ -35,7 +13,29 @@ class TextureSystem:
     
     def __init__(self) -> None:
         pass
+    
+    @staticmethod
+    def _check_and_get_compiled(func: Callable) -> Callable:
+        """Декоратор для проверки наличия скомпилированного изображения или GIF-файла.
 
+        Args:
+            func (Callable): Функция, к которой применяется декоратор.
+
+        Returns:
+            Callable: Обернутая функция, которая сначала проверяет наличие скомпилированного файла. Если файл найден, он возвращается. Если нет, выполняется оригинальная функция.
+        """
+        @wraps(func)
+        def wrapper(path: str, state: str, *args, **kwargs) -> Any:
+            color = kwargs.get('color', None)
+            is_gif = kwargs.get('is_gif', False)
+            image = TextureSystem._get_compiled(path, state, color, is_gif)
+            if image:
+                return image
+            
+            return func(path, state, *args, **kwargs)
+        
+        return wrapper
+    
     @staticmethod
     def _slice_image(image: Image.Image, frame_width: int, frame_height: int, num_frames: int) -> List[Image.Image]:
         """Нарезает изображение на кадры заданного размера.
@@ -125,14 +125,15 @@ class TextureSystem:
         if os.path.exists(image_path):
             with Image.open(image_path) as img:
                 if is_gif:
-                    return [frame.copy() for frame in ImageSequence.Iterator(img)]
+                    return [frame.convert("RGBA").copy() for frame in ImageSequence.Iterator(img)]
                 else:
-                    return img.copy()
+                    return img.convert("RGBA").copy()
+        
         else:
             return None
     
     @staticmethod
-    @check_and_get_compiled
+    @_check_and_get_compiled
     def get_image_recolor(path: str, state: str, color: Tuple[int, int, int, int] = DEFAULT_COLOR) -> Image.Image:
         with Image.open(f"{path}/{state}.png") as image:
             image = image.convert("RGBA")
@@ -151,17 +152,17 @@ class TextureSystem:
             return image
     
     @staticmethod
-    @check_and_get_compiled
+    @_check_and_get_compiled
     def get_image(path: str, state: str) -> Image.Image:
         raise FileNotFoundError(f"Image file for state '{state}' not found in path '{path}'.") # lol
     
     @staticmethod
-    @check_and_get_compiled
+    @_check_and_get_compiled
     def get_gif_recolor(path: str, state: str, fps: int = DEFAULT_FPS, color: Tuple[int, int, int, int] = DEFAULT_COLOR):
         pass
 
     
     @staticmethod
-    @check_and_get_compiled
+    @_check_and_get_compiled
     def get_gif(path: str, state: str, fps: int = DEFAULT_FPS):
         pass
