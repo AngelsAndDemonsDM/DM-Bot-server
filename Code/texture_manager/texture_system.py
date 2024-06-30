@@ -344,8 +344,8 @@ class TextureSystem:
             layers (List[Dict[str, Any]]): Список словарей, каждый из которых содержит 'path', 'state' и 'color' (необязательно).
             fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 24 fps.
 
-        Returns:
-            Union[Image.Image, List[Image.Image]]: Результирующее изображение или список изображений для анимации.
+            Returns:
+                Union[Image.Image, List[Image.Image]]: Результирующее изображение или список изображений для анимации.
         """
         base_images = []
 
@@ -358,7 +358,6 @@ class TextureSystem:
 
             if not base_images:
                 base_images = cur_img.copy() if isinstance(cur_img, list) else [cur_img]
-            
             else:
                 if isinstance(cur_img, list):
                     for i in range(len(base_images)):
@@ -367,4 +366,7 @@ class TextureSystem:
                     for i in range(len(base_images)):
                         base_images[i] = Image.alpha_composite(base_images[i], cur_img)
 
-        return base_images[0] if len(base_images) == 1 else base_images
+        if len(base_images) == 1 and isinstance(base_images[0], Image.Image):
+            return base_images[0]
+        else:
+            return base_images
