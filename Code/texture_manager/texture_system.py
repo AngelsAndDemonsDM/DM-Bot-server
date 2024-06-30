@@ -302,67 +302,18 @@ class TextureSystem:
         """
         frames[0].save(gif_path, save_all=True, append_images=frames[1:], duration=duration, loop=0)
 
-    def merge_layers(self, layers: List[Dict[str, Any]], fps: Optional[int] = 24) -> Union[Image.Image, List[Image.Image]]:
-        """
-        Метод для сложения всех слоев и возврата результата.
+    def get_compiled_texture(self, path: str, state: str, color: Tuple[int, int, int, int] = (255, 255, 255, 255), fps: int = 24) -> Union[Image.Image, List[Image.Image]]:
+        """_summary_
 
         Args:
-            layers (List[Dict[str, Any]]): Список словарей, каждый из которых содержит 'path', 'state' и 'color' (необязательно).
-            fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 24 fps.
+            path (str): _description_
+            state (str): _description_
+            color (Tuple[int, int, int, int], optional): _description_. Defaults to (255, 255, 255, 255).
+            fps (int, optional): _description_. Defaults to 24.
 
         Returns:
-            Union[Image.Image, List[Image.Image]]: Результирующее изображение или список изображений для анимации.
+            Union[Image.Image, List[Image.Image]]: _description_
         """
-        base_images = []
-        max_frames = 1
-        common_size = None
-
-        for layer in layers:
-            path = layer['path']
-            state = layer['state']
-            color = layer.get('color')
-
-            if color:
-                img = self.get_recolor_gif(path, state, color, fps) if self.is_mask(path, state) else self.get_recolor_mask(path, state, color)
-            else:
-                img, _, _, _, frames = self.get_texture_and_info(path, state)
-                img = [img.copy()] * frames if frames > 1 else [img]
-
-            if isinstance(img, list):
-                base_images.append(img)
-                max_frames = max(max_frames, len(img))
-            else:
-                base_images.append([img])
-
-            if common_size is None:
-                common_size = img[0].size
-            else:
-                common_size = (max(common_size[0], img[0].size[0]), max(common_size[1], img[0].size[1]))
-
-        for images in base_images:
-            for i in range(len(images)):
-                if images[i].size != common_size:
-                    images[i] = images[i].resize(common_size, Image.ANTIALIAS)
-                if images[i].mode != "RGBA":
-                    images[i] = images[i].convert("RGBA")
-
-        if max_frames > 1:
-            merged_frames = []
-            for frame_index in range(max_frames):
-                merged_frame = Image.new('RGBA', common_size)
-                for images in base_images:
-                    img = images[frame_index] if frame_index < len(images) else images[-1]
-                    merged_frame = Image.alpha_composite(merged_frame, img)
-                merged_frames.append(merged_frame)
-            return merged_frames
-
-        else:
-            merged_image = Image.new('RGBA', common_size)
-            for images in base_images:
-                merged_image = Image.alpha_composite(merged_image, images[0])
-            return merged_image
-
-    def get_compiled_texture(self, path: str, state: str, color: Tuple[int, int, int, int], fps: int) -> Union[Image.Image, List[Image.Image]]:
         img, x, y, is_mask, frames = self.get_texture_and_info(path, state)
         
         if is_mask:
@@ -376,3 +327,36 @@ class TextureSystem:
                 return self.get_gif(path, state, fps)
             else:
                 return img
+
+    def merge_layers(self, layers: List[Dict[str, Any]], fps: Optional[int] = 24) -> Union[Image.Image, List[Image.Image]]:
+        """
+        Метод для сложения всех слоев и возврата результата.
+
+        Args:
+            layers (List[Dict[str, Any]]): Список словарей, каждый из которых содержит 'path', 'state' и 'color' (необязательно).
+            fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 24 fps.
+
+        Returns:
+            Union[Image.Image, List[Image.Image]]: Результирующее изображение или список изображений для анимации.
+        """
+        base_images = []
+
+        for layer in layers:
+            path = layer['path']
+            state = layer['state']
+            color = layer.get('color')
+
+            cur_img = self.get_compiled_texture(path, state, color)
+
+            if not base_images:
+                base_images = [cur_img] * len(cur_img) if isinstance(cur_img, list) else [cur_img]
+            
+            else:
+                if isinstance(cur_img, list):
+                    for i in range(len(base_images)):
+                        base_images[i] = Image.alpha_composite(base_images[i], cur_img[i])
+                else:
+                    for i in range(len(base_images)):
+                        base_images[i] = Image.alpha_composite(base_images[i], cur_img)
+
+        return base_images[0] if len(base_images) == 1 else base_images
