@@ -1,6 +1,6 @@
-from copy import deepcopy
 import logging
 import os
+from copy import deepcopy
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import yaml
@@ -336,48 +336,3 @@ class TextureSystem:
                 return self.get_gif(path, state, fps)
             else:
                 return img.convert("RGBA")
-
-    def merge_layers(self, layers: List[Dict[str, Any]], fps: Optional[int] = 24) -> Union[Image.Image, List[Image.Image]]:
-        """
-        Метод для сложения всех слоев и возврата результата.
-
-        Args:
-            layers (List[Dict[str, Any]]): Список словарей, каждый из которых содержит 'path', 'state' и 'color' (необязательно).
-            fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 24 fps.
-
-            Returns:
-                Union[Image.Image, List[Image.Image]]: Результирующее изображение или список изображений для анимации.
-        """
-        base_images = []
-
-        for layer in layers:
-            path = layer['path']
-            state = layer['state']
-            color = layer.get('color')
-
-            cur_img = self.get_compiled_texture(path, state, color)
-
-            if not base_images:
-                base_images = deepcopy(cur_img) if isinstance(cur_img, List) else deepcopy([cur_img])
-            
-        else:
-            if isinstance(cur_img, list):
-                max_frames = max(len(base_images), len(cur_img))
-                while len(base_images) < max_frames:
-                    base_images.append(base_images[-1])
-                
-                while len(cur_img) < max_frames:
-                    cur_img.append(cur_img[-1])
-                
-                for i in range(max_frames):
-                    base_images[i] = Image.alpha_composite(base_images[i], cur_img[i])
-            
-            else:
-                for i in range(len(base_images)):
-                    base_images[i] = Image.alpha_composite(base_images[i], cur_img)
-
-        if len(base_images) == 1 and isinstance(base_images[0], Image.Image):
-            return base_images[0]
-        
-        else:
-            return base_images
