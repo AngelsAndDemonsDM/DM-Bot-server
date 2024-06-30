@@ -326,13 +326,13 @@ class TextureSystem:
         img, _, _, is_mask, frames = self.get_texture_and_info(path, state)
         
         if is_mask:
-            if frames > 0:
+            if frames > 1:
                 return self.get_recolor_gif(path, state, color, fps)
             else:
                 return self.get_recolor_mask(path, state, color)
         
         else:
-            if frames > 0:
+            if frames > 1:
                 return self.get_gif(path, state, fps)
             else:
                 return img.convert("RGBA")
