@@ -98,6 +98,7 @@ class TextureSystem:
                 raise ValueError(f"State '{state}' not found in info.yml")
             
             with Image.open(f"{path}/{texture_info['name']}.png") as image:
+                image = image.convert("RGBA")
                 x = texture_info['size']['x']
                 y = texture_info['size']['y']
                 is_mask = texture_info['is_mask']
@@ -141,6 +142,7 @@ class TextureSystem:
         image_path = f"{path}/{state}_compiled_{self._get_color_str(color)}.png"
         if os.path.exists(image_path):
             with Image.open(image_path) as img:
+                img = img.convert("RGBA")
                 return img.copy()
 
         with Image.open(f"{path}/{state}.png") as image:
@@ -204,6 +206,7 @@ class TextureSystem:
         """
         if os.path.exists(gif_path):
             with Image.open(gif_path) as img:
+                img = img.convert("RGBA")
                 return img.copy()
 
         texture_info = next((sprite for sprite in self._get_texture_states(path) if sprite['name'] == state), None)
@@ -212,11 +215,13 @@ class TextureSystem:
         num_frames = texture_info['frames']
         
         with Image.open(f"{path}/{texture_info['name']}.png") as image:
+            image = image.convert("RGBA")
             frames = self._slice_image(image, frame_width, frame_height, num_frames)
             duration = int(1000 / fps)
             self._create_gif(frames, gif_path, duration)
 
         with Image.open(gif_path) as gif_image:
+            gif_image = gif_image.convert("RGBA")
             return gif_image.copy()
 
     def get_recolor_gif(self, path: str, state: str, color: Tuple[int, int, int, int], fps: Optional[int] = 24) -> Image.Image:
@@ -251,6 +256,7 @@ class TextureSystem:
         """
         if os.path.exists(gif_path):
             with Image.open(gif_path) as img:
+                img = img.convert("RGBA")
                 return img.copy()
 
         texture_info = next((sprite for sprite in self._get_texture_states(path) if sprite['name'] == state), None)
@@ -264,6 +270,7 @@ class TextureSystem:
         self._create_gif(frames, gif_path, duration)
 
         with Image.open(gif_path) as gif_image:
+            gif_image = gif_image.convert("RGBA")
             return gif_image.copy()
 
     @staticmethod
@@ -287,6 +294,7 @@ class TextureSystem:
             col = (i * frame_width) % image_width
             box = (col, row * frame_height, col + frame_width, row * frame_height + frame_height)
             frame = image.crop(box)
+            frame = frame.convert("RGBA")
             frames.append(frame)
         
         return frames
@@ -303,16 +311,16 @@ class TextureSystem:
         frames[0].save(gif_path, save_all=True, append_images=frames[1:], duration=duration, loop=0)
 
     def get_compiled_texture(self, path: str, state: str, color: Tuple[int, int, int, int] = (255, 255, 255, 255), fps: int = 24) -> Union[Image.Image, List[Image.Image]]:
-        """_summary_
+        """Получает скомпилированную текстуру с учетом цвета и анимации.
 
         Args:
-            path (str): _description_
-            state (str): _description_
-            color (Tuple[int, int, int, int], optional): _description_. Defaults to (255, 255, 255, 255).
-            fps (int, optional): _description_. Defaults to 24.
+            path (str): Путь до папки с изображениями.
+            state (str): Имя состояния изображения.
+            color (Tuple[int, int, int, int], optional): Цвет для перекраски. По умолчанию (255, 255, 255, 255).
+            fps (int, optional): Частота кадров для анимации. По умолчанию 24 fps.
 
         Returns:
-            Union[Image.Image, List[Image.Image]]: _description_
+            Union[Image.Image, List[Image.Image]]: Скомпилированная текстура или список кадров анимации.
         """
         img, x, y, is_mask, frames = self.get_texture_and_info(path, state)
         
@@ -326,7 +334,7 @@ class TextureSystem:
             if frames > 1:
                 return self.get_gif(path, state, fps)
             else:
-                return img
+                return img.convert("RGBA")
 
     def merge_layers(self, layers: List[Dict[str, Any]], fps: Optional[int] = 24) -> Union[Image.Image, List[Image.Image]]:
         """
@@ -348,8 +356,13 @@ class TextureSystem:
 
             cur_img = self.get_compiled_texture(path, state, color)
 
+            if isinstance(cur_img, list):
+                cur_img = [img.convert("RGBA") for img in cur_img]
+            else:
+                cur_img = cur_img.convert("RGBA")
+            
             if not base_images:
-                base_images = [cur_img] * len(cur_img) if isinstance(cur_img, list) else [cur_img]
+                base_images = cur_img if isinstance(cur_img, list) else [cur_img]
             
             else:
                 if isinstance(cur_img, list):
