@@ -2,11 +2,11 @@
 - all:
   - changed-files:
       - any-glob-to-any-file: ['Code/**', 'Prototype/factory_mappings.yml']
-      - any-glob-to-all-files: ['!Code/bot/**', '!Code/templates/**', '!Code/static/**', '!Code/py_html/**']
+      - any-glob-to-all-files: ['!Code/web/**']
 
 "Changes: UI":
 - changed-files:
-  - any-glob-to-any-file: ['Code/templates/**', 'Code/static/**', 'Code/py_html/**']
+  - any-glob-to-any-file: ['Code/web/**']
 
 "Changes: Sprites":
 - changed-files:
