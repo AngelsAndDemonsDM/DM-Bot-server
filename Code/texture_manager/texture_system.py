@@ -335,16 +335,23 @@ class TextureSystem:
 
         if is_gif:
             if is_mask:
-                final_images = [frame.convert("RGBA") for frame in TextureSystem.get_gif_recolor(first_layer['path'], first_layer['state'], first_layer['color'], fps)]
+                final_images = [frame for frame in TextureSystem.get_gif_recolor(first_layer['path'], first_layer['state'], first_layer['color'], fps)]
             else:
-                final_images = [frame.convert("RGBA") for frame in TextureSystem.get_gif(first_layer['path'], first_layer['state'], fps)]
+                final_images = [frame for frame in TextureSystem.get_gif(first_layer['path'], first_layer['state'], fps)]
+            
+            for i in range(len(final_images)):
+                final_image_expanded = Image.new("RGBA", (max_width, max_height))
+                final_image_expanded.paste(final_images[i], (0, 0))
+                final_images[i] = final_image_expanded
         else:
             if is_mask:
-                final_image = TextureSystem.get_image_recolor(first_layer['path'], first_layer['state'], first_layer['color']).convert("RGBA")
+                final_image = TextureSystem.get_image_recolor(first_layer['path'], first_layer['state'], first_layer['color'])
             else:
-                final_image = TextureSystem.get_image(first_layer['path'], first_layer['state']).convert("RGBA")
+                final_image = TextureSystem.get_image(first_layer['path'], first_layer['state'])
             
-            final_images.append(final_image)
+            final_image_expanded = Image.new("RGBA", (max_width, max_height))
+            final_image_expanded.paste(final_image, (0, 0))
+            final_images.append(final_image_expanded)
 
         # Обработка оставшихся слоев
         for layer in layers[1:]:
@@ -357,7 +364,6 @@ class TextureSystem:
                         recolored_frame_expanded = Image.new("RGBA", (max_width, max_height))
                         frame_to_use = recolored_frames[min(i, len(recolored_frames) - 1)]  # Используем последний кадр, если i превышает количество кадров
                         recolored_frame_expanded.paste(frame_to_use, (0, 0))
-                        recolored_frame_expanded = recolored_frame_expanded.convert("RGBA")
                         if i < len(final_images):
                             final_images[i] = TextureSystem.merge_images(final_images[i], recolored_frame_expanded)
                         else:
@@ -368,7 +374,6 @@ class TextureSystem:
                         normal_frame_expanded = Image.new("RGBA", (max_width, max_height))
                         frame_to_use = normal_frames[min(i, len(normal_frames) - 1)]  # Используем последний кадр, если i превышает количество кадров
                         normal_frame_expanded.paste(frame_to_use, (0, 0))
-                        normal_frame_expanded = normal_frame_expanded.convert("RGBA")
                         if i < len(final_images):
                             final_images[i] = TextureSystem.merge_images(final_images[i], normal_frame_expanded)
                         else:
@@ -378,14 +383,12 @@ class TextureSystem:
                     recolored_image = TextureSystem.get_image_recolor(layer['path'], layer['state'], layer['color'])
                     recolored_image_expanded = Image.new("RGBA", (max_width, max_height))
                     recolored_image_expanded.paste(recolored_image, (0, 0))
-                    recolored_image_expanded = recolored_image_expanded.convert("RGBA")
                     for i in range(len(final_images)):
                         final_images[i] = TextureSystem.merge_images(final_images[i], recolored_image_expanded)
                 else:
                     normal_image = TextureSystem.get_image(layer['path'], layer['state'])
                     normal_image_expanded = Image.new("RGBA", (max_width, max_height))
                     normal_image_expanded.paste(normal_image, (0, 0))
-                    normal_image_expanded = normal_image_expanded.convert("RGBA")
                     for i in range(len(final_images)):
                         final_images[i] = TextureSystem.merge_images(final_images[i], normal_image_expanded)
         
