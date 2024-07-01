@@ -2,65 +2,75 @@
 
 
 ## `TextureSystem.__init__`<br>
-Класс для работы со спрайтами. Используйте уже объявленный из Code.main_impt<br>
-**Args:**<br>
-path (str): Путь до папки со всеми спрайтами<br>
+Инициализирует систему текстур и создает базовую директорию для компилированных спрайтов, если она не существует.<br>
 <br>
 
-## `TextureSystem.is_mask`<br>
-Проверка, является ли текстура маской.<br>
+## `TextureSystem.get_textures`<br>
+Загружает текстуры из указанного пути.<br>
 **Args:**<br>
-path (str): Путь до текстуры.<br>
-state (str): Стейт текстуры в пути.<br>
+path (str): Путь к файлу с текстурами.<br>
 **Returns:**<br>
-bool: True, если текстура является маской, иначе False.<br>
+List[Dict[str, Any]]: Список текстур.<br>
 <br>
 
-## `TextureSystem.get_texture_and_info`<br>
-Метод получения текстуры, координат x и y, является ли маской и количества кадров анимации.<br>
+## `TextureSystem.get_state_info`<br>
+Получает информацию о состоянии текстуры из файла.<br>
 **Args:**<br>
-path (str): Путь до текстуры.<br>
-state (str): Стейт текстуры в пути.<br>
+path (str): Путь к файлу с текстурами.<br>
+state (str): Имя состояния.<br>
+**Raises:**<br>
+ValueError: Если информация о состоянии не найдена.<br>
 **Returns:**<br>
-Optional[Tuple[Image.Image, int, int, bool, int]]: изображение, x, y, маска ли, количество кадров анимации.<br>
+Tuple[int, int, int, bool]: Ширина кадра, высота кадра, количество кадров и флаг маски.<br>
 <br>
 
-## `TextureSystem.get_recolor_mask`<br>
-Получает или создает перекрашенную маску изображения.<br>
+## `TextureSystem.get_image_recolor`<br>
+Возвращает перекрашенное изображение указанного состояния.<br>
 **Args:**<br>
-path (str): Путь до папки с изображениями.<br>
-state (str): Имя состояния изображения.<br>
-color (Tuple[int, int, int, int]): Цвет в формате RGBA.<br>
+path (str): Путь к файлу.<br>
+state (str): Имя состояния.<br>
+color (Tuple[int, int, int, int], optional): Цвет в формате RGBA. По умолчанию DEFAULT_COLOR.<br>
 **Returns:**<br>
-Image.Image: Измененное изображение.<br>
+Image.Image: Перекрашенное изображение.<br>
+<br>
+
+## `TextureSystem.get_image`<br>
+Возвращает изображение указанного состояния.<br>
+**Args:**<br>
+path (str): Путь к файлу.<br>
+state (str): Имя состояния.<br>
+**Raises:**<br>
+FileNotFoundError: Если файл изображения не найден.<br>
+**Returns:**<br>
+Image.Image: Изображение состояния.<br>
+<br>
+
+## `TextureSystem.get_gif_recolor`<br>
+Возвращает перекрашенный GIF указанного состояния.<br>
+**Args:**<br>
+path (str): Путь к файлу.<br>
+state (str): Имя состояния.<br>
+color (Tuple[int, int, int, int], optional): Цвет в формате RGBA. По умолчанию DEFAULT_COLOR.<br>
+fps (int, optional): Частота кадров. По умолчанию DEFAULT_FPS.<br>
+**Returns:**<br>
+List[Image.Image]: Список кадров перекрашенного GIF.<br>
 <br>
 
 ## `TextureSystem.get_gif`<br>
-Получает или создает GIF-анимацию из спрайтового листа.<br>
+Возвращает GIF указанного состояния.<br>
 **Args:**<br>
-path (str): Путь до папки с изображениями.<br>
-state (str): Имя состояния изображения.<br>
-fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 24 fps.<br>
+path (str): Путь к файлу.<br>
+state (str): Имя состояния.<br>
+fps (int, optional): Частота кадров. По умолчанию DEFAULT_FPS.<br>
 **Returns:**<br>
-Image.Image: GIF-анимация.<br>
-<br>
-
-## `TextureSystem.get_recolor_gif`<br>
-Получает или создает перекрашенную GIF-анимацию из спрайтового листа.<br>
-**Args:**<br>
-path (str): Путь до папки с изображениями.<br>
-state (str): Имя состояния изображения.<br>
-color (Tuple[int, int, int, int]): Цвет для перекраски маски.<br>
-fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 24 fps.<br>
-**Returns:**<br>
-Image.Image: Перекрашенная GIF-анимация.<br>
+List[Image.Image]: Список кадров GIF.<br>
 <br>
 
 ## `TextureSystem.merge_layers`<br>
-Метод для сложения всех слоев и возврата результата.<br>
+Объединяет слои в одно изображение или GIF.<br>
 **Args:**<br>
-layers (List[Dict[str, Any]]): Список словарей, каждый из которых содержит 'path', 'state' и 'color' (необязательно).<br>
-fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 24 fps.<br>
+layers (List[Dict[str, Any]]): Список слоев.<br>
+fps (int, optional): Частота кадров для GIF. По умолчанию DEFAULT_FPS.<br>
 **Returns:**<br>
-Union[Image.Image, List[Image.Image]]: Результирующее изображение или список изображений для анимации.<br>
+Union[Image.Image, List[Image.Image]]: Объединенное изображение или список кадров GIF.<br>
 <br>
