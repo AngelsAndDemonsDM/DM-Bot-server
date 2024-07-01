@@ -275,13 +275,8 @@ class TextureSystem:
         Returns:
             Image.Image: Объединенное изображение.
         """
-        # Создаем копию фонового изображения
         merged_image = background.copy()
-        
-        # Извлекаем альфа-канал из накладываемого изображения
         overlay_alpha = overlay.split()[3]
-        
-        # Накладываем изображение с учетом прозрачности
         merged_image.paste(overlay, position, overlay_alpha)
         
         return merged_image
