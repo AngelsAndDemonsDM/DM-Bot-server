@@ -168,12 +168,13 @@ class TextureSystem:
         Returns:
             Union[Image.Image, List[Image.Image], None]: Изображение или список кадров, если существует, иначе None.
         """
+        print(path, state, color, is_gif, sep=',')
         image_path: str = f"{path}/{state}"
         if color:
             image_path += f"_compiled_{TextureSystem._get_color_str(color)}"
         
         image_path += ".gif" if is_gif else ".png"
-        
+        print(image_path)
         if os.path.exists(image_path):
             with Image.open(image_path) as img:
                 if is_gif:

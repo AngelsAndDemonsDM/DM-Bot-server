@@ -126,18 +126,21 @@ class TestTextureSystem(unittest.TestCase):
         self.assertEqual(num_frames, 3)
         self.assertTrue(is_mask)
 
-    def test_get_compiled(self):
+    def test_get_compiled_png(self):
         path = self.test_dir
         state = 'state1'
         color = (255, 255, 255, 255)
 
-        # Test for PNG
         image = TextureSystem.get_image_recolor(path, state, color)
         compiled_image = TextureSystem._get_compiled(path, state, color, is_gif=False)
         self.assertIsNotNone(compiled_image)
         self.assertEqual(compiled_image.size, image.size)
 
-        # Test for GIF
+    def test_get_compiled_gif(self):
+        path = self.test_dir
+        state = 'state1'
+        color = (255, 255, 255, 255)
+        
         gif_frames = TextureSystem.get_gif_recolor(path, state, color)
         compiled_gif_frames = TextureSystem._get_compiled(path, state, color, is_gif=True)
         self.assertIsNotNone(compiled_gif_frames)
