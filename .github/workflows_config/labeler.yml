@@ -2,11 +2,15 @@
 - all:
   - changed-files:
       - any-glob-to-any-file: ['Code/**', 'Prototype/factory_mappings.yml']
-      - any-glob-to-all-files: ['!Code/web/**']
+      - any-glob-to-all-files: ['!Code/web/**', '!Code/html_code/**']
 
 "Changes: UI":
 - changed-files:
   - any-glob-to-any-file: ['Code/web/**']
+
+"Changes: Server side"
+- changed-files:
+  - any-glob-to-any-file: ['Code/html_code/**']
 
 "Changes: Sprites":
 - changed-files:
