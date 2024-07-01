@@ -3,7 +3,8 @@ import asyncio
 from auto_updater import needs_update
 from db_work import SettingsManager
 from flask import render_template
-from html_code.init_socketio import socketio
+
+from Code.html_code.socketio_regester import socketio
 
 
 def render_settings_main_page():

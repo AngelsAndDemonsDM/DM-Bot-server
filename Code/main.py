@@ -12,7 +12,7 @@ from auto_updater import needs_update
 from colorlog import ColoredFormatter
 from db_work import SettingsManager
 from flask import Flask
-from html_code import api_bp, error_pages_bp, socketio
+from html_code import api_bp, html_error_bp, socketio
 from html_code.api import handle_show_popup, shutdown_start
 
 app = Flask(__name__)
@@ -20,7 +20,7 @@ app = Flask(__name__)
 socketio.init_app(app)
 
 # Blueprint
-app.register_blueprint(error_pages_bp, url_prefix='/error')
+app.register_blueprint(html_error_bp, url_prefix='/error')
 app.register_blueprint(api_bp, url_prefix='/api')
 
 # Argument parsing
