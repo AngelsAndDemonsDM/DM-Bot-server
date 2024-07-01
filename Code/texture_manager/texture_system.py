@@ -326,8 +326,6 @@ class TextureSystem:
                 else:
                     return img.convert("RGBA").copy()
 
-        print(max_height, max_frames, max_width, layers, sep="|")
-        
         # Закончили проверку и поняли, что нам надо работать. Первоначальная обработка первого слоя
         final_images: List[Image.Image] = []
         first_layer = layers[0]

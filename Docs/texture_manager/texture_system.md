@@ -2,7 +2,7 @@
 
 
 ## `TextureSystem.__init__`<br>
-Инициализирует систему текстур и создает базовую директорию для компилированных спрайтов, если она не существует.<br>
+Статический класс TextureSystem отвечает за управление текстурами, включая их загрузку, изменение цвета, и объединение слоев в одно изображение или GIF.<br>
 <br>
 
 ## `TextureSystem.get_textures`<br>
@@ -64,6 +64,16 @@ state (str): Имя состояния.<br>
 fps (int, optional): Частота кадров. По умолчанию DEFAULT_FPS.<br>
 **Returns:**<br>
 List[Image.Image]: Список кадров GIF.<br>
+<br>
+
+## `TextureSystem.merge_images`<br>
+Накладывает изображение overlay на изображение background с учетом прозрачности.<br>
+**Args:**<br>
+background (Image.Image): Фоновое изображение.<br>
+overlay (Image.Image): Изображение, которое накладывается.<br>
+position (Tuple[int, int]): Позиция (x, y), куда будет накладываться overlay. По умолчанию (0, 0).<br>
+**Returns:**<br>
+Image.Image: Объединенное изображение.<br>
 <br>
 
 ## `TextureSystem.merge_layers`<br>
