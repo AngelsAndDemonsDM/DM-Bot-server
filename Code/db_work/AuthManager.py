@@ -150,4 +150,4 @@ class AuthManager:
         """
         async with self._db as db:
             result = await db.delete("cur_sessions", "token = ?", (token,))
-            return result is not None
+            return result is not None and result > 0
