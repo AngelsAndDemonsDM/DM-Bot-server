@@ -14,14 +14,14 @@ class TestAuthManager(unittest.IsolatedAsyncioTestCase):
             db_path="test_path",
             db_config={
                 "cur_sessions": [
-                    ("token", str, (AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE), ""),
-                    ("access", bytes, 0, "")
+                    ("token", str, (AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE), None),
+                    ("access", bytes, 0, None)
                 ],
                 "users": [
-                    ("login", str, (AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE), ""),
-                    ("password", str, 0, ""),
-                    ("salt", str, 0, ""),
-                    ("access", bytes, 0, "")
+                    ("login", str, (AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE), None),
+                    ("password", str, 0, None),
+                    ("salt", str, 0, None),
+                    ("access", bytes, 0, None)
                 ]
             }
         )
