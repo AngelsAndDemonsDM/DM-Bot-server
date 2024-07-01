@@ -12,24 +12,6 @@
 <body>
     {% include 'base_modules/navigation.html' %}
 
-    <button class="collapsible">Настройки Бота</button>
-    <div class="collapsible-content">
-        <form autocomplete="off" onsubmit="saveTokenSettings(event)">
-            <label for="token">Введите токен бота:</label>
-            <input type="text" id="token" name="token" autocomplete="off">
-            <input type="submit" value="Сохранить токен">
-        </form>
-        
-        <label for="autoStart">
-            <input type="checkbox" id="autoStart" name="autoStart" onchange="saveAutoStartSetting()">
-            Автоматический запуск бота
-        </label>
-
-        <div id="tokenStatus"></div>
-        <br>
-        <button onclick="startBot()">Запустить бота</button>
-    </div>
-
     <button class="collapsible">Автоматические обновления</button>
     <div class="collapsible-content">
         Текущая версия приложения: <span id="appCurentVersion">???</span><br>
