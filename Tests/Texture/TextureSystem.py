@@ -187,6 +187,14 @@ class TestTextureSystem(unittest.TestCase):
         for frame in gif_frames:
             self.assertEqual(frame.size, (150, 150))
 
+    def test_merge_images(self):
+        background = Image.new('RGBA', (300, 300), (255, 255, 255, 255))
+        overlay = Image.new('RGBA', (100, 100), (255, 0, 0, 128))
+        position = (50, 50)
+        merged_image = TextureSystem.merge_images(background, overlay, position)
+        self.assertEqual(merged_image.size, background.size)
+        self.assertEqual(merged_image.getpixel(position), (255, 128, 128, 255))
+
     def test_merge_layers(self):
         layers = [
             {'path': self.test_dir, 'state': 'state1', 'color': (255, 0, 0, 255)},
