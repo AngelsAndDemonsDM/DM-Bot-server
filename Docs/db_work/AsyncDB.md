@@ -6,7 +6,7 @@
 **Args:**<br>
 db_name (str): Имя базы данных.<br>
 db_path (str): Путь к директории базы данных.<br>
-db_config (Dict[str, List[Tuple[str, type, int, str]]]): Конфигурация базы данных в виде словаря,<br>
+db_config (Dict[str, List[Tuple[str, type, int, Optional[str]]]]): Конфигурация базы данных в виде словаря,<br>
 где ключи - это имена таблиц, а значения - списки кортежей, описывающих колонки (имя, тип, флаги, внешние ключи).<br>
 Example:<br>
 ```py
