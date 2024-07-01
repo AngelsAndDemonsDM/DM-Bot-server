@@ -34,7 +34,7 @@ class AsyncMockDB:
                     return 1
         return 0
 
-class TestAuthManager(unittest.TestCase):
+class TestAuthManager(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.auth_manager = AuthManager()
         self.auth_manager._db = AsyncMockDB()
