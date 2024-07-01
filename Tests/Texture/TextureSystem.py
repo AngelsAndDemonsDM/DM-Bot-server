@@ -11,13 +11,11 @@ from Code.texture_manager import TextureSystem
 
 
 class TestTextureSystem(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.test_dir = 'test_sprites'
-        os.makedirs(cls.test_dir, exist_ok=True)
-        cls.compiled_dir = os.path.abspath(os.path.join(cls.test_dir, 'compiled'))
-        os.makedirs(cls.compiled_dir, exist_ok=True)
+    def setUpClass(self):
+        self.test_dir = 'test_sprites'
+        os.makedirs(self.test_dir, exist_ok=True)
+        self.compiled_dir = os.path.abspath(os.path.join(self.test_dir, 'compiled'))
+        os.makedirs(self.compiled_dir, exist_ok=True)
 
         info_data = {
             'Sprites': [
@@ -47,7 +45,7 @@ class TestTextureSystem(unittest.TestCase):
                 }
             ]
         }
-        with open(os.path.join(cls.test_dir, 'info.yml'), 'w') as file:
+        with open(os.path.join(self.test_dir, 'info.yml'), 'w') as file:
             yaml.dump(info_data, file)
 
         for state, (width, height), frames in [
@@ -60,11 +58,11 @@ class TestTextureSystem(unittest.TestCase):
             for i in range(frames):
                 frame = Image.new('RGBA', (width, height), (i * 85, 255 - i * 85, 0, 255))
                 image.paste(frame, (i * width, 0))
-            image.save(os.path.join(cls.test_dir, f'{state}.png'))
+            image.save(os.path.join(self.test_dir, f'{state}.png'))
 
     @classmethod
-    def tearDownClass(cls):
-        shutil.rmtree(cls.test_dir)
+    def tearDownClass(self):
+        shutil.rmtree(self.test_dir)
 
     def test_get_hash_list(self):
         layers = [{'layer1': 'data1'}, {'layer2': 'data2'}]
