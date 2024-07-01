@@ -37,30 +37,6 @@ class TextureSystem:
         return hash_object.hexdigest()
     
     @staticmethod
-    def _check_and_get_compiled(is_gif: bool = False) -> Callable:
-        """Декоратор для проверки существования компилированного изображения или GIF.
-
-        Args:
-            is_gif (bool, optional): Указывает, является ли изображение GIF. По умолчанию False.
-
-        Returns:
-            Callable: Декорированная функция.
-        """
-        def decorator(func: Callable) -> Callable:
-            @wraps(func)
-            def wrapper(*args, **kwargs) -> Any:
-                path = args[0]
-                state = args[1]
-                color = kwargs.get('color', None)
-                image = TextureSystem._get_compiled(path, state, color, is_gif)
-                if image:
-                    return image
-                
-                return func(*args, **kwargs)
-            return wrapper
-        return decorator
-    
-    @staticmethod
     def _slice_image(image: Image.Image, frame_width: int, frame_height: int, num_frames: int) -> List[Image.Image]:
         """Разрезает изображение на кадры заданного размера.
 
@@ -188,7 +164,6 @@ class TextureSystem:
             return None
     
     @staticmethod
-    @_check_and_get_compiled(is_gif=False)
     def get_image_recolor(path: str, state: str, color: Tuple[int, int, int, int] = DEFAULT_COLOR) -> Image.Image:
         """Возвращает перекрашенное изображение указанного состояния.
 
@@ -200,6 +175,10 @@ class TextureSystem:
         Returns:
             Image.Image: Перекрашенное изображение.
         """
+        image = TextureSystem._get_compiled(path, state, color, False)
+        if image:
+            return image
+        
         with Image.open(f"{path}/{state}.png") as image:
             image = image.convert("RGBA")
             new_colored_image = [
@@ -217,7 +196,6 @@ class TextureSystem:
             return image
     
     @staticmethod
-    @_check_and_get_compiled(is_gif=False)
     def get_image(path: str, state: str) -> Image.Image:
         """Возвращает изображение указанного состояния.
 
@@ -231,10 +209,13 @@ class TextureSystem:
         Returns:
             Image.Image: Изображение состояния.
         """
+        image = TextureSystem._get_compiled(path, state, None, False)
+        if image:
+            return image
+        
         raise FileNotFoundError(f"Image file for state '{state}' not found in path '{path}'.")
 
     @staticmethod
-    @_check_and_get_compiled(is_gif=True)
     def get_gif_recolor(path: str, state: str, color: Tuple[int, int, int, int] = DEFAULT_COLOR, fps: int = DEFAULT_FPS) -> List[Image.Image]:
         """Возвращает перекрашенный GIF указанного состояния.
 
@@ -247,6 +228,10 @@ class TextureSystem:
         Returns:
             List[Image.Image]: Список кадров перекрашенного GIF.
         """
+        image = TextureSystem._get_compiled(path, state, color, True)
+        if image:
+            return image
+        
         image = TextureSystem.get_image_recolor(path, state, color)
         
         frame_width, frame_height, num_frames, _ = TextureSystem.get_state_info(path, state)
@@ -259,7 +244,6 @@ class TextureSystem:
         return frames
     
     @staticmethod
-    @_check_and_get_compiled(is_gif=True)
     def get_gif(path: str, state: str, fps: int = DEFAULT_FPS) -> List[Image.Image]:
         """Возвращает GIF указанного состояния.
 
@@ -271,6 +255,10 @@ class TextureSystem:
         Returns:
             List[Image.Image]: Список кадров GIF.
         """
+        image = TextureSystem._get_compiled(path, state, None, True)
+        if image:
+            return image
+        
         image = TextureSystem.get_image(path, state)
         frame_width, frame_height, num_frames, _ = TextureSystem.get_state_info(path, state)
         
