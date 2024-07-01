@@ -100,8 +100,7 @@ class TestAuthManager(unittest.IsolatedAsyncioTestCase):
         async with self.auth_manager._db as db:
             await db.insert("cur_sessions", {"token": token, "access": access})
 
-        result = await self.auth_manager.logout(token)
-        self.assertTrue(result)
+        await self.auth_manager.logout(token)
         
         async with self.auth_manager._db as db:
             session = await db.select("cur_sessions", ["token"], "token = ?", (token,))

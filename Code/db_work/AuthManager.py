@@ -139,15 +139,11 @@ class AuthManager:
         
         return None
 
-    async def logout(self, token: str) -> bool:
+    async def logout(self, token: str) -> None:
         """Удаляет сессию, связанную с заданным токеном.
 
         Args:
             token (str): Токен доступа.
-
-        Returns:
-            bool: True, если сессия успешно удалена, иначе False.
         """
         async with self._db as db:
-            result = await db.delete("cur_sessions", "token = ?", (token,))
-            return result is not None and result > 0
+            await db.delete("cur_sessions", "token = ?", (token,))
