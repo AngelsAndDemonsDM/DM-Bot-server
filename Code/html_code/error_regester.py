@@ -1,7 +1,11 @@
+import os
+
 from flask import Blueprint, render_template
 
-html_error_bp = Blueprint('errors', __name__, static_folder='web')
+static_folder = os.path.join(os.path.dirname(__file__), '..', 'web', 'static')
+template_folder = os.path.join(os.path.dirname(__file__), '..', 'web', 'templates')
 
+html_error_bp = Blueprint('errors', __name__, static_folder=static_folder, template_folder=template_folder)
 
 @html_error_bp.app_errorhandler(401)
 def unauthorized_error(error):
