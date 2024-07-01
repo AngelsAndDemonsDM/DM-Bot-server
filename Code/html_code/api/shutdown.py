@@ -3,7 +3,7 @@ import logging
 import os
 import signal
 
-from Code.html_code.api.api_regester import api_bp
+from html_code.api.api_regester import api_bp
 
 
 @api_bp.route('/shutdown', methods=['GET'])

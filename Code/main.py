@@ -12,8 +12,9 @@ from auto_updater import needs_update
 from colorlog import ColoredFormatter
 from db_work import SettingsManager
 from flask import Flask
-from html_code import api_bp, html_error_bp, socketio
+from html_code import api_bp, html_error_bp
 from html_code.api import handle_show_popup, shutdown_start
+from html_code.socketio_regester import socketio
 
 app = Flask(__name__)
 
