@@ -311,14 +311,15 @@ class TextureSystem:
 
         if is_gif:
             if is_mask:
-                final_images = [frame.copy() for frame in TextureSystem.get_gif_recolor(first_layer['path'], first_layer['state'], first_layer['color'], fps)]
+                final_images = [frame.convert("RGBA").copy() for frame in TextureSystem.get_gif_recolor(first_layer['path'], first_layer['state'], first_layer['color'], fps)]
             else:
-                final_images = [frame.copy() for frame in TextureSystem.get_gif(first_layer['path'], first_layer['state'], fps)]
+                final_images = [frame.convert("RGBA").copy() for frame in TextureSystem.get_gif(first_layer['path'], first_layer['state'], fps)]
         else:
             if is_mask:
-                final_image = TextureSystem.get_image_recolor(first_layer['path'], first_layer['state'], first_layer['color']).copy()
+                final_image = TextureSystem.get_image_recolor(first_layer['path'], first_layer['state'], first_layer['color']).convert("RGBA").copy()
             else:
-                final_image = TextureSystem.get_image(first_layer['path'], first_layer['state']).copy()
+                final_image = TextureSystem.get_image(first_layer['path'], first_layer['state']).convert("RGBA").copy()
+            
             final_images.append(final_image)
 
         # Обработка оставшихся слоев
@@ -329,7 +330,7 @@ class TextureSystem:
                 if is_mask:
                     recolored_frames = TextureSystem.get_gif_recolor(layer['path'], layer['state'], layer['color'], fps)
                     for i in range(max_frames):
-                        recolored_frame_expanded = Image.new("RGBA", (max_width, max_height))
+                        recolored_frame_expanded = Image.new("RGBA", (max_width, max_height)).convert("RGBA")
                         frame_to_use = recolored_frames[min(i, len(recolored_frames) - 1)]  # Используем последний кадр, если i превышает количество кадров
                         recolored_frame_expanded.paste(frame_to_use, (0, 0))
                         if i < len(final_images):
@@ -339,7 +340,7 @@ class TextureSystem:
                 else:
                     normal_frames = TextureSystem.get_gif(layer['path'], layer['state'], fps)
                     for i in range(max_frames):
-                        normal_frame_expanded = Image.new("RGBA", (max_width, max_height))
+                        normal_frame_expanded = Image.new("RGBA", (max_width, max_height)).convert("RGBA")
                         frame_to_use = normal_frames[min(i, len(normal_frames) - 1)]  # Используем последний кадр, если i превышает количество кадров
                         normal_frame_expanded.paste(frame_to_use, (0, 0))
                         if i < len(final_images):
@@ -349,13 +350,13 @@ class TextureSystem:
             else:
                 if is_mask:
                     recolored_image = TextureSystem.get_image_recolor(layer['path'], layer['state'], layer['color'])
-                    recolored_image_expanded = Image.new("RGBA", (max_width, max_height))
+                    recolored_image_expanded = Image.new("RGBA", (max_width, max_height)).convert("RGBA")
                     recolored_image_expanded.paste(recolored_image, (0, 0))
                     for i in range(len(final_images)):
                         final_images[i] = Image.alpha_composite(final_images[i], recolored_image_expanded)
                 else:
                     normal_image = TextureSystem.get_image(layer['path'], layer['state'])
-                    normal_image_expanded = Image.new("RGBA", (max_width, max_height))
+                    normal_image_expanded = Image.new("RGBA", (max_width, max_height)).convert("RGBA")
                     normal_image_expanded.paste(normal_image, (0, 0))
                     for i in range(len(final_images)):
                         final_images[i] = Image.alpha_composite(final_images[i], normal_image_expanded)
