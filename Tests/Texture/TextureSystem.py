@@ -11,7 +11,7 @@ from Code.texture_manager import TextureSystem
 
 
 class TestTextureSystem(unittest.TestCase):
-    def setUpClass(self):
+    def setUp(self):
         self.test_dir = 'test_sprites'
         os.makedirs(self.test_dir, exist_ok=True)
         self.compiled_dir = os.path.abspath(os.path.join(self.test_dir, 'compiled'))
@@ -60,8 +60,7 @@ class TestTextureSystem(unittest.TestCase):
                 image.paste(frame, (i * width, 0))
             image.save(os.path.join(self.test_dir, f'{state}.png'))
 
-    @classmethod
-    def tearDownClass(self):
+    def tearDown(self):
         shutil.rmtree(self.test_dir)
 
     def test_get_hash_list(self):
