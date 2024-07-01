@@ -1,59 +1,97 @@
-import logging
+import hashlib
 import os
-from typing import Any, Dict, List, Optional, Tuple
+import pickle
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import yaml
-from PIL import Image
-from texture_manager.texture_validator import DMSValidator
+from PIL import Image, ImageSequence
 
 
 class TextureSystem:
-    __slots__ = ['_sprite_path']
+    __slots__ = []
+    DEFAULT_FPS: int = 24
+    DEFAULT_COLOR: Tuple[int, int, int, int] = (255, 255, 255, 255)
     
-    def __init__(self, path: str) -> None:
-        """Класс для работы со спрайтами. Используйте уже объявленный из Code.main_impt
+    def __init__(self) -> None:
+        """Статический класс TextureSystem отвечает за управление текстурами, включая их загрузку, изменение цвета, и объединение слоев в одно изображение или GIF.
+        """
+        pass
+
+    @staticmethod
+    def _get_hash_list(layers: List[Dict[str, Any]]) -> str:
+        """Возвращает хеш списка слоев для идентификации уникальных комбинаций.
 
         Args:
-            path (str): Путь до папки со всеми спрайтами
+            layers (List[Dict[str, Any]]): Список слоев.
+
+        Returns:
+            str: Хеш в виде строки.
         """
-        DMSValidator(path).validate_all_dms()
-        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-        self._sprite_path = os.path.join(base_path, path.replace('/', os.sep))
+        serialized_data = pickle.dumps(layers)
+        hash_object = hashlib.sha256(serialized_data)
+        return hash_object.hexdigest()
+    
+    @staticmethod
+    def _slice_image(image: Image.Image, frame_width: int, frame_height: int, num_frames: int) -> List[Image.Image]:
+        """Разрезает изображение на кадры заданного размера.
+
+        Args:
+            image (Image.Image): Изображение для разрезания.
+            frame_width (int): Ширина кадра.
+            frame_height (int): Высота кадра.
+            num_frames (int): Количество кадров.
+
+        Returns:
+            List[Image.Image]: Список кадров.
+        """
+        frames = []
+        image_width, _ = image.size
+
+        for i in range(num_frames):
+            row = (i * frame_width) // image_width
+            col = (i * frame_width) % image_width
+            box = (col, row * frame_height, col + frame_width, row * frame_height + frame_height)
+            frame = image.crop(box)
+            frame = frame.convert("RGBA")
+            frames.append(frame)
+        
+        return frames
 
     @staticmethod
     def _get_color_str(color: Tuple[int, int, int, int]) -> str:
-        """Преобразует цвет в строку с разделителями.
+        """Возвращает строковое представление цвета.
 
         Args:
             color (Tuple[int, int, int, int]): Цвет в формате RGBA.
 
         Returns:
-            str: Цвет в формате строки.
+            str: Строковое представление цвета.
         """
+        TextureSystem._validate_color(color)
         return '_'.join(map(str, color))
     
     @staticmethod
     def _validate_color(color: Tuple[int, int, int, int]) -> None:
-        """Проверка валидности цвета в формате RGBA.
+        """Проверяет, что цвет в формате RGBA имеет корректные значения.
 
         Args:
             color (Tuple[int, int, int, int]): Цвет в формате RGBA.
 
         Raises:
-            ValueError: Если значения цвета не находятся в диапазоне от 0 до 255.
+            ValueError: Если значения цвета находятся вне диапазона 0-255.
         """
         if not all(0 <= c <= 255 for c in color):
             raise ValueError("Invalid RGBA color format for texture. All values must be between 0 и 255")
 
     @staticmethod
-    def _get_texture_states(path: str) -> List[Dict[str, Any]]:
-        """Получение списка состояний текстур из файла info.yml.
+    def get_textures(path: str) -> List[Dict[str, Any]]:
+        """Загружает текстуры из указанного пути.
 
         Args:
-            path (str): Путь до папки с файлом info.yml.
+            path (str): Путь к файлу с текстурами.
 
         Returns:
-            List[Dict[str, Any]]: Список словарей с состояниями текстур.
+            List[Dict[str, Any]]: Список текстур.
         """
         with open(f"{path}/info.yml", 'r') as file:
             info = yaml.safe_load(file)
@@ -61,88 +99,80 @@ class TextureSystem:
         return info.get('Sprites', [])
 
     @staticmethod
-    def is_mask(path: str, state: str) -> bool:
-        """Проверка, является ли текстура маской.
+    def get_state_info(path: str, state: str) -> Tuple[int, int, int, bool]:
+        """Получает информацию о состоянии текстуры из файла.
 
         Args:
-            path (str): Путь до текстуры.
-            state (str): Стейт текстуры в пути.
+            path (str): Путь к файлу с текстурами.
+            state (str): Имя состояния.
+
+        Raises:
+            ValueError: Если информация о состоянии не найдена.
 
         Returns:
-            bool: True, если текстура является маской, иначе False.
+            Tuple[int, int, int, bool]: Ширина кадра, высота кадра, количество кадров и флаг маски.
         """
-        texture_states = TextureSystem._get_texture_states(path)
-        texture_info = next((sprite for sprite in texture_states if sprite['name'] == state), None)
+        with open(f"{path}/info.yml", 'r') as file:
+            info = yaml.safe_load(file)
         
-        if texture_info is None:
-            raise ValueError(f"State '{state}' not found in info.yml")
+        info = info.get('Sprites', [])
+
+        sprite_info = next((sprite for sprite in info if sprite['name'] == state), None)
+        if not sprite_info:
+            raise ValueError(f"No sprite info found for state '{state}' in path '{path}'")
         
-        return texture_info['is_mask']
+        frame_width = sprite_info['size']['x']
+        frame_height = sprite_info['size']['y']
+        num_frames = sprite_info['frames']
+        is_mask = sprite_info['is_mask']
+
+        return frame_width, frame_height, num_frames, is_mask
     
-    def get_texture_and_info(self, path: str, state: str) -> Optional[Tuple[Image.Image, int, int, bool, int]]:
-        """
-        Метод получения текстуры, координат x и y, является ли маской и количества кадров анимации.
+    @staticmethod
+    def _get_compiled(path: str, state: str, color: Optional[Tuple[int, int, int, int]] = None, is_gif: bool = False) -> Union[Image.Image, List[Image.Image], None]:
+        """Проверяет наличие компилированного изображения или GIF.
 
         Args:
-            path (str): Путь до текстуры.
-            state (str): Стейт текстуры в пути.
+            path (str): Путь к файлу.
+            state (str): Имя состояния.
+            color (Optional[Tuple[int, int, int, int]], optional): Цвет в формате RGBA. По умолчанию None.
+            is_gif (bool, optional): Указывает, является ли изображение GIF. По умолчанию False.
 
         Returns:
-            Optional[Tuple[Image.Image, int, int, bool, int]]: изображение, x, y, маска ли, количество кадров анимации.
+            Union[Image.Image, List[Image.Image], None]: Изображение или список кадров, если существует, иначе None.
         """
-        try:
-            texture_states = self._get_texture_states(path)
-            texture_info = next((sprite for sprite in texture_states if sprite['name'] == state), None)
-            
-            if texture_info is None:
-                raise ValueError(f"State '{state}' not found in info.yml")
-            
-            with Image.open(f"{path}/{texture_info['name']}.png") as image:
-                x = texture_info['size']['x']
-                y = texture_info['size']['y']
-                is_mask = texture_info['is_mask']
-                frame_count = texture_info['frames']
-            
-                return image.copy(), x, y, is_mask, frame_count
+        image_path: str = f"{path}/{state}"
+        if color:
+            image_path += f"_compiled_{TextureSystem._get_color_str(color)}"
         
-        except Exception as err:
-            logging.error(f"An error occurred while getting texture '{state}' in '{path}': {err}")
-        
-        return None
+        image_path += ".gif" if is_gif else ".png"
 
-    def get_recolor_mask(self, path: str, state: str, color: Tuple[int, int, int, int]) -> Image.Image:
-        """Получает или создает перекрашенную маску изображения.
-
-        Args:
-            path (str): Путь до папки с изображениями.
-            state (str): Имя состояния изображения.
-            color (Tuple[int, int, int, int]): Цвет в формате RGBA.
-
-        Returns:
-            Image.Image: Измененное изображение.
-        """
-        TextureSystem._validate_color(color)
-        if not TextureSystem.is_mask(path, state):
-            raise ValueError(f"Texture {state} in {path} is not a mask")
-        
-        return self._get_recolor_mask(path, state, color)
-        
-    def _get_recolor_mask(self, path: str, state: str, color: Tuple[int, int, int, int]) -> Image.Image:
-        """Получает или создает перекрашенную маску изображения.
-
-        Args:
-            path (str): Путь до папки с изображениями.
-            state (str): Имя состояния изображения.
-            color (Tuple[int, int, int, int]): Цвет в формате RGBA.
-
-        Returns:
-            Image.Image: Измененное изображение.
-        """
-        image_path = f"{path}/{state}_compiled_{self._get_color_str(color)}.png"
         if os.path.exists(image_path):
             with Image.open(image_path) as img:
-                return img.copy()
+                if is_gif:
+                    return [frame.convert("RGBA").copy() for frame in ImageSequence.Iterator(img)]
+                else:
+                    return img.convert("RGBA").copy()
+        
+        else:
+            return None
+    
+    @staticmethod
+    def get_image_recolor(path: str, state: str, color: Tuple[int, int, int, int] = DEFAULT_COLOR) -> Image.Image:
+        """Возвращает перекрашенное изображение указанного состояния.
 
+        Args:
+            path (str): Путь к файлу.
+            state (str): Имя состояния.
+            color (Tuple[int, int, int, int], optional): Цвет в формате RGBA. По умолчанию DEFAULT_COLOR.
+
+        Returns:
+            Image.Image: Перекрашенное изображение.
+        """
+        image = TextureSystem._get_compiled(path, state, color, False)
+        if image:
+            return image
+        
         with Image.open(f"{path}/{state}.png") as image:
             image = image.convert("RGBA")
             new_colored_image = [
@@ -156,148 +186,210 @@ class TextureSystem:
             ]
 
             image.putdata(new_colored_image)
-            image.save(image_path)
+            image.save(f"{path}/{state}_compiled_{TextureSystem._get_color_str(color)}.png")
             return image
-
-    def _validate_gif_params(self, path: str, state: str) -> None:
-        """Проверка валидности параметров для создания GIF-анимации.
+    
+    @staticmethod
+    def get_image(path: str, state: str) -> Image.Image:
+        """Возвращает изображение указанного состояния.
 
         Args:
-            path (str): Путь до папки с изображениями.
-            state (str): Имя состояния изображения.
+            path (str): Путь к файлу.
+            state (str): Имя состояния.
 
         Raises:
-            ValueError: Если состояние не найдено или количество кадров равно нулю.
-        """
-        texture_info = next((sprite for sprite in self._get_texture_states(path) if sprite['name'] == state), None)
-        if texture_info is None:
-            raise ValueError(f"State '{state}' not found in info.yml")
-        if texture_info['frames'] == 0:
-            raise ValueError(f"No frames specified for state '{state}' in {path}")
-
-    def get_gif(self, path: str, state: str, fps: Optional[int] = 10) -> Image.Image:
-        """Получает или создает GIF-анимацию из спрайтового листа.
-
-        Args:
-            path (str): Путь до папки с изображениями.
-            state (str): Имя состояния изображения.
-            fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 10 fps.
+            FileNotFoundError: Если файл изображения не найден.
 
         Returns:
-            Image.Image: GIF-анимация.
+            Image.Image: Изображение состояния.
         """
-        self._validate_gif_params(path, state)
-        gif_path = os.path.join(path, f"{state}_compiled.gif")
-        return self._get_gif(path, state, gif_path, fps)
-
-    def _get_gif(self, path: str, state: str, gif_path: str, fps: int) -> Image.Image:
-        """Получает или создает GIF-анимацию из спрайтового листа.
-
-        Args:
-            path (str): Путь до папки с изображениями.
-            state (str): Имя состояния изображения.
-            gif_path (str): Путь для сохранения GIF-анимации.
-            fps (int): Частота кадров в секунду для GIF-анимации.
-
-        Returns:
-            Image.Image: GIF-анимация.
-        """
-        if os.path.exists(gif_path):
-            with Image.open(gif_path) as img:
-                return img.copy()
-
-        texture_info = next((sprite for sprite in self._get_texture_states(path) if sprite['name'] == state), None)
-        frame_width = texture_info['size']['x']
-        frame_height = texture_info['size']['y']
-        num_frames = texture_info['frames']
+        image = TextureSystem._get_compiled(path, state, None, False)
+        if image:
+            return image
         
-        with Image.open(f"{path}/{texture_info['name']}.png") as image:
-            frames = self._slice_image(image, frame_width, frame_height, num_frames)
-            duration = int(1000 / fps)
-            self._create_gif(frames, gif_path, duration)
-
-        with Image.open(gif_path) as gif_image:
-            return gif_image.copy()
-
-    def get_recolor_gif(self, path: str, state: str, color: Tuple[int, int, int, int], fps: Optional[int] = 10) -> Image.Image:
-        """Получает или создает перекрашенную GIF-анимацию из спрайтового листа.
-
-        Args:
-            path (str): Путь до папки с изображениями.
-            state (str): Имя состояния изображения.
-            color (Tuple[int, int, int, int]): Цвет для перекраски маски.
-            fps (Optional[int]): Частота кадров в секунду для GIF-анимации. По умолчанию 10 fps.
-
-        Returns:
-            Image.Image: Перекрашенная GIF-анимация.
-        """
-        self._validate_gif_params(path, state)
-        self._validate_color(color)
-        gif_path = os.path.join(path, f"{state}_compiled_{self._get_color_str(color)}.gif")
-        return self._get_recolor_gif(path, state, color, gif_path, fps)
-
-    def _get_recolor_gif(self, path: str, state: str, color: Tuple[int, int, int, int], gif_path: str, fps: int) -> Image.Image:
-        """Получает или создает перекрашенную GIF-анимацию из спрайтового листа.
-
-        Args:
-            path (str): Путь до папки с изображениями.
-            state (str): Имя состояния изображения.
-            color (Tuple[int, int, int, int]): Цвет для перекраски маски.
-            gif_path (str): Путь для сохранения GIF-анимации.
-            fps (int): Частота кадров в секунду для GIF-анимации.
-
-        Returns:
-            Image.Image: Перекрашенная GIF-анимация.
-        """
-        if os.path.exists(gif_path):
-            with Image.open(gif_path) as img:
-                return img.copy()
-
-        texture_info = next((sprite for sprite in self._get_texture_states(path) if sprite['name'] == state), None)
-        frame_width = texture_info['size']['x']
-        frame_height = texture_info['size']['y']
-        num_frames = texture_info['frames']
-        
-        image = self._get_recolor_mask(path, state, color)
-        frames = self._slice_image(image, frame_width, frame_height, num_frames)
-        duration = int(1000 / fps)
-        self._create_gif(frames, gif_path, duration)
-
-        with Image.open(gif_path) as gif_image:
-            return gif_image.copy()
+        raise FileNotFoundError(f"Image file for state '{state}' not found in path '{path}'.")
 
     @staticmethod
-    def _slice_image(image: Image.Image, frame_width: int, frame_height: int, num_frames: int) -> List[Image.Image]:
-        """Нарезает изображение на кадры.
+    def get_gif_recolor(path: str, state: str, color: Tuple[int, int, int, int] = DEFAULT_COLOR, fps: int = DEFAULT_FPS) -> List[Image.Image]:
+        """Возвращает перекрашенный GIF указанного состояния.
 
         Args:
-            image (Image.Image): Исходное изображение.
-            frame_width (int): Ширина кадра.
-            frame_height (int): Высота кадра.
-            num_frames (int): Количество кадров.
+            path (str): Путь к файлу.
+            state (str): Имя состояния.
+            color (Tuple[int, int, int, int], optional): Цвет в формате RGBA. По умолчанию DEFAULT_COLOR.
+            fps (int, optional): Частота кадров. По умолчанию DEFAULT_FPS.
 
         Returns:
-            List[Image.Image]: Список кадров.
+            List[Image.Image]: Список кадров перекрашенного GIF.
         """
-        frames = []
-        image_width, image_height = image.size
+        image = TextureSystem._get_compiled(path, state, color, True)
+        if image:
+            return image
+        
+        image = TextureSystem.get_image_recolor(path, state, color)
+        
+        frame_width, frame_height, num_frames, _ = TextureSystem.get_state_info(path, state)
+        
+        frames = TextureSystem._slice_image(image, frame_width, frame_height, num_frames)
+        
+        output_path = f"{path}/{state}_compiled_{TextureSystem._get_color_str(color)}.gif"
+        frames[0].save(output_path, save_all=True, append_images=frames[1:], duration=1000//fps, loop=0)
+        
+        return frames
+    
+    @staticmethod
+    def get_gif(path: str, state: str, fps: int = DEFAULT_FPS) -> List[Image.Image]:
+        """Возвращает GIF указанного состояния.
 
-        for i in range(num_frames):
-            row = (i * frame_width) // image_width
-            col = (i * frame_width) % image_width
-            box = (col, row * frame_height, col + frame_width, row * frame_height + frame_height)
-            frame = image.crop(box)
-            frames.append(frame)
+        Args:
+            path (str): Путь к файлу.
+            state (str): Имя состояния.
+            fps (int, optional): Частота кадров. По умолчанию DEFAULT_FPS.
+
+        Returns:
+            List[Image.Image]: Список кадров GIF.
+        """
+        image = TextureSystem._get_compiled(path, state, None, True)
+        if image:
+            return image
+        
+        image = TextureSystem.get_image(path, state)
+        frame_width, frame_height, num_frames, _ = TextureSystem.get_state_info(path, state)
+        
+        frames = TextureSystem._slice_image(image, frame_width, frame_height, num_frames)
+        
+        output_path = f"{path}/{state}.gif"
+        frames[0].save(output_path, save_all=True, append_images=frames[1:], duration=1000//fps, loop=0)
         
         return frames
 
     @staticmethod
-    def _create_gif(frames: List[Image.Image], gif_path: str, duration: int) -> None:
-        """Создает GIF-анимацию из списка кадров.
+    def merge_images(background: Image.Image, overlay: Image.Image, position: Tuple[int, int] = (0, 0)) -> Image.Image:
+        """Накладывает изображение overlay на изображение background с учетом прозрачности.
+        
+        Args:
+            background (Image.Image): Фоновое изображение.
+            overlay (Image.Image): Изображение, которое накладывается.
+            position (Tuple[int, int]): Позиция (x, y), куда будет накладываться overlay. По умолчанию (0, 0).
+
+        Returns:
+            Image.Image: Объединенное изображение.
+        """
+        merged_image = background.copy()
+        overlay_alpha = overlay.split()[3]
+        merged_image.paste(overlay, position, overlay_alpha)
+        
+        return merged_image
+
+    @staticmethod
+    def merge_layers(layers: List[Dict[str, Any]], fps: int = DEFAULT_FPS) -> Union[Image.Image, List[Image.Image]]:
+        """Объединяет слои в одно изображение или GIF.
 
         Args:
-            frames (List[Image.Image]): Список кадров.
-            gif_path (str): Путь для сохранения GIF-анимации.
-            duration (int): Продолжительность каждого кадра в миллисекундах.
+            layers (List[Dict[str, Any]]): Список слоев.
+            fps (int, optional): Частота кадров для GIF. По умолчанию DEFAULT_FPS.
+
+        Returns:
+            Union[Image.Image, List[Image.Image]]: Объединенное изображение или список кадров GIF.
         """
-        frames[0].save(gif_path, save_all=True, append_images=frames[1:], duration=duration, loop=0)
+        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'Sprites', 'compiled'))
+        if not os.path.exists(base_path):
+            os.makedirs(base_path)
+        
+        hash_layers = TextureSystem._get_hash_list(layers)
+        path = os.path.join(base_path, hash_layers)
+        
+        is_gif: bool = False
+        max_width: int = 0
+        max_height: int = 0
+        max_frames: int = 0
+        
+        for layer in layers:
+            frame_width, frame_height, num_frames, _ = TextureSystem.get_state_info(layer['path'], layer['state'])
+            max_width = max(max_width, frame_width)
+            max_height = max(max_height, frame_height)
+            max_frames = max(max_frames, num_frames)
+            if num_frames > 1:
+                is_gif = True
+        
+        path += ".gif" if is_gif else ".png"
+        
+        if os.path.exists(path):
+            with Image.open(path) as img:
+                if is_gif:
+                    return [frame.convert("RGBA").copy() for frame in ImageSequence.Iterator(img)]
+                else:
+                    return img.convert("RGBA").copy()
+
+        # Закончили проверку и поняли, что нам надо работать. Первоначальная обработка первого слоя
+        final_images: List[Image.Image] = []
+        first_layer = layers[0]
+        _, _, _, is_mask = TextureSystem.get_state_info(first_layer['path'], first_layer['state'])
+
+        if is_gif:
+            if is_mask:
+                final_images = [frame for frame in TextureSystem.get_gif_recolor(first_layer['path'], first_layer['state'], first_layer['color'], fps)]
+            else:
+                final_images = [frame for frame in TextureSystem.get_gif(first_layer['path'], first_layer['state'], fps)]
+            
+            for i in range(len(final_images)):
+                final_image_expanded = Image.new("RGBA", (max_width, max_height))
+                final_image_expanded.paste(final_images[i], (0, 0))
+                final_images[i] = final_image_expanded
+        else:
+            if is_mask:
+                final_image = TextureSystem.get_image_recolor(first_layer['path'], first_layer['state'], first_layer['color'])
+            else:
+                final_image = TextureSystem.get_image(first_layer['path'], first_layer['state'])
+            
+            final_image_expanded = Image.new("RGBA", (max_width, max_height))
+            final_image_expanded.paste(final_image, (0, 0))
+            final_images.append(final_image_expanded)
+
+        # Обработка оставшихся слоев
+        for layer in layers[1:]:
+            _, _, _, is_mask = TextureSystem.get_state_info(layer['path'], layer['state'])
+
+            if is_gif:
+                if is_mask:
+                    recolored_frames = TextureSystem.get_gif_recolor(layer['path'], layer['state'], layer['color'], fps)
+                    for i in range(max_frames):
+                        recolored_frame_expanded = Image.new("RGBA", (max_width, max_height))
+                        frame_to_use = recolored_frames[min(i, len(recolored_frames) - 1)]  # Используем последний кадр, если i превышает количество кадров
+                        recolored_frame_expanded.paste(frame_to_use, (0, 0))
+                        if i < len(final_images):
+                            final_images[i] = TextureSystem.merge_images(final_images[i], recolored_frame_expanded)
+                        else:
+                            final_images.append(recolored_frame_expanded)
+                else:
+                    normal_frames = TextureSystem.get_gif(layer['path'], layer['state'], fps)
+                    for i in range(max_frames):
+                        normal_frame_expanded = Image.new("RGBA", (max_width, max_height))
+                        frame_to_use = normal_frames[min(i, len(normal_frames) - 1)]  # Используем последний кадр, если i превышает количество кадров
+                        normal_frame_expanded.paste(frame_to_use, (0, 0))
+                        if i < len(final_images):
+                            final_images[i] = TextureSystem.merge_images(final_images[i], normal_frame_expanded)
+                        else:
+                            final_images.append(normal_frame_expanded)
+            else:
+                if is_mask:
+                    recolored_image = TextureSystem.get_image_recolor(layer['path'], layer['state'], layer['color'])
+                    recolored_image_expanded = Image.new("RGBA", (max_width, max_height))
+                    recolored_image_expanded.paste(recolored_image, (0, 0))
+                    for i in range(len(final_images)):
+                        final_images[i] = TextureSystem.merge_images(final_images[i], recolored_image_expanded)
+                else:
+                    normal_image = TextureSystem.get_image(layer['path'], layer['state'])
+                    normal_image_expanded = Image.new("RGBA", (max_width, max_height))
+                    normal_image_expanded.paste(normal_image, (0, 0))
+                    for i in range(len(final_images)):
+                        final_images[i] = TextureSystem.merge_images(final_images[i], normal_image_expanded)
+        
+        # Создаем новое изображение с максимальными размерами
+        if is_gif:
+            final_images[0].save(path, save_all=True, append_images=final_images[1:], duration=1000//fps, loop=0)
+            return final_images.copy()
+        
+        else:
+            final_images[0].save(path)
+            return final_images[0].copy()
