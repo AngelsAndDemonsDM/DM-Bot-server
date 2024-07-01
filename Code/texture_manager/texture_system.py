@@ -8,14 +8,11 @@ from PIL import Image, ImageSequence
 
 
 class TextureSystem:
+    """Статический класс TextureSystem отвечает за управление текстурами, включая их загрузку, изменение цвета, и объединение слоев в одно изображение или GIF.
+    """
     __slots__ = []
     DEFAULT_FPS: int = 24
     DEFAULT_COLOR: Tuple[int, int, int, int] = (255, 255, 255, 255)
-    
-    def __init__(self) -> None:
-        """Статический класс TextureSystem отвечает за управление текстурами, включая их загрузку, изменение цвета, и объединение слоев в одно изображение или GIF.
-        """
-        pass
 
     @staticmethod
     def _get_hash_list(layers: List[Dict[str, Any]]) -> str:
