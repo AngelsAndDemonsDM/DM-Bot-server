@@ -28,5 +28,6 @@ venv.bak/
 [Dd]ata/*
 
 # Texture compiled
+Sprites/compiled/*
 *_compiled_*.png
 *_compiled_*.gif

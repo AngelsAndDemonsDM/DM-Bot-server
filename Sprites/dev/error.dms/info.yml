@@ -1,0 +1,9 @@
+Author: "themanyfaceddemon"
+
+License: "NONE. IT IS ERROR FOLD"
+
+Sprites:
+  - name: "not_found"
+    size: {x: 64, y: 64}
+    is_mask: false
+    frames: 0

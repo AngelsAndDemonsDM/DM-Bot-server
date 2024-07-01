@@ -1,4 +1,5 @@
 from db_work import AsyncDB
+from factory import PrototypeFactory
 from texture_manager import TextureSystem
 
 soul_db = AsyncDB(
@@ -13,3 +14,4 @@ soul_db = AsyncDB(
 )
 
 sprite_system = TextureSystem('Sprites')
+prototype_factory = PrototypeFactory()
