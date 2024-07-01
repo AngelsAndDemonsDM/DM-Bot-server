@@ -14,7 +14,14 @@ class TestTextureFolders(unittest.TestCase):
             self.assertTrue(result)
         
         except (SpriteValidationError, InvalidSpriteError) as e:
-            self.fail(f"validate_all_dms raised an exception: {e}")
+            error_message = f"validate_all_dms raised an exception: {e.message}, Path: {e.path}"
+            if isinstance(e, InvalidSpriteError):
+                if e.missing_files:
+                    error_message += f", Missing Files: {e.missing_files}"
+                if e.missing_field:
+                    error_message += f", Missing Field: {e.missing_field}"
+            
+            self.fail(error_message)
 
 if __name__ == '__main__':
     unittest.main()
