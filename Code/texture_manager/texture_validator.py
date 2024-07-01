@@ -7,28 +7,11 @@ from texture_manager.texture_errors import (InvalidSpriteError,
 
 
 class DMSValidator:
-    __slots__ = ["_sprite_path"]
+    __slots__ = []
     INFO_REQUIRED_FIELDS: List[str] = ['Author', 'License', 'Sprites']
     SPRITE_REQUIRED_FIELDS: List[str] = ['name', 'size', 'is_mask', 'frames']
 
     COMPILED_PATTERNS = ['_compiled', '_compiled_']
-
-    def __init__(self, path: str) -> None:
-        """Инициализирует объект DMSValidator.
-
-        Args:
-            path (str): Путь к директории с текстурами.
-
-        Raises:
-            FileNotFoundError: Если директория не существует.
-        """
-        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-        full_path = os.path.join(base_path, path.replace('/', os.sep))
-
-        if not os.path.exists(full_path) or not os.path.isdir(full_path):
-            raise FileNotFoundError(f"Directory '{full_path}' does not exist.")
-
-        self._sprite_path: str = full_path
 
     @staticmethod
     def _raise_dms_file(path: str) -> None:
@@ -164,10 +147,12 @@ class DMSValidator:
 
         return True
 
-    def validate_dms(self, dms_path: str) -> bool:
-        """Валидирует конкретную директорию DMS относительно пути, указанного в конструкторе.
+    @staticmethod
+    def validate_dms(base_path: str, dms_path: str) -> bool:
+        """Валидирует конкретную директорию DMS относительно базового пути.
 
         Args:
+            base_path (str): Базовый путь к директории с текстурами.
             dms_path (str): Путь к директории DMS относительно базового пути.
 
         Returns:
@@ -176,19 +161,23 @@ class DMSValidator:
         Raises:
             SpriteValidationError: Если директория не существует, не является директорией или некорректна структура.
         """
-        dms_path = os.path.join(self._sprite_path, dms_path.replace('/', os.sep))
+        full_dms_path = os.path.join(base_path, dms_path.replace('/', os.sep))
 
-        DMSValidator._raise_dms_file(dms_path)
+        DMSValidator._raise_dms_file(full_dms_path)
 
-        info_yml = DMSValidator._load_dms_info(dms_path)
-        DMSValidator._validate_sprites_format(info_yml['Sprites'], dms_path)
-        DMSValidator._check_files_exist(dms_path, info_yml['Sprites'])
-        DMSValidator._check_forbidden_files(dms_path)
+        info_yml = DMSValidator._load_dms_info(full_dms_path)
+        DMSValidator._validate_sprites_format(info_yml['Sprites'], full_dms_path)
+        DMSValidator._check_files_exist(full_dms_path, info_yml['Sprites'])
+        DMSValidator._check_forbidden_files(full_dms_path)
 
         return True
 
-    def validate_all_dms(self) -> bool:
+    @staticmethod
+    def validate_all_dms(base_path: str) -> bool:
         """Валидирует все директории DMS в базовой директории.
+
+        Args:
+            base_path (str): Базовый путь к директории с текстурами.
 
         Returns:
             bool: True, если валидация всех директорий прошла успешно.
@@ -196,10 +185,10 @@ class DMSValidator:
         Raises:
             SpriteValidationError: Если хотя бы одна директория некорректна.
         """
-        for item in os.listdir(self._sprite_path):
-            item_path = os.path.join(self._sprite_path, item)
+        for item in os.listdir(base_path):
+            item_path = os.path.join(base_path, item)
 
             if os.path.isdir(item_path) and item.endswith('.dms'):
-                self.validate_dms(item_path)
+                DMSValidator.validate_dms(base_path, item)
 
         return True
