@@ -154,15 +154,6 @@ td {
     border: 1px solid #e0e0e0;
 }
 
-/* Цвета */
-.green {
-    color: rgb(0, 255, 0);
-}
-
-.red {
-    color: red;
-}
-
 /* Стили для полосы прокрутки */
 ::-webkit-scrollbar {
     width: 12px;
@@ -177,4 +168,30 @@ td {
 
 ::-webkit-scrollbar-thumb:hover {
     background-color: #ff7e00;
+}
+
+.image-center {
+    display: block;
+    margin: 20px auto;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Стили для блока pre */
+pre {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    overflow: auto;
+    margin: 20px 0;
+    border: 1px solid #ffa500;
+}
+
+/* Стили для блока code */
+code {
+    background-color: #ffffff00;
+    color: #ff7e00;
+    padding: 2px 4px;
+    border-radius: 4px;
 }
