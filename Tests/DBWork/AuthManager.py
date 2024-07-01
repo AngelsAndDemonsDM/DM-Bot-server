@@ -7,7 +7,7 @@ from Code.db_work import AsyncDB, AuthManager
 
 
 class TestAuthManager(unittest.IsolatedAsyncioTestCase):
-    def setUp(self):
+    async def asyncSetUp(self):
         self.auth_manager = AuthManager()
         self.auth_manager._db = AsyncDB(
             db_name="test_auth",
@@ -25,6 +25,7 @@ class TestAuthManager(unittest.IsolatedAsyncioTestCase):
                 ]
             }
         )
+        await self.auth_manager.start_up()
 
     async def asyncTearDown(self):
         if os.path.exists(self.auth_manager._db._db_path):

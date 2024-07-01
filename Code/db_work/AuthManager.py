@@ -29,6 +29,10 @@ class AuthManager:
             }
         )
 
+    async def start_up(self):
+        await self._db.open()
+        await self._db.close()
+    
     @staticmethod
     def _get_encrypted_password(password: str, salt: str) -> str:
         """Хэширует пароль с использованием соли.
