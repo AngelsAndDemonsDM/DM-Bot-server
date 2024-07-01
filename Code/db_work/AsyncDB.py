@@ -13,13 +13,13 @@ class AsyncDB:
     
     __slots__ = ['_db_path', '_connect', '_db_config']
     
-    def __init__(self, db_name: str, db_path: str, db_config: Dict[str, List[Tuple[str, type, int, str]]]) -> None:
+    def __init__(self, db_name: str, db_path: str, db_config: Dict[str, List[Tuple[str, type, int, Optional[str]]]]) -> None:
         """Инициализирует асинхронное соединение с базой данных SQLite.
 
         Args:
             db_name (str): Имя базы данных.
             db_path (str): Путь к директории базы данных.
-            db_config (Dict[str, List[Tuple[str, type, int, str]]]): Конфигурация базы данных в виде словаря,
+            db_config (Dict[str, List[Tuple[str, type, int, Optional[str]]]]): Конфигурация базы данных в виде словаря,
                 где ключи - это имена таблиц, а значения - списки кортежей, описывающих колонки (имя, тип, флаги, внешние ключи).
 
         Example:
@@ -62,11 +62,11 @@ class AsyncDB:
         logging.debug("AsyncDB: Exiting context, closing connection.")
         await self.close()
 
-    def _process_columns(self, columns: List[Tuple[str, type, int, str]]) -> str:
+    def _process_columns(self, columns: List[Tuple[str, type, int, Optional[str]]]) -> str:
         """Форматирует описание колонок для SQL запроса.
 
         Args:
-            columns (List[Tuple[str, type, int, str]]): Список кортежей, описывающих колонки (имя, тип, флаги, внешние ключи).
+            columns (List[Tuple[str, type, int, Optional[str]]]): Список кортежей, описывающих колонки (имя, тип, флаги, внешние ключи).
 
         Returns:
             str: SQL строка с описанием колонок и внешних ключей.
@@ -80,11 +80,11 @@ class AsyncDB:
         
         return ", ".join(table_config)
 
-    def _generate_column_definitions(self, columns: List[Tuple[str, type, int, str]]) -> List[str]:
+    def _generate_column_definitions(self, columns: List[Tuple[str, type, int, Optional[str]]]) -> List[str]:
         """Генерирует определения колонок для SQL запроса.
 
         Args:
-            columns (List[Tuple[str, type, int, str]]): Список кортежей, описывающих колонки.
+            columns (List[Tuple[str, type, int, Optional[str]]]): Список кортежей, описывающих колонки.
 
         Returns:
             List[str]: Список строк с определениями колонок.
@@ -95,21 +95,26 @@ class AsyncDB:
             for col in columns
         ]
 
-    def _generate_foreign_keys(self, columns: List[Tuple[str, type, int, str]]) -> List[str]:
+    def _generate_foreign_keys(self, columns: List[Tuple[str, type, int, Optional[str]]]) -> List[str]:
         """Генерирует внешние ключи для SQL запроса.
 
         Args:
-            columns (List[Tuple[str, type, int, str]]): Список кортежей, описывающих колонки.
+            columns (List[Tuple[str, type, int, Optional[str]]]): Список кортежей, описывающих колонки.
 
         Returns:
             List[str]: Список строк с определениями внешних ключей.
         """
         logging.debug(f"AsyncDB: Generating foreign keys: {columns}")
-        return [
-            f"FOREIGN KEY ({col[0]}) REFERENCES {ref_table}({ref_column})"
-            for col in columns if col[3] is not None
-            for ref_table, ref_column in [col[3].split('.')]
-        ]
+        foreign_keys = []
+        for col in columns:
+            if col[3]:
+                try:
+                    ref_table, ref_column = col[3].split('.')
+                    foreign_keys.append(f"FOREIGN KEY ({col[0]}) REFERENCES {ref_table}({ref_column})")
+                except ValueError as err:
+                    logging.error(f"Error parsing foreign key for column {col[0]}: {col[3]}")
+                    raise ValueError(f"Invalid foreign key format for column {col[0]}: {col[3]}") from err
+        return foreign_keys
 
     def _get_column_type(self, datatype: type) -> str:
         """Определяет SQL тип данных для колонки.
