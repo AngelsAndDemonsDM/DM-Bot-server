@@ -48,13 +48,15 @@ class TextureSystem:
         """
         def decorator(func: Callable) -> Callable:
             @wraps(func)
-            def wrapper(path: str, state: str, *args, **kwargs) -> Any:
+            def wrapper(*args, **kwargs) -> Any:
+                path = args[0]
+                state = args[1]
                 color = kwargs.get('color', None)
                 image = TextureSystem._get_compiled(path, state, color, is_gif)
                 if image:
                     return image
                 
-                return func(path, state, *args, **kwargs)
+                return func(*args, **kwargs)
             return wrapper
         return decorator
     
