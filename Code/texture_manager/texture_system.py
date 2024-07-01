@@ -1,26 +1,21 @@
 import hashlib
 import os
 import pickle
-from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import yaml
 from PIL import Image, ImageSequence
 
 
 class TextureSystem:
-    """Класс TextureSystem отвечает за управление текстурами, включая их загрузку, изменение цвета, и объединение слоев в одно изображение или GIF.
-    """
     __slots__ = []
     DEFAULT_FPS: int = 24
     DEFAULT_COLOR: Tuple[int, int, int, int] = (255, 255, 255, 255)
     
     def __init__(self) -> None:
-        """Инициализирует систему текстур и создает базовую директорию для компилированных спрайтов, если она не существует.
+        """Статический класс TextureSystem отвечает за управление текстурами, включая их загрузку, изменение цвета, и объединение слоев в одно изображение или GIF.
         """
-        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'Sprites', 'compiled'))
-        if not os.path.exists(base_path):
-            os.makedirs(base_path)
+        pass
 
     @staticmethod
     def _get_hash_list(layers: List[Dict[str, Any]]) -> str:
@@ -302,8 +297,12 @@ class TextureSystem:
         Returns:
             Union[Image.Image, List[Image.Image]]: Объединенное изображение или список кадров GIF.
         """
+        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'Sprites', 'compiled'))
+        if not os.path.exists(base_path):
+            os.makedirs(base_path)
+        
         hash_layers = TextureSystem._get_hash_list(layers)
-        path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'Sprites', 'compiled', hash_layers))
+        path = os.path.join(base_path, hash_layers)
         
         is_gif: bool = False
         max_width: int = 0
