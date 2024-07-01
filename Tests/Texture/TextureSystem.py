@@ -127,6 +127,7 @@ class TestTextureSystem(unittest.TestCase):
         self.assertTrue(is_mask)
 
     def test_get_compiled_png(self):
+        print("start test_get_compiled_png")
         path = self.test_dir
         state = 'state1'
         color = (255, 255, 255, 255)
