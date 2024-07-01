@@ -267,7 +267,30 @@ class TextureSystem:
         frames[0].save(output_path, save_all=True, append_images=frames[1:], duration=1000//fps, loop=0)
         
         return frames
+
+    @staticmethod
+    def merge_images(background: Image.Image, overlay: Image.Image, position: Tuple[int, int] = (0, 0)) -> Image.Image:
+        """Накладывает изображение overlay на изображение background с учетом прозрачности.
         
+        Args:
+            background (Image.Image): Фоновое изображение.
+            overlay (Image.Image): Изображение, которое накладывается.
+            position (Tuple[int, int]): Позиция (x, y), куда будет накладываться overlay. По умолчанию (0, 0).
+
+        Returns:
+            Image.Image: Объединенное изображение.
+        """
+        # Создаем копию фонового изображения
+        merged_image = background.copy()
+        
+        # Извлекаем альфа-канал из накладываемого изображения
+        overlay_alpha = overlay.split()[3]
+        
+        # Накладываем изображение с учетом прозрачности
+        merged_image.paste(overlay, position, overlay_alpha)
+        
+        return merged_image
+
     @staticmethod
     def merge_layers(layers: List[Dict[str, Any]], fps: int = DEFAULT_FPS) -> Union[Image.Image, List[Image.Image]]:
         """Объединяет слои в одно изображение или GIF.
@@ -335,7 +358,7 @@ class TextureSystem:
                         recolored_frame_expanded.paste(frame_to_use, (0, 0))
                         recolored_frame_expanded = recolored_frame_expanded.convert("RGBA")
                         if i < len(final_images):
-                            final_images[i] = Image.alpha_composite(final_images[i], recolored_frame_expanded)
+                            final_images[i] = TextureSystem.merge_images(final_images[i], recolored_frame_expanded)
                         else:
                             final_images.append(recolored_frame_expanded)
                 else:
@@ -346,7 +369,7 @@ class TextureSystem:
                         normal_frame_expanded.paste(frame_to_use, (0, 0))
                         normal_frame_expanded = normal_frame_expanded.convert("RGBA")
                         if i < len(final_images):
-                            final_images[i] = Image.alpha_composite(final_images[i], normal_frame_expanded)
+                            final_images[i] = TextureSystem.merge_images(final_images[i], normal_frame_expanded)
                         else:
                             final_images.append(normal_frame_expanded)
             else:
@@ -356,14 +379,14 @@ class TextureSystem:
                     recolored_image_expanded.paste(recolored_image, (0, 0))
                     recolored_image_expanded = recolored_image_expanded.convert("RGBA")
                     for i in range(len(final_images)):
-                        final_images[i] = Image.alpha_composite(final_images[i], recolored_image_expanded)
+                        final_images[i] = TextureSystem.merge_images(final_images[i], recolored_image_expanded)
                 else:
                     normal_image = TextureSystem.get_image(layer['path'], layer['state'])
                     normal_image_expanded = Image.new("RGBA", (max_width, max_height))
                     normal_image_expanded.paste(normal_image, (0, 0))
                     normal_image_expanded = normal_image_expanded.convert("RGBA")
                     for i in range(len(final_images)):
-                        final_images[i] = Image.alpha_composite(final_images[i], normal_image_expanded)
+                        final_images[i] = TextureSystem.merge_images(final_images[i], normal_image_expanded)
         
         # Создаем новое изображение с максимальными размерами
         if is_gif:
