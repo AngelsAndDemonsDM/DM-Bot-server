@@ -2,7 +2,6 @@ import asyncio
 
 import requests
 from auto_updater import needs_update
-from bot.main_bot_core import bot_start
 from db_work import SettingsManager
 from flask import render_template
 from html_code.init_socketio import socketio
