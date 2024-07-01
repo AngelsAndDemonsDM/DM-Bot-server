@@ -15,15 +15,3 @@
         </div>
     </ul>
 </nav>
-
-<script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        document.getElementById('shutdown-button').addEventListener('click', function() {
-            fetch('/api/shutdown')
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data.message);
-                });
-        });
-    });
-</script>
