@@ -1,10 +1,12 @@
-import unittest
 import os
 import shutil
+import unittest
+from typing import Any, Dict, List, Tuple
+
 import aiosqlite
-from typing import Dict, List, Tuple, Any
 
 from Code.db_work import AsyncDB
+
 
 class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
