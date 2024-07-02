@@ -1,7 +1,6 @@
 import os
 import shutil
 import unittest
-from typing import Any, Dict, List, Tuple
 
 import aiosqlite
 
@@ -23,6 +22,13 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
                 ('user_id', int, AsyncDB.NOT_NULL, 'users.id'),
                 ('title', str, AsyncDB.NOT_NULL, None),
                 ('content', str, 0, None)
+            ],
+            'data_types': [
+                ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
+                ('integer_col', int, 0, None),
+                ('real_col', float, 0, None),
+                ('text_col', str, 0, None),
+                ('blob_col', bytes, 0, None)
             ]
         }
         self.async_db = AsyncDB(self.db_name, self.db_path, self.db_config)
@@ -125,6 +131,62 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
         async with self.async_db as db:
             with self.assertRaises(aiosqlite.IntegrityError):
                 await db.insert('posts', post_data)
+
+    async def test_insert_and_delete_integer(self):
+        async with self.async_db as db:
+            data = {'integer_col': 123}
+            row_id = await db.insert('data_types', data)
+            self.assertIsNotNone(row_id, "Row ID should not be None after insertion")
+
+            rows = await db.select('data_types', where='id = ?', where_values=(row_id,))
+            self.assertEqual(len(rows), 1, "Should return one row")
+            self.assertEqual(rows[0]['integer_col'], 123, "The integer_col should be 123")
+
+            await db.delete('data_types', 'id = ?', (row_id,))
+            rows = await db.select('data_types', where='id = ?', where_values=(row_id,))
+            self.assertEqual(len(rows), 0, "No row should be returned after deletion")
+
+    async def test_insert_and_delete_real(self):
+        async with self.async_db as db:
+            data = {'real_col': 123.456}
+            row_id = await db.insert('data_types', data)
+            self.assertIsNotNone(row_id, "Row ID should not be None after insertion")
+
+            rows = await db.select('data_types', where='id = ?', where_values=(row_id,))
+            self.assertEqual(len(rows), 1, "Should return one row")
+            self.assertEqual(rows[0]['real_col'], 123.456, "The real_col should be 123.456")
+
+            await db.delete('data_types', 'id = ?', (row_id,))
+            rows = await db.select('data_types', where='id = ?', where_values=(row_id,))
+            self.assertEqual(len(rows), 0, "No row should be returned after deletion")
+
+    async def test_insert_and_delete_text(self):
+        async with self.async_db as db:
+            data = {'text_col': 'Sample text'}
+            row_id = await db.insert('data_types', data)
+            self.assertIsNotNone(row_id, "Row ID should not be None after insertion")
+
+            rows = await db.select('data_types', where='id = ?', where_values=(row_id,))
+            self.assertEqual(len(rows), 1, "Should return one row")
+            self.assertEqual(rows[0]['text_col'], 'Sample text', "The text_col should be 'Sample text'")
+
+            await db.delete('data_types', 'id = ?', (row_id,))
+            rows = await db.select('data_types', where='id = ?', where_values=(row_id,))
+            self.assertEqual(len(rows), 0, "No row should be returned after deletion")
+
+    async def test_insert_and_delete_blob(self):
+        async with self.async_db as db:
+            data = {'blob_col': b'Sample blob'}
+            row_id = await db.insert('data_types', data)
+            self.assertIsNotNone(row_id, "Row ID should not be None after insertion")
+
+            rows = await db.select('data_types', where='id = ?', where_values=(row_id,))
+            self.assertEqual(len(rows), 1, "Should return one row")
+            self.assertEqual(rows[0]['blob_col'], b'Sample blob', "The blob_col should be 'Sample blob'")
+
+            await db.delete('data_types', 'id = ?', (row_id,))
+            rows = await db.select('data_types', where='id = ?', where_values=(row_id,))
+            self.assertEqual(len(rows), 0, "No row should be returned after deletion")
 
 if __name__ == "__main__":
     unittest.main()
