@@ -6,14 +6,11 @@ import platform
 import signal
 import subprocess
 import sys
-import webbrowser
-
 from auto_updater import needs_update
 from colorlog import ColoredFormatter
 from db_work import SettingsManager
 from flask import Flask
-from html_code import api_bp, html_error_bp
-from html_code.api import handle_show_popup, shutdown_start
+from html_code import api_bp
 from html_code.socketio_regester import socketio
 
 app = Flask(__name__)
@@ -21,7 +18,6 @@ app = Flask(__name__)
 socketio.init_app(app)
 
 # Blueprint
-app.register_blueprint(html_error_bp, url_prefix='/error')
 app.register_blueprint(api_bp, url_prefix='/api')
 
 # Argument parsing
@@ -92,9 +88,6 @@ if __name__ == "__main__":
         sys.exit(0)
     
     signal.signal(signal.SIGINT, signal_handler)
-    
-    if not debug:
-        webbrowser.open("http://127.0.0.1:5000")
     
     socketio.start_background_task(main_bg_task)
     
