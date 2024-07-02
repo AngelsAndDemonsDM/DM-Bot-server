@@ -42,7 +42,7 @@ class AsyncDB:
             logging.debug(f"AsyncDB: Creating database directory at path: {db_path}")
             os.makedirs(db_path)
         
-        if not self._db_config:
+        if not db_config:
             raise ValueError("Database configuration is required")
         
         self._db_path: str = os.path.join(db_path, f"{db_name}.db")
