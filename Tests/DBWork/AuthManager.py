@@ -25,7 +25,6 @@ class TestAuthManager(unittest.IsolatedAsyncioTestCase):
                 ]
             }
         )
-        await self.auth_manager.start_up()
 
     async def asyncTearDown(self):
         if os.path.exists(self.auth_manager._db._db_path):
