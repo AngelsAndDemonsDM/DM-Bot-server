@@ -29,8 +29,6 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
             ]
         }
         self.db = AsyncDB(self.db_name, self.db_path, self.db_config)
-        await self.db.open()
-        await self.db.close()
 
     async def asyncTearDown(self):
         if os.path.exists(self.db._db_path):
@@ -106,6 +104,16 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
             await db.delete('files', 'name = ?', ('test_blob',))
             result = await db.select('files')
             self.assertEqual(len(result), 0)
+    
+    async def test_initialization(self):
+        self.db.initialization()
+        async with aiosqlite.connect(self.db._db_path) as conn:
+            cursor = await conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            tables = await cursor.fetchall()
+            table_names = [table[0] for table in tables]
+            self.assertIn('departments', table_names)
+            self.assertIn('employees', table_names)
+            self.assertIn('files', table_names)
 
 if __name__ == '__main__':
     unittest.main()

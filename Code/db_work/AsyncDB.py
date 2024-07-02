@@ -1,5 +1,6 @@
 import logging
 import os
+import sqlite3
 from typing import Any, Dict, List, Optional, Tuple
 
 import aiosqlite
@@ -34,7 +35,6 @@ class AsyncDB:
         |async_db = AsyncDB('mydatabase', './db', db_config)
         ```
         """
-        logging.debug("AsyncDB: Initializing database.")
         db_path = db_path.replace('/', os.sep)
         db_path = os.path.join(os.getcwd(), db_path)
 
@@ -42,10 +42,14 @@ class AsyncDB:
             logging.debug(f"AsyncDB: Creating database directory at path: {db_path}")
             os.makedirs(db_path)
         
+        if not self._db_config:
+            raise ValueError("Database configuration is required")
+        
         self._db_path: str = os.path.join(db_path, f"{db_name}.db")
         self._connect: Optional[aiosqlite.Connection] = None
         self._db_config: Dict[str, List[Tuple[str, type, int, str]]] = db_config
-        logging.debug(f"AsyncDB: Database initialized with config: {db_config}")
+
+        self.initialization()
 
     async def __aenter__(self) -> 'AsyncDB':
         """Открывает соединение с базой данных при входе в контекст.
@@ -53,13 +57,11 @@ class AsyncDB:
         Returns:
             AsyncDB: Текущий экземпляр класса.
         """
-        logging.debug("AsyncDB: Entering context, opening connection.")
         await self.open()
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
         """Закрывает соединение с базой данных при выходе из контекста."""
-        logging.debug("AsyncDB: Exiting context, closing connection.")
         await self.close()
 
     def _process_columns(self, columns: List[Tuple[str, type, int, Optional[str]]]) -> str:
@@ -71,7 +73,6 @@ class AsyncDB:
         Returns:
             str: SQL строка с описанием колонок и внешних ключей.
         """
-        logging.debug(f"AsyncDB: Formatting columns for SQL query: {columns}")
         table_config = self._generate_column_definitions(columns)
         foreign_keys = self._generate_foreign_keys(columns)
         
@@ -89,7 +90,6 @@ class AsyncDB:
         Returns:
             List[str]: Список строк с определениями колонок.
         """
-        logging.debug(f"AsyncDB: Generating column definitions: {columns}")
         return [
             f"{col[0]} {self._get_column_type(col[1])} {self._get_column_flags(col[2])}".strip()
             for col in columns
@@ -104,16 +104,17 @@ class AsyncDB:
         Returns:
             List[str]: Список строк с определениями внешних ключей.
         """
-        logging.debug(f"AsyncDB: Generating foreign keys: {columns}")
         foreign_keys = []
         for col in columns:
             if col[3]:
                 try:
                     ref_table, ref_column = col[3].split('.')
                     foreign_keys.append(f"FOREIGN KEY ({col[0]}) REFERENCES {ref_table}({ref_column})")
+
                 except ValueError as err:
                     logging.error(f"Error parsing foreign key for column {col[0]}: {col[3]}")
                     raise ValueError(f"Invalid foreign key format for column {col[0]}: {col[3]}") from err
+
         return foreign_keys
 
     def _get_column_type(self, datatype: type) -> str:
@@ -128,7 +129,6 @@ class AsyncDB:
         Returns:
             str: SQL тип данных.
         """
-        logging.debug(f"AsyncDB: Determining column type for: {datatype}")
         if datatype == int or datatype == bool:
             return "INTEGER"
         
@@ -153,7 +153,6 @@ class AsyncDB:
         Returns:
             str: SQL строка с флагами.
         """
-        logging.debug(f"AsyncDB: Determining column flags: {flags}")
         flags_exit = []
         if flags & self.PRIMARY_KEY:
             flags_exit.append("PRIMARY KEY AUTOINCREMENT" if flags & self.AUTOINCREMENT else "PRIMARY KEY")
@@ -165,15 +164,24 @@ class AsyncDB:
             flags_exit.append("NOT NULL")
             
         return " ".join(flags_exit)
+    
+    def initialization(self) -> None:
+        """СИНХРОННЫЙ метод инициализации базы данных.
+        Позволяет создать базу данных и инициализировать её полностью.
+        """
+        conn = sqlite3.connect(self._db_path)
+        cursor = conn.cursor()
 
+        for table_name, columns in self._db_config.items():
+            table_cfg = self._process_columns(columns)
+            cursor.execute(f"CREATE TABLE IF NOT EXISTS {table_name} ({table_cfg})")
+
+        conn.commit()
+        conn.close()
+        
     async def open(self) -> None:
         """Открывает соединение с базой данных."""
         try:
-            logging.debug(f"AsyncDB: Opening connection to database at path: {self._db_path}")
-            
-            if not self._db_config:
-                raise ValueError("Database configuration is required")
-
             self._connect = await aiosqlite.connect(self._db_path)
             cursor = await self._connect.cursor()
 
@@ -182,7 +190,6 @@ class AsyncDB:
                 await cursor.execute(f"CREATE TABLE IF NOT EXISTS {table_name} ({table_cfg})")
 
             await self._connect.commit()
-            logging.debug(f"Connection with {self._db_path} is open.")
 
         except Exception as err:
             logging.error(f"Error while connecting to {self._db_path}: {err}")
@@ -216,8 +223,6 @@ class AsyncDB:
         |    print(results)
         ```
         """
-        logging.debug(f"AsyncDB: Executing SELECT query: {query} with parameters: {parameters}")
-        
         async with self._connect.execute(query, parameters) as cursor:
             rows = await cursor.fetchall()
             col_names = [description[0] for description in cursor.description]
@@ -244,7 +249,6 @@ class AsyncDB:
         |    print(f"Inserted user with ID: {user_id}")
         ```
         """
-        logging.debug(f"AsyncDB: Executing INSERT into {table}: {data}")
         columns = ', '.join(data.keys())
         placeholders = ', '.join('?' for _ in data)
         values = tuple(data.values())
@@ -278,7 +282,6 @@ class AsyncDB:
         |    print(users)
         ```
         """
-        logging.debug(f"AsyncDB: Executing SELECT in table {table}, columns: {columns}, where: {where}, values: {where_values}")
         columns_part = ', '.join(columns) if columns else '*'
         where_part = f" WHERE {where}" if where else ''
 
@@ -308,7 +311,6 @@ class AsyncDB:
         |    )
         ```
         """
-        logging.debug(f"AsyncDB: Executing UPDATE in table {table}, data: {data}, where: {where}, values: {where_values}")
         set_clause = ', '.join(f"{key} = ?" for key in data.keys())
         values = tuple(data.values())
 
@@ -334,6 +336,5 @@ class AsyncDB:
         |    )
         ```
         """
-        logging.debug(f"AsyncDB: Executing DELETE from table {table}, where: {where}, values: {where_values}")
         async with self._connect.execute(f"DELETE FROM {table} WHERE {where}", where_values) as cursor:
             await self._connect.commit()
