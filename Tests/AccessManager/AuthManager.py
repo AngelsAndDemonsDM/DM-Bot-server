@@ -3,7 +3,8 @@ import hmac
 import os
 import unittest
 
-from Code.db_manager import AsyncDB, AuthManager
+from Code.access_manager import AuthManager
+from Code.db_manager import AsyncDB
 
 
 class TestAuthManager(unittest.IsolatedAsyncioTestCase):
