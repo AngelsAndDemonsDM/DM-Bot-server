@@ -4,7 +4,7 @@ import unittest
 
 import aiosqlite
 
-from Code.db_work import AsyncDB
+from Code.db_manager import AsyncDB
 
 
 class TestAsyncDB(unittest.IsolatedAsyncioTestCase):

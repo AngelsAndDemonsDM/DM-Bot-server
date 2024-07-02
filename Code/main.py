@@ -10,7 +10,7 @@ import sys
 from api import api_bp
 from auto_updater import needs_update
 from colorlog import ColoredFormatter
-from db_work import SettingsManager
+from db_manager import SettingsManager
 from flask import Flask
 from socketio_regester import socketio
 

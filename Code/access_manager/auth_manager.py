@@ -3,7 +3,7 @@ import hmac
 import uuid
 from typing import Optional, Tuple
 
-from db_work.AsyncDB import AsyncDB
+from Code.db_manager.async_DB import AsyncDB
 
 
 class AuthManager:
