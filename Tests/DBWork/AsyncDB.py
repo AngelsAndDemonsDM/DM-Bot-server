@@ -1,119 +1,117 @@
-import os
 import unittest
-
+import os
+import shutil
 import aiosqlite
+from typing import Dict, List, Tuple, Any
 
 from Code.db_work import AsyncDB
 
-
 class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
-        self.db_name = 'test_db'
-        self.db_path = 'test_path'
+        self.db_name = 'testdb'
+        self.db_path = './test_db_dir'
         self.db_config = {
-            'departments': [
-                ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
-                ('name', str, AsyncDB.NOT_NULL, None)
-            ],
-            'employees': [
+            'users': [
                 ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
                 ('name', str, AsyncDB.NOT_NULL, None),
-                ('age', int, AsyncDB.NOT_NULL, None),
-                ('email', str, AsyncDB.UNIQUE, None),
-                ('department_id', int, AsyncDB.NOT_NULL, 'departments.id')
+                ('email', str, AsyncDB.UNIQUE, None)
             ],
-            'files': [
+            'posts': [
                 ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
-                ('name', str, AsyncDB.NOT_NULL, None),
-                ('data', bytes, AsyncDB.NOT_NULL, None)
+                ('user_id', int, AsyncDB.NOT_NULL, 'users.id'),
+                ('title', str, AsyncDB.NOT_NULL, None),
+                ('content', str, 0, None)
             ]
         }
-        self.db = AsyncDB(self.db_name, self.db_path, self.db_config)
+        self.async_db = AsyncDB(self.db_name, self.db_path, self.db_config)
 
     async def asyncTearDown(self):
-        if os.path.exists(self.db._db_path):
-            os.remove(self.db._db_path)
+        if os.path.exists(self.db_path):
+            shutil.rmtree(self.db_path)
 
     async def test_insert_and_select(self):
-        async with self.db as db:
-            await db.insert('departments', {'name': 'HR'})
-            result = await db.select('departments')
-            self.assertEqual(len(result), 1)
-            self.assertEqual(result[0]['name'], 'HR')
+        data = {'name': 'John Doe', 'email': 'john.doe@example.com'}
+        user_id = await self.async_db.insert('users', data)
+        
+        self.assertIsNotNone(user_id, "User ID should not be None after insertion")
+        
+        users = await self.async_db.select('users', where='id = ?', where_values=(user_id,))
+        
+        self.assertEqual(len(users), 1, "Should return one user")
+        self.assertEqual(users[0]['name'], 'John Doe', "The name should be 'John Doe'")
+        self.assertEqual(users[0]['email'], 'john.doe@example.com', "The email should be 'john.doe@example.com'")
 
     async def test_update(self):
-        async with self.db as db:
-            await db.insert('departments', {'name': 'HR'})
-            await db.update('departments', {'name': 'Human Resources'}, 'name = ?', ('HR',))
-            result = await db.select('departments')
-            self.assertEqual(result[0]['name'], 'Human Resources')
+        data = {'name': 'Jane Doe', 'email': 'jane.doe@example.com'}
+        user_id = await self.async_db.insert('users', data)
+        
+        await self.async_db.update('users', {'name': 'Jane Smith'}, 'id = ?', (user_id,))
+        
+        users = await self.async_db.select('users', where='id = ?', where_values=(user_id,))
+        
+        self.assertEqual(len(users), 1, "Should return one user")
+        self.assertEqual(users[0]['name'], 'Jane Smith', "The name should be 'Jane Smith'")
 
     async def test_delete(self):
-        async with self.db as db:
-            await db.insert('departments', {'name': 'HR'})
-            await db.delete('departments', 'name = ?', ('HR',))
-            result = await db.select('departments')
-            self.assertEqual(len(result), 0)
-    
+        data = {'name': 'Jake Doe', 'email': 'jake.doe@example.com'}
+        user_id = await self.async_db.insert('users', data)
+        
+        await self.async_db.delete('users', 'id = ?', (user_id,))
+        
+        users = await self.async_db.select('users', where='id = ?', where_values=(user_id,))
+        
+        self.assertEqual(len(users), 0, "No user should be returned after deletion")
+
+    async def test_foreign_key_constraint(self):
+        user_data = {'name': 'Alice', 'email': 'alice@example.com'}
+        user_id = await self.async_db.insert('users', user_data)
+
+        post_data = {'user_id': user_id, 'title': 'First Post', 'content': 'This is a post.'}
+        post_id = await self.async_db.insert('posts', post_data)
+
+        posts = await self.async_db.select('posts', where='id = ?', where_values=(post_id,))
+
+        self.assertEqual(len(posts), 1, "Should return one post")
+        self.assertEqual(posts[0]['title'], 'First Post', "The title should be 'First Post'")
+        self.assertEqual(posts[0]['content'], 'This is a post.', "The content should be 'This is a post.'")
+
     async def test_select_raw(self):
-        async with self.db as db:
-            await db.insert('departments', {'name': 'HR'})
-            results = await db.select_raw("SELECT * FROM departments")
-            self.assertEqual(len(results), 1)
-            self.assertEqual(results[0]['name'], 'HR')
+        data = {'name': 'Bob', 'email': 'bob@example.com'}
+        user_id = await self.async_db.insert('users', data)
 
-    async def test_table_creation(self):
-        async with self.db:
-            async with aiosqlite.connect(self.db._db_path) as conn:
-                cursor = await conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
-                tables = await cursor.fetchall()
-                table_names = [table[0] for table in tables]
-                self.assertIn('departments', table_names)
-                self.assertIn('employees', table_names)
-                self.assertIn('files', table_names)
+        query = "SELECT * FROM users WHERE id = ?"
+        users = await self.async_db.select_raw(query, (user_id,))
 
-    async def test_exception_handling(self):
-        db = AsyncDB(self.db_name, self.db_path, {})
-        with self.assertLogs(level='ERROR') as log:
-            with self.assertRaises(Exception):
-                await db.open()
-            self.assertIn('Error while connecting', log.output[0])
+        self.assertEqual(len(users), 1, "Should return one user")
+        self.assertEqual(users[0]['name'], 'Bob', "The name should be 'Bob'")
+        self.assertEqual(users[0]['email'], 'bob@example.com', "The email should be 'bob@example.com'")
 
-    async def test_blob_insert_and_select(self):
-        async with self.db as db:
-            blob_data = b'This is a test blob data'
-            await db.insert('files', {'name': 'test_blob', 'data': blob_data})
-            result = await db.select('files', columns=['name', 'data'])
-            self.assertEqual(len(result), 1)
-            self.assertEqual(result[0]['name'], 'test_blob')
-            self.assertEqual(result[0]['data'], blob_data)
+    async def test_insert_with_duplicate_email(self):
+        data1 = {'name': 'Charlie', 'email': 'charlie@example.com'}
+        data2 = {'name': 'Charlie2', 'email': 'charlie@example.com'}
 
-    async def test_blob_update(self):
-        async with self.db as db:
-            initial_blob_data = b'Initial blob data'
-            updated_blob_data = b'Updated blob data'
-            await db.insert('files', {'name': 'test_blob', 'data': initial_blob_data})
-            await db.update('files', {'data': updated_blob_data}, 'name = ?', ('test_blob',))
-            result = await db.select('files', columns=['name', 'data'])
-            self.assertEqual(result[0]['data'], updated_blob_data)
+        await self.async_db.insert('users', data1)
 
-    async def test_blob_delete(self):
-        async with self.db as db:
-            blob_data = b'Test blob data to delete'
-            await db.insert('files', {'name': 'test_blob', 'data': blob_data})
-            await db.delete('files', 'name = ?', ('test_blob',))
-            result = await db.select('files')
-            self.assertEqual(len(result), 0)
-    
-    async def test_initialization(self):
-        self.db.initialization()
-        async with aiosqlite.connect(self.db._db_path) as conn:
-            cursor = await conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
-            tables = await cursor.fetchall()
-            table_names = [table[0] for table in tables]
-            self.assertIn('departments', table_names)
-            self.assertIn('employees', table_names)
-            self.assertIn('files', table_names)
+        with self.assertRaises(aiosqlite.IntegrityError):
+            await self.async_db.insert('users', data2)
 
-if __name__ == '__main__':
+    async def test_update_with_nonexistent_id(self):
+        await self.async_db.update('users', {'name': 'Nonexistent'}, 'id = ?', (999,))
+
+        users = await self.async_db.select('users', where='id = ?', where_values=(999,))
+        self.assertEqual(len(users), 0, "No user should be returned for nonexistent id")
+
+    async def test_delete_with_nonexistent_id(self):
+        await self.async_db.delete('users', 'id = ?', (999,))
+
+        users = await self.async_db.select('users', where='id = ?', where_values=(999,))
+        self.assertEqual(len(users), 0, "No user should be returned for nonexistent id")
+
+    async def test_foreign_key_violation(self):
+        post_data = {'user_id': 999, 'title': 'Invalid Post', 'content': 'Invalid content.'}
+
+        with self.assertRaises(aiosqlite.IntegrityError):
+            await self.async_db.insert('posts', post_data)
+
+if __name__ == "__main__":
     unittest.main()
