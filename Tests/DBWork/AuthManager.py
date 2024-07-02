@@ -84,13 +84,15 @@ class TestAuthManager(unittest.IsolatedAsyncioTestCase):
 
     async def test_get_token_access(self):
         token = "test_token"
+        login = "test_user"
         access = b'\x01'
 
         async with self.auth_manager._db as db:
-            await db.insert("cur_sessions", {"token": token, "access": access})
+            await db.insert("cur_sessions", {"token": token, "access": access, "login": login})
 
-        result = await self.auth_manager.get_token_info(token)
-        self.assertEqual(result, access)
+        get_login, get_access = await self.auth_manager.get_token_info(token)
+        self.assertEqual(get_login, login)
+        self.assertEqual(get_access, access)
 
     async def test_logout(self):
         token = "test_token"
