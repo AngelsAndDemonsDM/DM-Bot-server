@@ -57,7 +57,7 @@ if __name__ == "__main__":
     if asyncio.run(SettingsManager().get_setting("app.auto_update")):
         if needs_update():
             logging.info("Updating application...")
-            run_file_in_new_console(os.path.join("Code", "auto_updater", "update.py"))
+            run_file_in_new_console(os.path.join("Code", "auto_updater", "auto_updater.py"))
             sys.exit(0)
     
     logger = logging.getLogger()
@@ -92,4 +92,4 @@ if __name__ == "__main__":
     
     socketio.start_background_task(main_bg_task)
     
-    socketio.run(app, debug=debug, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=debug)
