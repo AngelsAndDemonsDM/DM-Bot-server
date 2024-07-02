@@ -2,15 +2,11 @@
 - all:
   - changed-files:
       - any-glob-to-any-file: ['Code/**', 'Prototype/factory_mappings.yml']
-      - any-glob-to-all-files: ['!Code/web/**', '!Code/html_code/**']
+      - any-glob-to-all-files: ['!Code/api/**',]
 
-"Changes: UI":
+"Changes: API":
 - changed-files:
-  - any-glob-to-any-file: ['Code/web/**']
-
-"Changes: Server side"
-- changed-files:
-  - any-glob-to-any-file: ['Code/html_code/**']
+  - any-glob-to-any-file: ['Code/api/**']
 
 "Changes: Sprites":
 - changed-files:
@@ -21,10 +17,6 @@
   - changed-files:
       - any-glob-to-any-file: ['Prototype/**']
       - all-globs-to-all-files: ['!Prototype/factory_mappings.yml']
-
-"Changes: Locale":
-- changed-files:
-  - any-glob-to-any-file: ['Loc/**']
 
 "Changes: Docs":
 - changed-files:
