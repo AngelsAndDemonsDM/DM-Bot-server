@@ -180,23 +180,18 @@ class AsyncDB:
         conn.close()
         
     async def open(self) -> None:
-        """Открывает соединение с базой данных."""
+        """Открывает соединение с базой данных.
+        """
         try:
             self._connect = await aiosqlite.connect(self._db_path)
-            cursor = await self._connect.cursor()
-
-            for table_name, columns in self._db_config.items():
-                table_cfg = self._process_columns(columns)
-                await cursor.execute(f"CREATE TABLE IF NOT EXISTS {table_name} ({table_cfg})")
-
-            await self._connect.commit()
 
         except Exception as err:
             logging.error(f"Error while connecting to {self._db_path}: {err}")
             raise err
 
     async def close(self) -> None:
-        """Закрывает соединение с базой данных."""
+        """Закрывает соединение с базой данных.
+        """
         if self._connect:
             try:
                 await self._connect.close()
