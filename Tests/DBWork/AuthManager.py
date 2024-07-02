@@ -68,7 +68,7 @@ class TestAuthManager(unittest.IsolatedAsyncioTestCase):
         async with self.auth_manager._db as db:
             await db.insert("users", {"login": login, "password": encrypted_password, "salt": salt, "access": access})
 
-        token = await self.auth_manager.authentication(login, password)
+        token = await self.auth_manager.login(login, password)
         self.assertIsNotNone(token)
         
         async with self.auth_manager._db as db:
@@ -80,7 +80,7 @@ class TestAuthManager(unittest.IsolatedAsyncioTestCase):
         login = "test_user"
         password = "test_password"
 
-        token = await self.auth_manager.authentication(login, password)
+        token = await self.auth_manager.login(login, password)
         self.assertIsNone(token)
 
     async def test_get_token_access(self):
@@ -90,7 +90,7 @@ class TestAuthManager(unittest.IsolatedAsyncioTestCase):
         async with self.auth_manager._db as db:
             await db.insert("cur_sessions", {"token": token, "access": access})
 
-        result = await self.auth_manager.get_token_access(token)
+        result = await self.auth_manager.get_token_info(token)
         self.assertEqual(result, access)
 
     async def test_logout(self):

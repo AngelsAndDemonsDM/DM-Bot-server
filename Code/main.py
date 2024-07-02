@@ -6,12 +6,13 @@ import platform
 import signal
 import subprocess
 import sys
+
+from api import api_bp
 from auto_updater import needs_update
 from colorlog import ColoredFormatter
 from db_work import SettingsManager
 from flask import Flask
-from html_code import api_bp
-from html_code.socketio_regester import socketio
+from socketio_regester import socketio
 
 app = Flask(__name__)
 
