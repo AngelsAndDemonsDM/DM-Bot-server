@@ -184,6 +184,8 @@ class AsyncDB:
         """
         try:
             self._connect = await aiosqlite.connect(self._db_path)
+            await self._connect.execute("PRAGMA foreign_keys = ON;")
+            await self._connect.commit()
 
         except Exception as err:
             logging.error(f"Error while connecting to {self._db_path}: {err}")
