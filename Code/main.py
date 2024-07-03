@@ -7,7 +7,7 @@ import signal
 import subprocess
 import sys
 
-from api import api_bp
+from auth import auth_bp
 from auto_updater import needs_update
 from colorlog import ColoredFormatter
 from db_manager import SettingsManager
@@ -19,7 +19,7 @@ app = Flask(__name__)
 socketio.init_app(app)
 
 # Blueprint
-app.register_blueprint(api_bp, url_prefix='/api')
+app.register_blueprint(auth_bp, url_predix='/auth')
 
 # Argument parsing
 def parse_arguments():

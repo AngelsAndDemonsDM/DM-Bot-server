@@ -11,6 +11,3 @@ CAN_CHANGE_PASSWORD: bytes = 1 << 0
 
 # Флаг необходимый для доступа к удалению пользователей
 CAN_DELETE_USERS: bytes = 1 << 1
-
-# Флаг необходимый для доступа к созданию ссылок приглашений 
-CAN_ALLOW_CREATE_USER: bytes = 1 << 2
