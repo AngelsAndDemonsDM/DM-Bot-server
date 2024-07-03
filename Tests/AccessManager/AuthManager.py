@@ -4,28 +4,11 @@ import os
 import unittest
 
 from Code.access_manager import AuthManager
-from Code.db_manager import AsyncDB
 
 
 class TestAuthManager(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.auth_manager = AuthManager()
-        self.auth_manager._db = AsyncDB(
-            db_name="test_auth",
-            db_path="test_path",
-            db_config={
-                "cur_sessions": [
-                    ("token", str, (AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE), None),
-                    ("access", bytes, 0, None)
-                ],
-                "users": [
-                    ("login", str, (AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE), None),
-                    ("password", str, 0, None),
-                    ("salt", str, 0, None),
-                    ("access", bytes, 0, None)
-                ]
-            }
-        )
 
     async def asyncTearDown(self):
         if os.path.exists(self.auth_manager._db._db_path):
