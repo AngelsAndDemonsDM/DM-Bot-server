@@ -26,8 +26,8 @@ class AuthManager:
 
                 "cur_sessions": [
                     ("token", str, (AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE), None),
-                    ("login", str, (AsyncDB.UNIQUE), "users.login"),
-                    ("access", bytes, 0, "users.access")
+                    ("login", str, (AsyncDB.UNIQUE), None),
+                    ("access", bytes, 0, None)
                 ]
             }
         )
