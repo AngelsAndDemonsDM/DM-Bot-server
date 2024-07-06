@@ -443,15 +443,15 @@ class AsyncDB:
 
     @_handle_integrity_errors
     async def update_or_insert(self, table: str, data: Dict[str, Any], where: Dict[str, Any]) -> int:
-        """Обновление записи, если она существует; иначе вставка новой записи.
+        """Обновление существующей записи или вставка новой, если запись не существует.
 
         Args:
-            table (str): Название таблицы.
-            data (Dict[str, Any]): Данные для обновления или вставки.
-            where (Dict[str, Any]): Условия для обновления.
+            table (str): Имя таблицы.
+            data (Dict[str, Any]): Данные для вставки или обновления.
+            where (Dict[str, Any]): Условия для поиска существующей записи.
 
         Returns:
-            int: ID обновленной или вставленной записи.
+            int: Идентификатор вставленной или обновленной записи.
         
         Example:
             ```py
@@ -460,19 +460,28 @@ class AsyncDB:
             |    print(user_id)
             ```
         """
-        set_clause = ', '.join([f"{key} = ?" for key in data.keys()])
-        where_clause = ' AND '.join([f"{key} = ?" for key in where.keys()])
-        query = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
+        where_clause = ' AND '.join([f"{k} = ?" for k in where.keys()])
+        where_values = tuple(where.values())
 
-        async with self._connect.execute(query, tuple(data.values()) + tuple(where.values())) as cursor:
-            await self._connect.commit()
-            if cursor.rowcount > 0:
-                return cursor.lastrowid
+        select_query = f"SELECT 1 FROM {table} WHERE {where_clause}"
+        async with self._connect.execute(select_query, where_values) as cursor:
+            row = await cursor.fetchone()
 
-        columns = ', '.join(data.keys())
-        placeholders = ', '.join(['?'] * len(data))
-        insert_query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
+        if row:
+            set_clause = ', '.join([f"{k} = ?" for k in data.keys()])
+            update_query = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
+            async with self._connect.execute(update_query, tuple(data.values()) + where_values):
+                await self._connect.commit()
+        
+        else:
+            data.update(where)
+            columns = ', '.join(data.keys())
+            placeholders = ', '.join(['?' for _ in data])
+            insert_query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
+            async with self._connect.execute(insert_query, tuple(data.values())):
+                await self._connect.commit()
 
-        async with self._connect.execute(insert_query, tuple(data.values())) as cursor:
-            await self._connect.commit()
-            return cursor.lastrowid
+        # Возвращаем идентификатор записи
+        async with self._connect.execute(f"SELECT id FROM {table} WHERE {where_clause}", where_values) as cursor:
+            result = await cursor.fetchone()
+            return result[0]
