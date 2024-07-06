@@ -2,6 +2,7 @@ from auth.bp_reg import auth_bp
 from flask import jsonify, request
 from main_impt import auth_manager
 
+
 @auth_bp.route('/login', methods=['POST'])
 async def login():
     data = await request.get_json()
