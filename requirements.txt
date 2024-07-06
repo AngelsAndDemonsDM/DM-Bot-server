@@ -2,11 +2,11 @@ aiofiles
 aiosqlite
 beautifulsoup4
 colorlog
-quart
 imageio
 isort
 pyyaml
 pyzipper
+quart
 requests
 ruamel.yaml
 toml
