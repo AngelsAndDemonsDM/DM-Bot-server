@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import aiosqlite
 
+
 class AsyncDBError(Exception):
     """Базовый класс для исключений AsyncDB.
     """
