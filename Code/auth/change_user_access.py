@@ -1,7 +1,8 @@
+from access_manager import CAN_CHANGE_ACCESS
 from auth.bp_reg import auth_bp
 from main_impt import auth_manager
 from quart import jsonify, request
-from access_manager import CAN_CHANGE_ACCESS
+
 
 @auth_bp.route('/change_user_access', methods=['POST'])
 async def change_user_access():

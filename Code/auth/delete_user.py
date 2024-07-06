@@ -1,7 +1,8 @@
+from access_manager import CAN_DELETE_USERS
 from auth.bp_reg import auth_bp
 from main_impt import auth_manager
 from quart import jsonify, request
-from access_manager import CAN_DELETE_USERS
+
 
 @auth_bp.route('/delete_user', methods=['POST'])
 async def api_delete_user():
