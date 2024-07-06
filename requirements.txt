@@ -2,8 +2,7 @@ aiofiles
 aiosqlite
 beautifulsoup4
 colorlog
-flask
-flask-socketio
+quart
 imageio
 isort
 pyyaml

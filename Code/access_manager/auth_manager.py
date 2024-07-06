@@ -132,6 +132,8 @@ class AuthManager:
         salt = AuthManager._generate_token()
         encrypted_password = AuthManager._get_encrypted_password(password, salt)
         
+        token: str = AuthManager._generate_token()
+        
         async with self._db as db:
             await db.insert('users', {
                 'login': login,
@@ -140,7 +142,12 @@ class AuthManager:
                 'access': access
             })
         
-        return await self.login_user(login, password)
+            await db.insert('cur_sessions', {
+                'token': token,
+                'user': login
+            })
+        
+        return token
     
     async def delete_user(self, login: str) -> None:
         """Удаление пользователя из системы.

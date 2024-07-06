@@ -11,12 +11,9 @@ from auth import auth_bp
 from auto_updater import needs_update
 from colorlog import ColoredFormatter
 from db_manager import SettingsManager
-from flask import Flask
-from socketio_regester import socketio
+from quart import Quart
 
-app = Flask(__name__)
-
-socketio.init_app(app)
+app = Quart(__name__)
 
 # Blueprint
 app.register_blueprint(auth_bp, url_predix='/auth')
@@ -90,6 +87,4 @@ if __name__ == "__main__":
     
     signal.signal(signal.SIGINT, signal_handler)
     
-    socketio.start_background_task(main_bg_task)
-    
-    socketio.run(app, debug=debug)
+    app.run(debug=debug)
