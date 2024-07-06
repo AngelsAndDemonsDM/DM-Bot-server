@@ -14,12 +14,12 @@ class TestAsyncDB(unittest.IsolatedAsyncioTestCase):
             'users': [
                 ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
                 ('name', str, AsyncDB.NOT_NULL | AsyncDB.UNIQUE, None),
-                ('age', int, AsyncDB.DEFAULT | AsyncDB.CHECK, 'def.18\\0check.age >= 18'),
+                ('age', int, AsyncDB.DEFAULT | AsyncDB.CHECK, 'def|18|check|age >= 18|'),
                 ('profile', bytes, AsyncDB.NOT_NULL, None)
             ],
             'orders': [
                 ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
-                ('user_id', int, AsyncDB.NOT_NULL | AsyncDB.FOREIGN_KEY, 'forkey.users.id'),
+                ('user_id', int, AsyncDB.NOT_NULL | AsyncDB.FOREIGN_KEY, 'forkey|users.id|'),
                 ('product', str, AsyncDB.NOT_NULL, None)
             ]
         }

@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import sqlite3
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -166,7 +167,7 @@ class AsyncDB:
             return "TEXT"
         
         raise ValueError(f"Unsupported SQL type: {sql_type}")
-    
+
     def _parse_column_add_info(self, add_info: str) -> Dict[str, str]:
         """Парсинг дополнительной информации о колонке.
 
@@ -177,26 +178,18 @@ class AsyncDB:
             Dict[str, str]: Словарь с разобранной информацией.
         """
         parsed_info = {}
-        if "def." in add_info:
-            default_start = add_info.find("def.") + len("def.")
-            default_end = add_info.find("\\0", default_start)
-            if default_end == -1:
-                default_end = len(add_info)
-            parsed_info['DEFAULT'] = add_info[default_start:default_end].strip()
-        
-        if "check." in add_info:
-            check_start = add_info.find("check.") + len("check.")
-            check_end = add_info.find("\\0", check_start)
-            if check_end == -1:
-                check_end = len(add_info)
-            parsed_info['CHECK'] = add_info[check_start:check_end].strip()
-        
-        if "forkey." in add_info:
-            forkey_start = add_info.find("forkey.") + len("forkey.")
-            forkey_end = add_info.find("\\0", forkey_start)
-            if forkey_end == -1:
-                forkey_end = len(add_info)
-            parsed_info['FOREIGN_KEY'] = add_info[forkey_start:forkey_end].strip()
+
+        # Поиск и извлечение значений по ключам wrapped in |
+        patterns = {
+            'DEFAULT': r'def\|(.*?)\|',
+            'CHECK': r'check\|(.*?)\|',
+            'FOREIGN_KEY': r'forkey\|(.*?)\|'
+        }
+
+        for key, pattern in patterns.items():
+            match = re.search(pattern, add_info)
+            if match:
+                parsed_info[key] = match.group(1).strip()
 
         return parsed_info
     
@@ -231,10 +224,6 @@ class AsyncDB:
         if column_flags & AsyncDB.AUTOINCREMENT and column_type is not int:
             raise ValueError(f"Column '{column_name}': AUTOINCREMENT can only be used with int type")
         
-        # Проверка для типов TEXT и REAL, которые не поддерживают AUTOINCREMENT
-        if column_type in (str, float) and column_flags & AsyncDB.AUTOINCREMENT:
-            raise ValueError(f"Column '{column_name}': AUTOINCREMENT cannot be used with TEXT or REAL types")
-        
         if column_add_info and column_add_info != "":
             parsed_add_info = self._parse_column_add_info(column_add_info)
         else:
@@ -245,8 +234,7 @@ class AsyncDB:
             if 'FOREIGN_KEY' not in parsed_add_info:
                 raise ValueError(f"Column '{column_name}': FOREIGN_KEY specified but no foreign key info provided")
             
-            foreign_key_info = parsed_add_info['FOREIGN_KEY']
-            ref_table, ref_column = foreign_key_info.split('.')
+            ref_table, ref_column = parsed_add_info['FOREIGN_KEY'].split('.')
             if ref_table not in config:
                 raise ValueError(f"Referenced table '{ref_table}' for column '{column_name}' does not exist in config")
             
@@ -256,6 +244,7 @@ class AsyncDB:
         
         # Генерация строки флагов
         flag_str = ""
+        
         if column_flags & AsyncDB.PRIMARY_KEY:
             flag_str += "PRIMARY KEY "
             
@@ -265,17 +254,18 @@ class AsyncDB:
         if column_flags & AsyncDB.NOT_NULL:
             flag_str += "NOT NULL "
         
+        if column_flags & AsyncDB.UNIQUE:
+            flag_str += "UNIQUE "
+        
         if column_flags & AsyncDB.DEFAULT and 'DEFAULT' in parsed_add_info:
             flag_str += f"DEFAULT {parsed_add_info['DEFAULT']} "
         
         if column_flags & AsyncDB.CHECK and 'CHECK' in parsed_add_info:
             flag_str += f"CHECK ({parsed_add_info['CHECK']}) "
         
-        if column_flags & AsyncDB.UNIQUE:
-            flag_str += "UNIQUE "
-        
         if column_flags & AsyncDB.FOREIGN_KEY and 'FOREIGN_KEY' in parsed_add_info:
-            flag_str += f"REFERENCES {parsed_add_info['FOREIGN_KEY']} "
+            ref_table, ref_column = parsed_add_info['FOREIGN_KEY'].split('.')
+            flag_str += f"REFERENCES {ref_table}({ref_column}) "
         
         flag_str = flag_str.strip()
         
