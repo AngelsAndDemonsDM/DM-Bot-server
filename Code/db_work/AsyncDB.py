@@ -237,7 +237,6 @@ class AsyncDB:
         if column_add_info and column_add_info != "":
             parsed_add_info = self._parse_column_add_info(column_add_info)
         else:
-            logging.warning(f"Column '{column_name}': Additional info is empty or None")
             parsed_add_info = {}
         
         # FOREIGN_KEY должен быть корректным и ссылка должна существовать
