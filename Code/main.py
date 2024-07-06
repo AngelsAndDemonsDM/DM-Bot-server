@@ -3,7 +3,6 @@ import asyncio
 import logging
 import os
 import platform
-import signal
 import subprocess
 import sys
 
@@ -23,14 +22,6 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='DM-Bot')
     parser.add_argument('--debug', action='store_true', help='Включить режим отладки')
     return parser.parse_args()
-
-# Async helper function
-async def async_main_bg_task():
-    pass
-
-# Background task function
-def main_bg_task():
-    asyncio.run(async_main_bg_task())
 
 # Function to run a file in a new console
 def run_file_in_new_console(file_path):
