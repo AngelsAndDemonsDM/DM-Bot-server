@@ -20,7 +20,7 @@
 
 "Changes: Docs":
 - changed-files:
-  - any-glob-to-any-file: ['README.md', 'LICENSE.md', 'Docs/**', 'Libriary_Of_Ruina/**']
+  - any-glob-to-any-file: ['README.md', 'LICENSE.md', 'Docs/**']
 
 "Changes: Unit test":
 - changed-files:
