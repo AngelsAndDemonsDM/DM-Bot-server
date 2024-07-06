@@ -182,7 +182,7 @@ class AuthManager:
         async with self._db as db:
             await db.update('users', {'access': new_access}, {'login': login})
 
-    async def get_user_access_by_token(self, token: str) -> bytes:
+    async def get_user_access(self, token: str) -> bytes:
         """Получение уровня доступа пользователя по токену.
 
         Args:
@@ -208,3 +208,23 @@ class AuthManager:
                 raise ValueError(f"User '{user_login}' not found")
             
             return user_data[0]['access']
+
+    async def get_user_login(self, token: str) -> str:
+        """Получение логина пользователя по токену.
+
+        Args:
+            token (str): Токен пользователя.
+
+        Raises:
+            ValueError: В случае ненайденного токена или пользователя.
+
+        Returns:
+            str: Логин пользователя.
+        """
+        async with self._db as db:
+            session_data = await db.select('cur_sessions', ['user'], {'token': token})
+            
+            if not session_data:
+                raise ValueError(f"Session with token '{token}' not found")
+            
+            return session_data[0]['user']

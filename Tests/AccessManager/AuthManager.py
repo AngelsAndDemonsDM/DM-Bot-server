@@ -57,10 +57,15 @@ class TestAuthManager(unittest.IsolatedAsyncioTestCase):
             user_data = await db.select('users', ['access'], {'login': 'testuser'})
         self.assertEqual(user_data[0]['access'], b'\x01')
 
-    async def test_get_user_access_by_token(self):
+    async def test_get_user_access(self):
         token = await self.auth_manager.register_user('testuser', 'testpassword', b'\x02')
-        access = await self.auth_manager.get_user_access_by_token(token)
+        access = await self.auth_manager.get_user_access(token)
         self.assertEqual(access, b'\x02')
+
+    async def test_get_user_login(self):
+        token = await self.auth_manager.register_user('testuser', 'testpassword', b'\x02')
+        login = await self.auth_manager.get_user_login(token)
+        self.assertEqual(login, 'testuser')
 
 if __name__ == '__main__':
     unittest.main()
