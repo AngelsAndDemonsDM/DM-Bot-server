@@ -1,9 +1,8 @@
 import hashlib
 import hmac
 import uuid
-from typing import Optional, Tuple
 
-from Code.db_manager.async_DB import AsyncDB
+from Code.db_manager import AsyncDB
 
 
 class AuthManager:
@@ -14,20 +13,18 @@ class AuthManager:
         cur_sessions для хранения текущих сессий и users для хранения информации о пользователях.
         """
         self._db: AsyncDB = AsyncDB(
-            db_name="auth",
-            db_path="data",
-            db_config= { 
+            file_name="auth",
+            file_path="data",
+            config= { 
                 "users": [ 
                     ("login", str, (AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE), None), 
-                    ("password", str, 0, None),
-                    ("salt", str, 0, None),
-                    ("access", bytes, 0, None)
+                    ("password", str, (AsyncDB.NOT_NULL), None),
+                    ("salt", str, (AsyncDB.NOT_NULL), None),
+                    ("access", bytes, (AsyncDB.DEFAULT | AsyncDB.NOT_NULL), "def|X'00000000'")
                 ],
-
                 "cur_sessions": [
                     ("token", str, (AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE), None),
-                    ("login", str, (AsyncDB.UNIQUE), None),
-                    ("access", bytes, 0, None)
+                    ("user", str, (AsyncDB.NOT_NULL | AsyncDB.FOREIGN_KEY), "forkey|users.login|")
                 ]
             }
         )
@@ -44,130 +41,163 @@ class AuthManager:
             str: Хэшированный пароль.
         """
         return hmac.new(salt.encode(), password.encode(), hashlib.sha256).hexdigest()
-
+    
     @staticmethod
-    def _compare_passwords(stored_password: str, provided_password: str, salt: str) -> bool:
-        """Сравнивает хэшированный пароль из базы данных с предоставленным паролем.
+    def _compare_passwords(first_password: str, second_password: str) -> bool:
+        """Сравнивает первый пароль со вторым паролем.
 
         Args:
-            stored_password (str): Хэшированный пароль, хранящийся в базе данных.
-            provided_password (str): Пароль, предоставленный пользователем.
-            salt (str): Соль для хэширования.
+            first_password (str): Первый пароль.
+            second_password (str): Второй пароль.
 
         Returns:
             bool: True, если пароли совпадают, иначе False.
         """
-        encrypted_password = AuthManager._get_encrypted_password(provided_password, salt)
-        return hmac.compare_digest(stored_password, encrypted_password)
+        return hmac.compare_digest(first_password, second_password)
 
-    async def _generate_access_token(self, login: str, access: bytes) -> str:
-        """Генерирует уникальный токен доступа и сохраняет его вместе с доступом в таблице cur_sessions.
-
-        Args:
-            access (bytes): Флаги доступа для сессии.
+    @staticmethod
+    def _generate_token() -> str:
+        """Генерирует токен.
+        Данный токен используется и как соль, и как токен аутентификации.
 
         Returns:
-            str: Сгенерированный токен доступа.
+            str: Сгенерированный токен.
         """
-        random_uuid = uuid.uuid4().hex
-        async with self._db as db:
-            await db.insert("cur_sessions", {"token": random_uuid, "login": login, "access": access})
-        
-        return random_uuid
+        return uuid.uuid4().hex
 
-    async def register_user(self, login: str, password: str, access: bytes = b'\x00') -> str:
-        """Регистрирует нового пользователя с заданным логином, паролем и флагами доступа. 
-        Также генерирует и возвращает токен доступа для нового пользователя.
+    async def login_user(self, login: str, password: str) -> str:
+        """Функция авторизации в системе.
 
         Args:
             login (str): Логин пользователя.
             password (str): Пароль пользователя.
-            access (bytes, optional): Флаги доступа. По умолчанию b'\x00'.
+
+        Raises:
+            ValueError: В случае ненайденного пользователя или неверного пароля.
 
         Returns:
-            str: Токен доступа для нового пользователя.
+            str: Токен, под которым подключился пользователь.
         """
-        salt = uuid.uuid4().hex
-        
-        encrypted_password = AuthManager._get_encrypted_password(password, salt)
         async with self._db as db:
-            await db.insert("users", {"login": login, "password": encrypted_password, "salt": salt, "access": access})
+            data = await db.select('users', ['login', 'password', 'salt'], {'login': login})
         
-        return await self._generate_access_token(login, access)
-
-    async def get_token_info(self, token: str) -> Optional[Tuple[str, bytes]]:
-        """Возвращает информацию о токене доступа. Его права и логин кому принадлежит
+        if not data:
+            raise ValueError(f"User '{login}' not found")
+        
+        data = data[0]
+        
+        if not AuthManager._compare_passwords(
+                str(data['password']),
+                AuthManager._get_encrypted_password(password, data['salt'])
+            ):
+            raise ValueError("Password is incorrect")
+        
+        token: str = AuthManager._generate_token()
+        async with self._db as db:
+            await db.insert('cur_sessions', {
+                'token': token,
+                'user': login
+            })
+        
+        return token
+    
+    async def logout_user(self, token: str) -> None:
+        """Функция выхода пользователя из системы.
 
         Args:
-            token (str): Токен доступа
+            token (str): Токен пользователя.
 
-        Returns:
-            Optional[Tuple[str, bytes]]: Логин и права.
+        Raises:
+            ValueError: В случае ненайденного токена.
         """
         async with self._db as db:
-            token_info = await db.select("cur_sessions", ["login", "access"], "token = ?", (token,))
-        
-        if token_info:
-            return (token_info[0]['login'], token_info[0]['access'])
-        
-        return None
-
-    async def logout(self, token: str) -> None:
-        """Удаляет сессию, связанную с заданным токеном.
-
-        Args:
-            token (str): Токен доступа.
-        """
-        async with self._db as db:
-            await db.delete("cur_sessions", "token = ?", (token,))
+            session_data = await db.select('cur_sessions', ['user'], {'token': token})
             
-    async def login(self, login: str, password: str) -> Optional[str]:
-        """Аутентифицирует пользователя по логину и паролю. При успешной аутентификации генерирует токен доступа.
+            if not session_data:
+                raise ValueError(f"Session with token '{token}' not found")
+            
+            await db.delete('cur_sessions', {'token': token})
+    
+    async def register_user(self, login: str, password: str, access: bytes = b'\x00') -> str:
+        """Регистрация нового пользователя.
 
         Args:
             login (str): Логин пользователя.
             password (str): Пароль пользователя.
+            access (bytes, optional): Уровень доступа. По умолчанию b'\x00'.
 
         Returns:
-            Optional[str]: Токен доступа при успешной аутентификации, иначе None.
+            str: Токен для новой зарегистрированной сессии.
         """
-        get_access: bool = False
-        user_access: Optional[bytes] = None
+        salt = AuthManager._generate_token()
+        encrypted_password = AuthManager._get_encrypted_password(password, salt)
         
         async with self._db as db:
-            user = await db.select("users", ["login", "password", "salt", "access"], "login = ?", (login,))
+            await db.insert('users', {
+                'login': login,
+                'password': encrypted_password,
+                'salt': salt,
+                'access': access
+            })
         
-        if user:
-            stored_password = user[0]['password']
-            salt = user[0]['salt']
-            if AuthManager._compare_passwords(stored_password, password, salt):
-                get_access = True
-                user_access = user[0]['access']
-
-        if get_access:
-            return await self._generate_access_token(login, user_access)
-        
-        return None
-
-    async def change_password(self, login: str, new_password: str) -> None:
-        """Метод позволяет сменить пароль у пользователя
-
-        Args:
-            login (str): Логин пользователя
-            new_password (str): Новый пароль
-        """
-        salt = uuid.uuid4().hex
-        
-        encrypted_password = AuthManager._get_encrypted_password(new_password, salt)
-        async with self._db as db:
-            await db.update('users', {'password': encrypted_password, 'salt': salt}, 'login = ?', (login,))
-
+        return await self.login_user(login, password)
+    
     async def delete_user(self, login: str) -> None:
-        """Метод позволяет удалить данные о пользователе.
+        """Удаление пользователя из системы.
 
         Args:
-            login (str): Логин который надо удалить
+            login (str): Логин пользователя.
         """
         async with self._db as db:
-            await db.delete('users', 'login = ?', (login,))
-            await db.delete('cur_sessions', 'login = ?', (login,))
+            await db.delete('cur_sessions', {'user': login})
+            await db.delete('users', {'login': login})
+    
+    async def change_user_password(self, login: str, new_password: str) -> None:
+        """Изменение пароля пользователя.
+
+        Args:
+            login (str): Логин пользователя.
+            new_password (str): Новый пароль пользователя.
+        """
+        salt = AuthManager._generate_token()
+        encrypted_password = AuthManager._get_encrypted_password(new_password, salt)
+        
+        async with self._db as db:
+            await db.update('users', {'password': encrypted_password, 'salt': salt}, {'login': login})
+    
+    async def change_user_access(self, login: str, new_access: bytes) -> None:
+        """Изменение уровня доступа пользователя.
+
+        Args:
+            login (str): Логин пользователя.
+            new_access (bytes): Новый уровень доступа пользователя.
+        """
+        async with self._db as db:
+            await db.update('users', {'access': new_access}, {'login': login})
+
+    async def get_user_access_by_token(self, token: str) -> bytes:
+        """Получение уровня доступа пользователя по токену.
+
+        Args:
+            token (str): Токен пользователя.
+
+        Raises:
+            ValueError: В случае ненайденного токена или пользователя.
+
+        Returns:
+            bytes: Уровень доступа пользователя.
+        """
+        async with self._db as db:
+            session_data = await db.select('cur_sessions', ['user'], {'token': token})
+            
+            if not session_data:
+                raise ValueError(f"Session with token '{token}' not found")
+            
+            user_login = session_data[0]['user']
+            
+            user_data = await db.select('users', ['access'], {'login': user_login})
+            
+            if not user_data:
+                raise ValueError(f"User '{user_login}' not found")
+            
+            return user_data[0]['access']

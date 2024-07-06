@@ -1,96 +1,61 @@
-import hashlib
-import hmac
 import os
 import unittest
 
 from Code.access_manager import AuthManager
 
-
 class TestAuthManager(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.auth_manager = AuthManager()
-
+        
     async def asyncTearDown(self):
-        if os.path.exists(self.auth_manager._db._db_path):
-            os.remove(self.auth_manager._db._db_path)
-
-    async def test_get_encrypted_password(self):
-        password = "test_password"
-        salt = "test_salt"
-        encrypted_password = self.auth_manager._get_encrypted_password(password, salt)
-        expected_password = hmac.new(salt.encode(), password.encode(), hashlib.sha256).hexdigest()
-        self.assertEqual(encrypted_password, expected_password)
-
-    async def test_compare_passwords(self):
-        password = "test_password"
-        salt = "test_salt"
-        encrypted_password = self.auth_manager._get_encrypted_password(password, salt)
-        result = self.auth_manager._compare_passwords(encrypted_password, password, salt)
-        self.assertTrue(result)
+        if os.path.exists(self.auth_manager._db._file_path):
+            os.remove(self.auth_manager._db._file_path)
 
     async def test_register_user(self):
-        login = "test_user"
-        password = "test_password"
-        access = b'\x01'
-
-        token = await self.auth_manager.register_user(login, password, access)
-        
-        async with self.auth_manager._db as db:
-            user = await db.select("users", ["login", "access"], "login = ?", (login,))
-        
-        self.assertEqual(user[0]["login"], login)
-        self.assertEqual(user[0]["access"], access)
-
-    async def test_authentication_success(self):
-        login = "test_user"
-        password = "test_password"
-        salt = "test_salt"
-        access = b'\x01'
-        encrypted_password = self.auth_manager._get_encrypted_password(password, salt)
-
-        async with self.auth_manager._db as db:
-            await db.insert("users", {"login": login, "password": encrypted_password, "salt": salt, "access": access})
-
-        token = await self.auth_manager.login(login, password)
+        token = await self.auth_manager.register_user('testuser', 'testpassword')
         self.assertIsNotNone(token)
-        
-        async with self.auth_manager._db as db:
-            session = await db.select("cur_sessions", ["access"], "token = ?", (token,))
-        
-        self.assertEqual(session[0]["access"], access)
+        user_data = await self.auth_manager._db.select('users', ['login', 'password', 'salt'], {'login': 'testuser'})
+        self.assertEqual(len(user_data), 1)
+        self.assertEqual(user_data[0]['login'], 'testuser')
 
-    async def test_authentication_failure(self):
-        login = "test_user"
-        password = "test_password"
+    async def test_login_user(self):
+        await self.auth_manager.register_user('testuser', 'testpassword')
+        token = await self.auth_manager.login_user('testuser', 'testpassword')
+        self.assertIsNotNone(token)
 
-        token = await self.auth_manager.login(login, password)
-        self.assertIsNone(token)
+    async def test_login_user_invalid_password(self):
+        await self.auth_manager.register_user('testuser', 'testpassword')
+        with self.assertRaises(ValueError):
+            await self.auth_manager.login_user('testuser', 'wrongpassword')
 
-    async def test_get_token_access(self):
-        token = "test_token"
-        login = "test_user"
-        access = b'\x01'
+    async def test_logout_user(self):
+        token = await self.auth_manager.register_user('testuser', 'testpassword')
+        await self.auth_manager.logout_user(token)
+        session_data = await self.auth_manager._db.select('cur_sessions', ['token'], {'token': token})
+        self.assertEqual(len(session_data), 0)
 
-        async with self.auth_manager._db as db:
-            await db.insert("cur_sessions", {"token": token, "access": access, "login": login})
+    async def test_delete_user(self):
+        await self.auth_manager.register_user('testuser', 'testpassword')
+        await self.auth_manager.delete_user('testuser')
+        user_data = await self.auth_manager._db.select('users', ['login'], {'login': 'testuser'})
+        self.assertEqual(len(user_data), 0)
 
-        get_login, get_access = await self.auth_manager.get_token_info(token)
-        self.assertEqual(get_login, login)
-        self.assertEqual(get_access, access)
+    async def test_change_user_password(self):
+        await self.auth_manager.register_user('testuser', 'testpassword')
+        await self.auth_manager.change_user_password('testuser', 'newpassword')
+        token = await self.auth_manager.login_user('testuser', 'newpassword')
+        self.assertIsNotNone(token)
 
-    async def test_logout(self):
-        token = "test_token"
-        access = b'\x01'
+    async def test_change_user_access(self):
+        await self.auth_manager.register_user('testuser', 'testpassword')
+        await self.auth_manager.change_user_access('testuser', b'\x01')
+        user_data = await self.auth_manager._db.select('users', ['access'], {'login': 'testuser'})
+        self.assertEqual(user_data[0]['access'], b'\x01')
 
-        async with self.auth_manager._db as db:
-            await db.insert("cur_sessions", {"token": token, "access": access})
-
-        await self.auth_manager.logout(token)
-        
-        async with self.auth_manager._db as db:
-            session = await db.select("cur_sessions", ["token"], "token = ?", (token,))
-        
-        self.assertEqual(len(session), 0)
+    async def test_get_user_access_by_token(self):
+        token = await self.auth_manager.register_user('testuser', 'testpassword', b'\x02')
+        access = await self.auth_manager.get_user_access_by_token(token)
+        self.assertEqual(access, b'\x02')
 
 if __name__ == '__main__':
     unittest.main()
