@@ -3,6 +3,7 @@ import unittest
 
 from Code.access_manager import AuthManager
 
+
 class TestAuthManager(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.auth_manager = AuthManager()
