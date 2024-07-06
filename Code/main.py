@@ -3,42 +3,25 @@ import asyncio
 import logging
 import os
 import platform
-import signal
 import subprocess
 import sys
-import webbrowser
 
+from auth import auth_bp
 from auto_updater import needs_update
-from bot import bot_start
 from colorlog import ColoredFormatter
-from db_work import SettingsManager
-from flask import Flask
-from py_html import main_bp, socketio
-from py_html.api import api_bp, handle_show_popup, shutdown_start
+from db_manager import SettingsManager
+from quart import Quart
 
-app = Flask(__name__)
-
-socketio.init_app(app)
+app = Quart(__name__)
 
 # Blueprint
-app.register_blueprint(main_bp, url_prefix='/')
-app.register_blueprint(api_bp, url_prefix='/api')
+app.register_blueprint(auth_bp, url_predix='/auth')
 
 # Argument parsing
 def parse_arguments():
     parser = argparse.ArgumentParser(description='DM-Bot')
     parser.add_argument('--debug', action='store_true', help='Включить режим отладки')
     return parser.parse_args()
-
-# Async helper function
-async def async_main_bg_task():
-    if await SettingsManager().get_setting("bot.auto_start"):
-        await SettingsManager().set_setting("bot.is_run", False)
-        await bot_start()
-
-# Background task function
-def main_bg_task():
-    asyncio.run(async_main_bg_task())
 
 # Function to run a file in a new console
 def run_file_in_new_console(file_path):
@@ -62,7 +45,7 @@ if __name__ == "__main__":
     if asyncio.run(SettingsManager().get_setting("app.auto_update")):
         if needs_update():
             logging.info("Updating application...")
-            run_file_in_new_console(os.path.join("Code", "auto_updater", "update.py"))
+            run_file_in_new_console(os.path.join("Code", "auto_updater", "auto_updater.py"))
             sys.exit(0)
     
     logger = logging.getLogger()
@@ -90,14 +73,4 @@ if __name__ == "__main__":
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
     
-    def signal_handler(signal, frame):
-        sys.exit(0)
-    
-    signal.signal(signal.SIGINT, signal_handler)
-    
-    if not debug:
-        webbrowser.open("http://127.0.0.1:5000")
-    
-    socketio.start_background_task(main_bg_task)
-    
-    socketio.run(app, debug=debug, allow_unsafe_werkzeug=True)
+    app.run(debug=debug)

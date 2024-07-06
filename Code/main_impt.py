@@ -1,15 +1,5 @@
-from db_work import AsyncDB
+from access_manager import AuthManager
 from factory import PrototypeFactory
 
-soul_db = AsyncDB(
-    db_name="souls",
-    db_path="data",
-    db_config= { 
-        "souls": [ 
-            ("discord_id", int, (AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE), None), 
-            ("name", str, 0, None) 
-        ] 
-    }
-)
-
+auth_manager = AuthManager()
 prototype_factory = PrototypeFactory()
