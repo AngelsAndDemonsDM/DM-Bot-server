@@ -135,6 +135,7 @@ class AsyncDB:
             
             column_definitions_str = ", ".join(column_definitions)
             create_table_query = f"CREATE TABLE IF NOT EXISTS {table_name} ({column_definitions_str});"
+            logging.warning(create_table_query)
             cursor.execute(create_table_query)
 
         connect.commit()
