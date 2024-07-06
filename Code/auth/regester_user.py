@@ -4,7 +4,7 @@ from quart import jsonify, request
 
 
 @auth_bp.route('/register', methods=['POST'])
-async def register():
+async def api_register_user():
     try:
         data = await request.get_json()
         

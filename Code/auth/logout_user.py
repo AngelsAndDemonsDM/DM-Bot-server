@@ -4,7 +4,7 @@ from quart import jsonify, request
 
 
 @auth_bp.route('/logout', methods=['POST'])
-async def logout():
+async def api_logout_user():
     data = await request.get_json()
     
     if 'token' not in data:

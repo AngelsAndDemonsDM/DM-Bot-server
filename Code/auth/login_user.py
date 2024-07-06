@@ -4,7 +4,7 @@ from quart import jsonify, request
 
 
 @auth_bp.route('/login', methods=['POST'])
-async def login():
+async def api_login_user():
     try:
         data = await request.get_json()
         
