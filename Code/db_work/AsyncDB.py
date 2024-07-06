@@ -1,337 +1,487 @@
 import logging
 import os
+import re
 import sqlite3
 from typing import Any, Dict, List, Optional, Tuple
 
 import aiosqlite
 
 
+class AsyncDBError(Exception):
+    """Базовый класс для исключений AsyncDB.
+    """
+    pass
+
+class UniqueConstraintError(AsyncDBError):
+    """Исключение для нарушения ограничения уникальности.
+    """
+    pass
+
+class ForeignKeyConstraintError(AsyncDBError):
+    """Исключение для нарушения ограничения внешнего ключа.
+    """
+    pass
+
+class CheckConstraintError(AsyncDBError):
+    """Исключение для нарушения CHECK ограничения.
+    """
+    pass
+
+class NotNullConstraintError(AsyncDBError):
+    """Исключение для нарушения NOT NULL ограничения.
+    """
+    pass
+
+def _handle_integrity_errors(func):
+    """Декоратор для обработки исключений целостности SQLite.
+
+    Args:
+        func (Callable): Функция, которую нужно обернуть.
+
+    Returns:
+        Callable: Обернутая функция.
+    """
+    async def wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+    
+        except sqlite3.IntegrityError as e:
+            if "UNIQUE constraint failed" in str(e):
+                raise UniqueConstraintError(str(e))
+            
+            elif "FOREIGN KEY constraint failed" in str(e):
+                raise ForeignKeyConstraintError(str(e))
+            
+            elif "CHECK constraint failed" in str(e):
+                raise CheckConstraintError(str(e))
+            
+            elif "NOT NULL constraint failed" in str(e):
+                raise NotNullConstraintError(str(e))
+            
+            else:
+                raise
+    
+    return wrapper
+
 class AsyncDB:
-    PRIMARY_KEY  = 1 << 0
-    UNIQUE       = 1 << 1
-    AUTOINCREMENT= 1 << 2
-    NOT_NULL     = 1 << 3
+    """Асинхронный класс для работы с SQLite базой данных."""
     
-    __slots__ = ['_db_path', '_connect', '_db_config']
+    PRIMARY_KEY: bytes   = 1 << 0
+    AUTOINCREMENT: bytes = 1 << 1
+    NOT_NULL: bytes      = 1 << 2
+    DEFAULT: bytes       = 1 << 3
+    CHECK: bytes         = 1 << 4
+    UNIQUE: bytes        = 1 << 5
+    FOREIGN_KEY: bytes   = 1 << 6
     
-    def __init__(self, db_name: str, db_path: str, db_config: Dict[str, List[Tuple[str, type, int, Optional[str]]]]) -> None:
-        """Инициализирует асинхронное соединение с базой данных SQLite.
+    __slots__ = ['_file_path', '_connect', '_config']
+    
+    def __init__(self, file_name: str, file_path: str, config: Dict[str, List[Tuple[str, type, bytes, Optional[str]]]]) -> None:
+        """Инициализация базы данных.
 
         Args:
-            db_name (str): Имя базы данных.
-            db_path (str): Путь к директории базы данных.
-            db_config (Dict[str, List[Tuple[str, type, int, Optional[str]]]]): Конфигурация базы данных в виде словаря,
-                где ключи - это имена таблиц, а значения - списки кортежей, описывающих колонки (имя, тип, флаги, внешние ключи).
+            file_name (str): Имя файла базы данных.
+            file_path (str): Путь к директории, где будет храниться файл базы данных.
+            config (Dict[str, List[Tuple[str, type, bytes, Optional[str]]]]): Конфигурация базы данных.
 
+        Raises:
+            ValueError: Если конфигурация не предоставлена.
+        
         Example:
-        ```py
-        |db_config = {
-        |    'users': [
-        |        ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
-        |        ('name', str, AsyncDB.NOT_NULL, None),
-        |        ('email', str, AsyncDB.UNIQUE, None)
-        |    ]
-        |}
-        |async_db = AsyncDB('mydatabase', './db', db_config)
-        ```
+            ```py
+            |config = {
+            |    'users': [
+            |        ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
+            |        ('name', str, AsyncDB.NOT_NULL | AsyncDB.UNIQUE, None),
+            |        ('age', int, AsyncDB.DEFAULT | AsyncDB.CHECK, 'def.18\\0check.age >= 18'),
+            |        ('profile', bytes, AsyncDB.NOT_NULL, None)
+            |    ],
+            |    'orders': [
+            |        ('id', int, AsyncDB.PRIMARY_KEY | AsyncDB.AUTOINCREMENT, None),
+            |        ('user_id', int, AsyncDB.NOT_NULL | AsyncDB.FOREIGN_KEY, 'forkey.users.id'),
+            |        ('product', str, AsyncDB.NOT_NULL, None)
+            |    ]
+            |}
+            |db = AsyncDB("test_db", "db_path", config)
+            ```
         """
-        db_path = db_path.replace('/', os.sep)
-        db_path = os.path.join(os.getcwd(), db_path)
-
-        if not os.path.exists(db_path):
-            logging.debug(f"AsyncDB: Creating database directory at path: {db_path}")
-            os.makedirs(db_path)
-        
-        if not db_config:
+        if not config:
             raise ValueError("Database configuration is required")
+
+        file_path = file_path.replace('/', os.sep)
+        file_path = os.path.join(os.getcwd(), file_path)
+
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
         
-        self._db_path: str = os.path.join(db_path, f"{db_name}.db")
+        self._file_path: str = os.path.join(file_path, f"{file_name}.db")
         self._connect: Optional[aiosqlite.Connection] = None
-        self._db_config: Dict[str, List[Tuple[str, type, int, str]]] = db_config
-
-        self.initialization()
-
-    async def __aenter__(self) -> 'AsyncDB':
-        """Открывает соединение с базой данных при входе в контекст.
-
-        Returns:
-            AsyncDB: Текущий экземпляр класса.
-        """
-        await self.open()
-        return self
-
-    async def __aexit__(self, exc_type, exc, tb) -> None:
-        """Закрывает соединение с базой данных при выходе из контекста."""
-        await self.close()
-
-    def _process_columns(self, columns: List[Tuple[str, type, int, Optional[str]]]) -> str:
-        """Форматирует описание колонок для SQL запроса.
+        self._config = config
+        self._init_data_base(config)
+    
+    def _init_data_base(self, config: Dict[str, List[Tuple[str, type, bytes, Optional[str]]]]) -> None:
+        """Инициализация базы данных.
 
         Args:
-            columns (List[Tuple[str, type, int, Optional[str]]]): Список кортежей, описывающих колонки (имя, тип, флаги, внешние ключи).
-
-        Returns:
-            str: SQL строка с описанием колонок и внешних ключей.
+            config (Dict[str, List[Tuple[str, type, bytes, Optional[str]]]]): Конфигурация базы данных.
         """
-        table_config = self._generate_column_definitions(columns)
-        foreign_keys = self._generate_foreign_keys(columns)
-        
-        if foreign_keys:
-            table_config.extend(foreign_keys)
-        
-        return ", ".join(table_config)
+        connect = sqlite3.connect(self._file_path)
+        cursor = connect.cursor()
 
-    def _generate_column_definitions(self, columns: List[Tuple[str, type, int, Optional[str]]]) -> List[str]:
-        """Генерирует определения колонок для SQL запроса.
+        for table_name, columns in config.items():
+            column_definitions = []
+            for column in columns:
+                column_definition = self._get_column_flags(column, config)
+                column_definitions.append(column_definition)
+            
+            column_definitions_str = ", ".join(column_definitions)
+            create_table_query = f"CREATE TABLE IF NOT EXISTS {table_name} ({column_definitions_str});"
+            logging.warning(create_table_query)
+            cursor.execute(create_table_query)
+
+        connect.commit()
+        connect.close()
+    
+    def _get_sql_type(self, sql_type: type) -> str:
+        """Преобразование типа Python в тип SQL.
 
         Args:
-            columns (List[Tuple[str, type, int, Optional[str]]]): Список кортежей, описывающих колонки.
-
-        Returns:
-            List[str]: Список строк с определениями колонок.
-        """
-        return [
-            f"{col[0]} {self._get_column_type(col[1])} {self._get_column_flags(col[2])}".strip()
-            for col in columns
-        ]
-
-    def _generate_foreign_keys(self, columns: List[Tuple[str, type, int, Optional[str]]]) -> List[str]:
-        """Генерирует внешние ключи для SQL запроса.
-
-        Args:
-            columns (List[Tuple[str, type, int, Optional[str]]]): Список кортежей, описывающих колонки.
-
-        Returns:
-            List[str]: Список строк с определениями внешних ключей.
-        """
-        foreign_keys = []
-        for col in columns:
-            if col[3]:
-                try:
-                    ref_table, ref_column = col[3].split('.')
-                    foreign_keys.append(f"FOREIGN KEY ({col[0]}) REFERENCES {ref_table}({ref_column})")
-
-                except ValueError as err:
-                    logging.error(f"Error parsing foreign key for column {col[0]}: {col[3]}")
-                    raise ValueError(f"Invalid foreign key format for column {col[0]}: {col[3]}") from err
-
-        return foreign_keys
-
-    def _get_column_type(self, datatype: type) -> str:
-        """Определяет SQL тип данных для колонки.
-
-        Args:
-            datatype (type): Тип данных Python.
+            sql_type (type): Тип данных Python.
 
         Raises:
             ValueError: Если тип данных не поддерживается.
 
         Returns:
-            str: SQL тип данных.
+            str: Соответствующий тип данных SQL.
         """
-        if datatype == int or datatype == bool:
+        if sql_type is int or sql_type is bool:
             return "INTEGER"
         
-        elif datatype == float:
+        if sql_type is float:
             return "REAL"
         
-        elif datatype == str:
-            return "TEXT"
-        
-        elif datatype == bytes:
+        if sql_type is bytes:
             return "BLOB"
         
-        else:
-            raise ValueError(f"Unsupported datatype: {datatype}")
-
-    def _get_column_flags(self, flags: int) -> str:
-        """Определяет SQL флаги для колонки.
-
-        Args:
-            flags (int): Битовая маска флагов.
-
-        Returns:
-            str: SQL строка с флагами.
-        """
-        flags_exit = []
-        if flags & self.PRIMARY_KEY:
-            flags_exit.append("PRIMARY KEY AUTOINCREMENT" if flags & self.AUTOINCREMENT else "PRIMARY KEY")
-            
-        if flags & self.UNIQUE and not (flags & self.PRIMARY_KEY):
-            flags_exit.append("UNIQUE")
-            
-        if flags & self.NOT_NULL:
-            flags_exit.append("NOT NULL")
-            
-        return " ".join(flags_exit)
-    
-    def initialization(self) -> None:
-        """СИНХРОННЫЙ метод инициализации базы данных.
-        Позволяет создать базу данных и инициализировать её полностью.
-        """
-        conn = sqlite3.connect(self._db_path)
-        cursor = conn.cursor()
-
-        for table_name, columns in self._db_config.items():
-            table_cfg = self._process_columns(columns)
-            cursor.execute(f"CREATE TABLE IF NOT EXISTS {table_name} ({table_cfg})")
-
-        conn.commit()
-        conn.close()
+        if sql_type is str:
+            return "TEXT"
         
-    async def open(self) -> None:
-        """Открывает соединение с базой данных.
-        """
-        try:
-            self._connect = await aiosqlite.connect(self._db_path)
-            await self._connect.execute("PRAGMA foreign_keys = ON;")
-            await self._connect.commit()
+        raise ValueError(f"Unsupported SQL type: {sql_type}")
 
-        except Exception as err:
-            logging.error(f"Error while connecting to {self._db_path}: {err}")
-            raise err
-
-    async def close(self) -> None:
-        """Закрывает соединение с базой данных.
-        """
-        if self._connect:
-            try:
-                await self._connect.close()
-                self._connect = None
-
-            except Exception as err: 
-                logging.error(f"Error while closing connection with {self._db_path}: {err}")
-                raise err
-
-    async def select_raw(self, query: str, parameters: Optional[Tuple[Any, ...]] = None) -> List[Dict[str, Any]]:
-        """Выполняет произвольный SELECT запрос и возвращает результаты.
+    def _parse_column_add_info(self, add_info: str) -> Dict[str, str]:
+        """Парсинг дополнительной информации о колонке.
 
         Args:
-            query (str): SQL запрос SELECT.
-            parameters (Optional[Tuple[Any, ...]], optional): Параметры для запроса.
+            add_info (str): Дополнительная информация о колонке.
 
         Returns:
-            List[Dict[str, Any]]: Список строк в виде словарей.
-
-        Example:
-        ```py
-        |async with async_db as db:
-        |    results = await db.select_raw("SELECT * FROM users WHERE name = ?", ("John Doe",))
-        |    print(results)
-        ```
+            Dict[str, str]: Словарь с разобранной информацией.
         """
-        async with self._connect.execute(query, parameters) as cursor:
-            rows = await cursor.fetchall()
-            col_names = [description[0] for description in cursor.description]
+        parsed_info = {}
+
+        # Поиск и извлечение значений по ключам wrapped in |
+        patterns = {
+            'DEFAULT': r'def\|(.*?)\|',
+            'CHECK': r'check\|(.*?)\|',
+            'FOREIGN_KEY': r'forkey\|(.*?)\|'
+        }
+
+        for key, pattern in patterns.items():
+            match = re.search(pattern, add_info)
+            if match:
+                parsed_info[key] = match.group(1).strip()
+
+        return parsed_info
+    
+    def _get_column_flags(self, column: Tuple[str, type, bytes, Optional[str]], config: Dict[str, List[Tuple[str, type, bytes, Optional[str]]]]) -> str:
+        """Получение флагов колонки.
+
+        Args:
+            column (Tuple[str, type, bytes, Optional[str]]): Информация о колонке.
+            config (Dict[str, List[Tuple[str, type, bytes, Optional[str]]]]): Конфигурация базы данных.
+
+        Raises:
+            ValueError: Если конфигурация колонки некорректна.
+
+        Returns:
+            str: SQL строка с флагами колонки.
+        """
+        column_name, column_type, column_flags, column_add_info = column
+        
+        # PRIMARY_KEY не сочетается с типом bytes
+        if column_type is bytes and column_flags & AsyncDB.PRIMARY_KEY:
+            raise ValueError(f"Column '{column_name}': PRIMARY_KEY cannot be used with byte type")
+        
+        # PRIMARY_KEY не сочетается с DEFAULT
+        if column_flags & AsyncDB.PRIMARY_KEY and column_flags & AsyncDB.DEFAULT:
+            raise ValueError(f"Column '{column_name}': PRIMARY_KEY cannot be used with DEFAULT")
+        
+        # AUTOINCREMENT не сочетается с DEFAULT и CHECK
+        if column_flags & AsyncDB.AUTOINCREMENT and (column_flags & AsyncDB.DEFAULT or column_flags & AsyncDB.CHECK):
+            raise ValueError(f"Column '{column_name}': AUTOINCREMENT cannot be used with DEFAULT or CHECK")
+        
+        # AUTOINCREMENT не сочетается ни с чем, кроме int
+        if column_flags & AsyncDB.AUTOINCREMENT and column_type is not int:
+            raise ValueError(f"Column '{column_name}': AUTOINCREMENT can only be used with int type")
+        
+        if column_add_info and column_add_info != "":
+            parsed_add_info = self._parse_column_add_info(column_add_info)
+        else:
+            parsed_add_info = {}
+        
+        # FOREIGN_KEY должен быть корректным и ссылка должна существовать
+        if column_flags & AsyncDB.FOREIGN_KEY:
+            if 'FOREIGN_KEY' not in parsed_add_info:
+                raise ValueError(f"Column '{column_name}': FOREIGN_KEY specified but no foreign key info provided")
             
-            return [dict(zip(col_names, row)) for row in rows]
+            ref_table, ref_column = parsed_add_info['FOREIGN_KEY'].split('.')
+            if ref_table not in config:
+                raise ValueError(f"Referenced table '{ref_table}' for column '{column_name}' does not exist in config")
+            
+            ref_columns = [col[0] for col in config[ref_table]]
+            if ref_column not in ref_columns:
+                raise ValueError(f"Referenced column '{ref_column}' in table '{ref_table}' for column '{column_name}' does not exist")
+        
+        # Генерация строки флагов
+        flag_str = ""
+        
+        if column_flags & AsyncDB.PRIMARY_KEY:
+            flag_str += "PRIMARY KEY "
+            
+        if column_flags & AsyncDB.AUTOINCREMENT:
+            flag_str += "AUTOINCREMENT "
+        
+        if column_flags & AsyncDB.NOT_NULL:
+            flag_str += "NOT NULL "
+        
+        if column_flags & AsyncDB.UNIQUE:
+            flag_str += "UNIQUE "
+        
+        if column_flags & AsyncDB.DEFAULT and 'DEFAULT' in parsed_add_info:
+            flag_str += f"DEFAULT {parsed_add_info['DEFAULT']} "
+        
+        if column_flags & AsyncDB.CHECK and 'CHECK' in parsed_add_info:
+            flag_str += f"CHECK ({parsed_add_info['CHECK']}) "
+        
+        if column_flags & AsyncDB.FOREIGN_KEY and 'FOREIGN_KEY' in parsed_add_info:
+            ref_table, ref_column = parsed_add_info['FOREIGN_KEY'].split('.')
+            flag_str += f"REFERENCES {ref_table}({ref_column}) "
+        
+        flag_str = flag_str.strip()
+        
+        return f'{column_name} {self._get_sql_type(column_type)} {flag_str}'
 
-    async def insert(self, table: str, data: Dict[str, Any]) -> int:
-        """Выполняет вставку строки в указанную таблицу.
-
-        Args:
-            table (str): Имя таблицы.
-            data (Dict[str, Any]): Данные для вставки в виде словаря (ключи - имена колонок, значения - данные).
+    async def _open(self) -> None:
+        """Открытие асинхронного соединения с базой данных."""
+        self._connect = await aiosqlite.connect(self._file_path)
+        await self._connect.execute("PRAGMA foreign_keys = ON;")
+        await self._connect.commit()
+    
+    async def _close(self) -> None:
+        """Закрытие асинхронного соединения с базой данных."""
+        if self._connect:
+            await self._connect.close()
+            self._connect = None
+    
+    async def __aenter__(self) -> 'AsyncDB':
+        """Вход в контекстное управление.
 
         Returns:
-            int: Идентификатор последней вставленной строки.
-
+            AsyncDB: Экземпляр текущего объекта.
+        
         Example:
-        ```py
-        |async with async_db as db:
-        |    user_id = await db.insert(
-        |        table='users',
-        |        data={'name': 'John Doe', 'email': 'john@example.com'}
-        |    )
-        |    print(f"Inserted user with ID: {user_id}")
-        ```
+            ```py
+            |async with AsyncDB("test_db", "db_path", config) as db:
+            |    # Используйте db
+            ```
+        """
+        await self._open()
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb) -> None:
+        """Выход из контекстного управления.
+
+        Args:
+            exc_type (Type): Тип исключения.
+            exc (Exception): Экземпляр исключения.
+            tb (Traceback): Трассировка стека.
+        """
+        await self._close()
+    
+    @_handle_integrity_errors
+    async def raw(self, query: str, parms: Optional[Tuple[Any, ...]] = None) -> List[Dict[str, Any]]:
+        """Выполнение произвольного SQL-запроса.
+
+        Args:
+            query (str): SQL-запрос.
+            parms (Optional[Tuple[Any, ...]], optional): Параметры для SQL-запроса. Defaults to None.
+
+        Returns:
+            List[Dict[str, Any]]: Результат запроса в виде списка словарей.
+        
+        Example:
+            ```py
+            |async with AsyncDB("test_db", "db_path", config) as db:
+            |    result = await db.raw("SELECT * FROM users WHERE age > ?", (20,))
+            |    print(result)
+            ```
+        """
+        async with self._connect.execute(query, parms or ()) as cursor:
+            columns = [description[0] for description in cursor.description]
+            return [dict(zip(columns, row)) for row in await cursor.fetchall()]
+    
+    @_handle_integrity_errors
+    async def insert(self, table: str, data: Dict[str, Any]) -> int:
+        """Вставка записи в таблицу.
+
+        Args:
+            table (str): Название таблицы.
+            data (Dict[str, Any]): Данные для вставки.
+
+        Returns:
+            int: ID вставленной записи.
+        
+        Example:
+            ```py
+            |async with AsyncDB("test_db", "db_path", config) as db:
+            |    user_id = await db.insert('users', {
+            |        'name': 'Alice',
+            |        'age': 30,
+            |        'profile': b'Profile data for Alice'
+            |    })
+            |    print(user_id)
+            ```
         """
         columns = ', '.join(data.keys())
-        placeholders = ', '.join('?' for _ in data)
-        values = tuple(data.values())
-
-        async with self._connect.execute(f"INSERT INTO {table} ({columns}) VALUES ({placeholders})", values) as cursor:
+        placeholders = ', '.join(['?'] * len(data))
+        query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
+        
+        async with self._connect.execute(query, tuple(data.values())) as cursor:
             await self._connect.commit()
-            
             return cursor.lastrowid
-
-    async def select(self, table: str, columns: Optional[List[str]] = None, where: Optional[str] = None, where_values: Optional[Tuple[Any, ...]] = None) -> List[Dict[str, Any]]:
-        """Выполняет SELECT запрос и возвращает результаты.
+    
+    @_handle_integrity_errors
+    async def update(self, table: str, data: Dict[str, Any], where: Dict[str, Any]) -> int:
+        """Обновление записи в таблице.
 
         Args:
-            table (str): Имя таблицы.
-            columns (Optional[List[str]], optional): Список колонок для выборки. По умолчанию выбираются все колонки.
-            where (Optional[str], optional): Условие WHERE для фильтрации. По умолчанию не применяется.
-            where_values (Optional[Tuple[Any, ...]], optional): Значения для условия WHERE.
+            table (str): Название таблицы.
+            data (Dict[str, Any]): Данные для обновления.
+            where (Dict[str, Any]): Условия для обновления.
 
         Returns:
-            List[Dict[str, Any]]: Список строк в виде словарей.
-
+            int: Количество обновленных записей.
+        
         Example:
-        ```py
-        |async with async_db as db:
-        |    users = await db.select(
-        |        table='users',
-        |        columns=['id', 'name', 'email'],
-        |        where='name = ?',
-        |        where_values=('John Doe',)
-        |    )
-        |    print(users)
-        ```
+            ```py
+            |async with AsyncDB("test_db", "db_path", config) as db:
+            |    rows_affected = await db.update('users', {'age': 31}, {'name': 'Alice'})
+            |    print(rows_affected)
+            ```
         """
-        columns_part = ', '.join(columns) if columns else '*'
-        where_part = f" WHERE {where}" if where else ''
+        set_clause = ', '.join([f"{key} = ?" for key in data.keys()])
+        where_clause = ' AND '.join([f"{key} = ?" for key in where.keys()])
+        query = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
+        
+        async with self._connect.execute(query, tuple(data.values()) + tuple(where.values())) as cursor:
+            await self._connect.commit()
+            return cursor.rowcount
+    
+    async def delete(self, table: str, where: Dict[str, Any]) -> int:
+        """Удаление записи из таблицы.
 
-        async with self._connect.execute(f"SELECT {columns_part} FROM {table}{where_part}", where_values) as cursor:
-            rows = await cursor.fetchall()
-            col_names = [description[0] for description in cursor.description]
-            
-            return [dict(zip(col_names, row)) for row in rows]
+        Args:
+            table (str): Название таблицы.
+            where (Dict[str, Any]): Условия для удаления.
 
-    async def update(self, table: str, data: Dict[str, Any], where: str, where_values: Tuple[Any, ...]) -> None:
-        """Выполняет обновление строк в указанной таблице.
+        Returns:
+            int: Количество удаленных записей.
+        
+        Example:
+            ```py
+            |async with AsyncDB("test_db", "db_path", config) as db:
+            |    rows_deleted = await db.delete('users', {'name': 'Alice'})
+            |    print(rows_deleted)
+            ```
+        """
+        where_clause = ' AND '.join([f"{key} = ?" for key in where.keys()])
+        query = f"DELETE FROM {table} WHERE {where_clause}"
+        
+        async with self._connect.execute(query, tuple(where.values())) as cursor:
+            await self._connect.commit()
+            return cursor.rowcount
+    
+    async def select(self, table: str, columns: List[str], where: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        """Выборка записей из таблицы.
+
+        Args:
+            table (str): Название таблицы.
+            columns (List[str]): Список колонок для выборки.
+            where (Optional[Dict[str, Any]], optional): Условия для выборки. Defaults to None.
+
+        Returns:
+            List[Dict[str, Any]]: Результат выборки в виде списка словарей.
+        
+        Example:
+            ```py
+            |async with AsyncDB("test_db", "db_path", config) as db:
+            |    result = await db.select('users', ['id', 'name', 'age'], {'age': 30})
+            |    print(result)
+            ```
+        """
+        columns_str = ', '.join(columns)
+        query = f"SELECT {columns_str} FROM {table}"
+        parms = ()
+        if where:
+            where_clause = ' AND '.join([f"{key} = ?" for key in where.keys()])
+            query += f" WHERE {where_clause}"
+            parms = tuple(where.values())
+        
+        async with self._connect.execute(query, parms) as cursor:
+            columns = [description[0] for description in cursor.description]
+            return [dict(zip(columns, row)) for row in await cursor.fetchall()]
+
+    @_handle_integrity_errors
+    async def update_or_insert(self, table: str, data: Dict[str, Any], where: Dict[str, Any]) -> int:
+        """Обновление существующей записи или вставка новой, если запись не существует.
 
         Args:
             table (str): Имя таблицы.
-            data (Dict[str, Any]): Данные для обновления в виде словаря (ключи - имена колонок, значения - данные).
-            where (str): Условие WHERE для фильтрации строк для обновления.
-            where_values (Tuple[Any, ...]): Значения для условия WHERE.
+            data (Dict[str, Any]): Данные для вставки или обновления.
+            where (Dict[str, Any]): Условия для поиска существующей записи.
 
+        Returns:
+            int: Идентификатор вставленной или обновленной записи.
+        
         Example:
-        ```py
-        |async with async_db as db:
-        |    await db.update(
-        |        table='users',
-        |        data={'name': 'John Smith'},
-        |        where='id = ?',
-        |        where_values=(1,)
-        |    )
-        ```
+            ```py
+            |async with AsyncDB("test_db", "db_path", config) as db:
+            |    user_id = await db.update_or_insert('users', {'age': 31}, {'name': 'Alice'})
+            |    print(user_id)
+            ```
         """
-        set_clause = ', '.join(f"{key} = ?" for key in data.keys())
-        values = tuple(data.values())
+        where_clause = ' AND '.join([f"{k} = ?" for k in where.keys()])
+        where_values = tuple(where.values())
 
-        async with self._connect.execute(f"UPDATE {table} SET {set_clause} WHERE {where}", values + where_values) as cursor:
-            await self._connect.commit()
+        select_query = f"SELECT 1 FROM {table} WHERE {where_clause}"
+        async with self._connect.execute(select_query, where_values) as cursor:
+            row = await cursor.fetchone()
 
+        if row:
+            set_clause = ', '.join([f"{k} = ?" for k in data.keys()])
+            update_query = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
+            async with self._connect.execute(update_query, tuple(data.values()) + where_values):
+                await self._connect.commit()
+        
+        else:
+            data.update(where)
+            columns = ', '.join(data.keys())
+            placeholders = ', '.join(['?' for _ in data])
+            insert_query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
+            async with self._connect.execute(insert_query, tuple(data.values())):
+                await self._connect.commit()
 
-    async def delete(self, table: str, where: str, where_values: Tuple[Any, ...]) -> None:
-        """Выполняет удаление строк из указанной таблицы.
-
-        Args:
-            table (str): Имя таблицы.
-            where (str): Условие WHERE для фильтрации строк для удаления.
-            where_values (Tuple[Any, ...]): Значения для условия WHERE.
-
-        Example:
-        ```py
-        |async with async_db as db:
-        |    await db.delete(
-        |        table='users',
-        |        where='id = ?',
-        |        where_values=(1,)
-        |    )
-        ```
-        """
-        async with self._connect.execute(f"DELETE FROM {table} WHERE {where}", where_values) as cursor:
-            await self._connect.commit()
+        # Возвращаем идентификатор записи
+        async with self._connect.execute(f"SELECT id FROM {table} WHERE {where_clause}", where_values) as cursor:
+            result = await cursor.fetchone()
+            return result[0]
