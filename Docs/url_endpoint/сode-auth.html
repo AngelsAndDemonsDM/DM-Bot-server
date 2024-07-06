@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL endpoint auth</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        code {
+            background-color: #eee;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+        }
+        .endpoint {
+            margin: 20px 0;
+        }
+        .method {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .url {
+            font-size: 1.1em;
+            color: #2980b9;
+        }
+        .description {
+            margin: 10px 0;
+            color: #555;
+        }
+        .parameters, .returns {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+        .parameters h3, .returns h3 {
+            margin-top: 0;
+        }
+        .parameter, .return {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>URL endpoint auth</h1>
+        
+        <!-- change_user_access endpoint -->
+        <div class="endpoint">
+            <h2><span class="method">POST</span> <span class="url">/auth/change_user_access</span></h2>
+
+            <div class="description">
+                <p>Данный endpoint служит для смены доступа у пользователя. Не работает при отсутствии флага CAN_CHANGE_ACCESS.</p>
+            </div>
+            
+            <div class="parameters">
+                <h3>Параметры:</h3>
+                <div class="parameter">
+                    <code>login</code> (тип: string, обязательный: да) - Логин у которого будем менять права доступа.
+                </div>
+                <div class="parameter">
+                    <code>new_access</code> (тип: bytes, обязательный: да) - Новый доступ.
+                </div>
+                <div class="parameter">
+                    <code>requester_token</code> (тип: string, обязательный: да) - Токен запрашивающего изменения доступа для логина.
+                </div>
+            </div>
+
+            <div class="returns">
+                <h3>Возвращаемые данные:</h3>
+                <div class="return">
+                    <p><code>200 OK</code> - JSON объект с сообщением об успешном изменении доступа:</p>
+                    <pre><code>{
+    "message": "Access level changed successfully"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>400 Bad Request</code> - JSON объект с ошибкой, если отсутствует обязательное поле:</p>
+                    <pre><code>{
+    "message": "Field \"login\" is required"
+}</code></pre>
+                    <pre><code>{
+    "message": "Field \"new_access\" is required"
+}</code></pre>
+                    <pre><code>{
+    "message": "Field \"requester_token\" is required"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>403 Forbidden</code> - JSON объект с ошибкой, если доступ запрещен или произошла ошибка при проверке доступа:</p>
+                    <pre><code>{
+    "message": "Access denied"
+}</code></pre>
+                    <pre><code>{
+    "message": "Invalid token"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>500 Internal Server Error</code> - JSON объект с сообщением об ошибке на сервере:</p>
+                    <pre><code>{
+    "message": "An unexpected error occurred",
+    "error": "Detailed error message"
+}</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- change_user_password endpoint -->
+        <div class="endpoint">
+            <h2><span class="method">POST</span> <span class="url">/auth/change_user_password</span></h2>
+
+            <div class="description">
+                <p>Данный endpoint служит для смены пароля пользователя. Не работает при отсутствии флага CAN_CHANGE_PASSWORD, если запрашивающий не является владельцем аккаунта.</p>
+            </div>
+            
+            <div class="parameters">
+                <h3>Параметры:</h3>
+                <div class="parameter">
+                    <code>login</code> (тип: string, обязательный: да) - Логин у которого будем менять пароль.
+                </div>
+                <div class="parameter">
+                    <code>new_password</code> (тип: string, обязательный: да) - Новый пароль.
+                </div>
+                <div class="parameter">
+                    <code>requester_token</code> (тип: string, обязательный: да) - Токен запрашивающего изменения пароля.
+                </div>
+            </div>
+
+            <div class="returns">
+                <h3>Возвращаемые данные:</h3>
+                <div class="return">
+                    <p><code>200 OK</code> - JSON объект с сообщением об успешном изменении пароля:</p>
+                    <pre><code>{
+    "message": "Password changed successfully"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>400 Bad Request</code> - JSON объект с ошибкой, если отсутствует обязательное поле:</p>
+                    <pre><code>{
+    "message": "Field \"login\" is required"
+}</code></pre>
+                    <pre><code>{
+    "message": "Field \"new_password\" is required"
+}</code></pre>
+                    <pre><code>{
+    "message": "Field \"requester_token\" is required"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>403 Forbidden</code> - JSON объект с ошибкой, если доступ запрещен или произошла ошибка при проверке доступа:</p>
+                    <pre><code>{
+    "message": "Access denied"
+}</code></pre>
+                    <pre><code>{
+    "message": "Invalid token"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>500 Internal Server Error</code> - JSON объект с сообщением об ошибке на сервере:</p>
+                    <pre><code>{
+    "message": "An unexpected error occurred",
+    "error": "Detailed error message"
+}</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- delete_user endpoint -->
+        <div class="endpoint">
+            <h2><span class="method">POST</span> <span class="url">/auth/delete_user</span></h2>
+
+            <div class="description">
+                <p>Данный endpoint служит для удаления пользователя. Не работает при отсутствии флага CAN_DELETE_USERS.</p>
+            </div>
+            
+            <div class="parameters">
+                <h3>Параметры:</h3>
+                <div class="parameter">
+                    <code>login</code> (тип: string, обязательный: да) - Логин пользователя, которого нужно удалить.
+                </div>
+                <div class="parameter">
+                    <code>requester_token</code> (тип: string, обязательный: да) - Токен запрашивающего удаления пользователя.
+                </div>
+            </div>
+
+            <div class="returns">
+                <h3>Возвращаемые данные:</h3>
+                <div class="return">
+                    <p><code>200 OK</code> - JSON объект с сообщением об успешном удалении пользователя:</p>
+                    <pre><code>{
+    "message": "User deleted successfully"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>400 Bad Request</code> - JSON объект с ошибкой, если отсутствует обязательное поле:</p>
+                    <pre><code>{
+    "message": "Field \"login\" is required"
+}</code></pre>
+                    <pre><code>{
+    "message": "Field \"requester_token\" is required"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>403 Forbidden</code> - JSON объект с ошибкой, если доступ запрещен или произошла ошибка при проверке доступа:</p>
+                    <pre><code>{
+    "message": "Access denied"
+}</code></pre>
+                    <pre><code>{
+    "message": "Invalid token"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>500 Internal Server Error</code> - JSON объект с сообщением об ошибке на сервере:</p>
+                    <pre><code>{
+    "message": "An unexpected error occurred",
+    "error": "Detailed error message"
+}</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- login endpoint -->
+        <div class="endpoint">
+            <h2><span class="method">POST</span> <span class="url">/auth/login</span></h2>
+
+            <div class="description">
+                <p>Данный endpoint служит для авторизации пользователя.</p>
+            </div>
+            
+            <div class="parameters">
+                <h3>Параметры:</h3>
+                <div class="parameter">
+                    <code>login</code> (тип: string, обязательный: да) - Логин пользователя.
+                </div>
+                <div class="parameter">
+                    <code>password</code> (тип: string, обязательный: да) - Пароль пользователя.
+                </div>
+            </div>
+
+            <div class="returns">
+                <h3>Возвращаемые данные:</h3>
+                <div class="return">
+                    <p><code>200 OK</code> - JSON объект с сообщением об успешной авторизации и токеном:</p>
+                    <pre><code>{
+    "message": "Login successful",
+    "token": "token_value"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>400 Bad Request</code> - JSON объект с ошибкой, если отсутствует обязательное поле:</p>
+                    <pre><code>{
+    "message": "Field \"login\" is required"
+}</code></pre>
+                    <pre><code>{
+    "message": "Field \"password\" is required"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>403 Forbidden</code> - JSON объект с ошибкой, если авторизация не удалась:</p>
+                    <pre><code>{
+    "message": "Invalid login or password"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>500 Internal Server Error</code> - JSON объект с сообщением об ошибке на сервере:</p>
+                    <pre><code>{
+    "message": "An unexpected error occurred",
+    "error": "Detailed error message"
+}</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- logout endpoint -->
+        <div class="endpoint">
+            <h2><span class="method">POST</span> <span class="url">/auth/logout</span></h2>
+
+            <div class="description">
+                <p>Данный endpoint служит для выхода пользователя из системы.</p>
+            </div>
+            
+            <div class="parameters">
+                <h3>Параметры:</h3>
+                <div class="parameter">
+                    <code>token</code> (тип: string, обязательный: да) - Токен пользователя.
+                </div>
+            </div>
+
+            <div class="returns">
+                <h3>Возвращаемые данные:</h3>
+                <div class="return">
+                    <p><code>202 Accepted</code> - JSON объект с сообщением о попытке выхода из системы:</p>
+                    <pre><code>{
+    "message": "Logout attempt was made"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>400 Bad Request</code> - JSON объект с ошибкой, если отсутствует обязательное поле:</p>
+                    <pre><code>{
+    "message": "Field \"token\" is required"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>403 Forbidden</code> - JSON объект с ошибкой, если выход из системы не удался:</p>
+                    <pre><code>{
+    "message": "Invalid token"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>500 Internal Server Error</code> - JSON объект с сообщением об ошибке на сервере:</p>
+                    <pre><code>{
+    "message": "An unexpected error occurred",
+    "error": "Detailed error message"
+}</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- register endpoint -->
+        <div class="endpoint">
+            <h2><span class="method">POST</span> <span class="url">/auth/register</span></h2>
+
+            <div class="description">
+                <p>Данный endpoint служит для регистрации нового пользователя.</p>
+            </div>
+            
+            <div class="parameters">
+                <h3>Параметры:</h3>
+                <div class="parameter">
+                    <code>login</code> (тип: string, обязательный: да) - Логин нового пользователя.
+                </div>
+                <div class="parameter">
+                    <code>password</code> (тип: string, обязательный: да) - Пароль нового пользователя.
+                </div>
+            </div>
+
+            <div class="returns">
+                <h3>Возвращаемые данные:</h3>
+                <div class="return">
+                    <p><code>200 OK</code> - JSON объект с сообщением об успешной регистрации и токеном:</p>
+                    <pre><code>{
+    "message": "Register successful",
+    "token": "token_value"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>400 Bad Request</code> - JSON объект с ошибкой, если отсутствует обязательное поле:</p>
+                    <pre><code>{
+    "message": "Field \"login\" is required"
+}</code></pre>
+                    <pre><code>{
+    "message": "Field \"password\" is required"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>403 Forbidden</code> - JSON объект с ошибкой, если регистрация не удалась:</p>
+                    <pre><code>{
+    "message": "Registration failed"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>500 Internal Server Error</code> - JSON объект с сообщением об ошибке на сервере:</p>
+                    <pre><code>{
+    "message": "An unexpected error occurred",
+    "error": "Detailed error message"
+}</code></pre>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</body>
+
+</html>
