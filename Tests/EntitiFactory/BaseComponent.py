@@ -1,6 +1,6 @@
 import unittest
 
-from Code.factory import Component
+from Code.systems.entiti_factory import Component
 
 
 class ConcreteComponent(Component):

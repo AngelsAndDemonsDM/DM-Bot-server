@@ -1,9 +1,10 @@
 import os
 import unittest
 
-from Code.db_manager import (AsyncDB, CheckConstraintError,
-                             ForeignKeyConstraintError, NotNullConstraintError,
-                             UniqueConstraintError)
+from Code.systems.db_manager import (AsyncDB, CheckConstraintError,
+                                     ForeignKeyConstraintError,
+                                     NotNullConstraintError,
+                                     UniqueConstraintError)
 
 
 class TestAsyncDB(unittest.IsolatedAsyncioTestCase):

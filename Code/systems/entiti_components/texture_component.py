@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 
-from factory.base_component import Component
+from systems.entiti_factory.base_component import Component
 
 
 class TextureComponent(Component):

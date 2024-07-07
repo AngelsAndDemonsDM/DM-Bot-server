@@ -1,1 +1,0 @@
-from auto_updater.auto_updater import needs_update

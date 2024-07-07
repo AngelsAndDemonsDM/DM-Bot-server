@@ -1,4 +1,4 @@
-from factory.base_entity import Entity
+from systems.entiti_factory.base_entity import Entity
 
 
 class PlayerEntity(Entity):

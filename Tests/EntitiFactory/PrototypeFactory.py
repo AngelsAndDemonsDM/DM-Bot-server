@@ -3,21 +3,25 @@ import shutil
 import tempfile
 import unittest
 
-from Code.factory import PrototypeFactory
+from Code.systems.entiti_factory import PrototypeFactory
 
+HEALTH_COMPONENT_PATH: str = "systems.entiti_factory.test_fold.component.HealthComponent"
+POSITION_COMPONENT_PATH: str = "Code.systems.entiti_factory.test_fold.component.PositionComponent"
+PLAYER_ENTITY_PATH: str = "Code.systems.entiti_factory.test_fold.entity.PlayerEntity"
+ENEMY_ENTITY_PATH: str = "systems.entiti_factory.test_fold.entity.EnemyEntity"
 
 class TestPrototypeFactory(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
 
-        self.factory_mappings = """
+        self.factory_mappings = f"""
 components:
-  HealthComponent: "factory.test_fold.component.HealthComponent"
-  PositionComponent: "Code.factory.test_fold.component.PositionComponent"
+  HealthComponent: "{HEALTH_COMPONENT_PATH}"
+  PositionComponent: "{POSITION_COMPONENT_PATH}"
 
 entities:
-  PlayerEntity: "Code.factory.test_fold.entity.PlayerEntity"
-  EnemyEntity: "factory.test_fold.entity.EnemyEntity"
+  PlayerEntity: "{PLAYER_ENTITY_PATH}"
+  EnemyEntity: "{ENEMY_ENTITY_PATH}"
 """
         self.factory_mappings_path = os.path.join(self.test_dir, 'factory_mappings.yml')
         with open(self.factory_mappings_path, 'w', encoding='utf-8') as f:
@@ -41,7 +45,7 @@ entities:
         shutil.rmtree(self.test_dir)
 
     def test_create_component(self):
-        component_class = self.factory._load_class('Code.factory.test_fold.component.HealthComponent')
+        component_class = self.factory._load_class(HEALTH_COMPONENT_PATH)
         component = component_class(health=100)
         self.assertEqual(component.health, 100)
 
@@ -55,9 +59,9 @@ entities:
             ]
         }
 
-        entity_class = self.factory._load_class('Code.factory.test_fold.entity.PlayerEntity')
+        entity_class = self.factory._load_class(PLAYER_ENTITY_PATH)
         entity_class.default_values = lambda: {'name': 'Default Player'}
-        component_class = self.factory._load_class('Code.factory.test_fold.component.HealthComponent')
+        component_class = self.factory._load_class(HEALTH_COMPONENT_PATH)
         component_class.default_values = lambda: {'health': 100}
         
         entity = self.factory._create_entity(entity_data, 'dummy_path.yml', 1)
@@ -73,7 +77,7 @@ entities:
             'id': 'player1'
         }
 
-        entity_class = self.factory._load_class('Code.factory.test_fold.entity.PlayerEntity')
+        entity_class = self.factory._load_class(PLAYER_ENTITY_PATH)
         entity_class.default_values = lambda: {'name': 'Default Player'}
         
         entity = self.factory._create_entity(entity_data, 'dummy_path.yml', 1)
@@ -83,9 +87,9 @@ entities:
         self.assertEqual(found_entity.id, 'player1')
 
     def test_load_all_entities(self):
-        entity_class = self.factory._load_class('Code.factory.test_fold.entity.PlayerEntity')
+        entity_class = self.factory._load_class(PLAYER_ENTITY_PATH)
         entity_class.default_values = lambda: {'name': 'Default Player'}
-        component_class = self.factory._load_class('Code.factory.test_fold.component.HealthComponent')
+        component_class = self.factory._load_class(HEALTH_COMPONENT_PATH)
         component_class.default_values = lambda: {'health': 100}
         
         entities = self.factory.load_all_entities()

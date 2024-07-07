@@ -2,7 +2,7 @@ import hashlib
 import hmac
 import uuid
 
-from Code.db_manager import AsyncDB
+from systems.db_manager import AsyncDB
 
 
 class AuthManager:
