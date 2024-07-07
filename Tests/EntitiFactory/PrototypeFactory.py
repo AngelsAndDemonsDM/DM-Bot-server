@@ -3,12 +3,12 @@ import shutil
 import tempfile
 import unittest
 
-from Code.systems.entiti_factory import PrototypeFactory
+from Code.systems.entity_factory import PrototypeFactory
 
-HEALTH_COMPONENT_PATH: str = "systems.entiti_factory.test_fold.component.HealthComponent"
-POSITION_COMPONENT_PATH: str = "Code.systems.entiti_factory.test_fold.component.PositionComponent"
-PLAYER_ENTITY_PATH: str = "Code.systems.entiti_factory.test_fold.entity.PlayerEntity"
-ENEMY_ENTITY_PATH: str = "systems.entiti_factory.test_fold.entity.EnemyEntity"
+HEALTH_COMPONENT_PATH: str = "systems.entity_factory.test_fold.component.HealthComponent"
+POSITION_COMPONENT_PATH: str = "Code.systems.entity_factory.test_fold.component.PositionComponent"
+PLAYER_ENTITY_PATH: str = "Code.systems.entity_factory.test_fold.entity.PlayerEntity"
+ENEMY_ENTITY_PATH: str = "systems.entity_factory.test_fold.entity.EnemyEntity"
 
 class TestPrototypeFactory(unittest.TestCase):
     def setUp(self):

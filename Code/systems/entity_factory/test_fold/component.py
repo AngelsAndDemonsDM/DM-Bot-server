@@ -1,4 +1,4 @@
-from systems.entiti_factory.base_component import Component
+from systems.entity_factory.base_component import Component
 
 
 class HealthComponent(Component):

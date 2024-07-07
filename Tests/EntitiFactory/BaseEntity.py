@@ -1,6 +1,6 @@
 import unittest
 
-from Code.systems.entiti_factory import Entity
+from Code.systems.entity_factory import Entity
 
 
 class Component:
