@@ -2,15 +2,14 @@
 - all:
   - changed-files:
       - any-glob-to-any-file: ['Code/**', 'Prototype/factory_mappings.yml']
-      - any-glob-to-all-files: ['!Code/api/**',]
 
 "Changes: API":
 - changed-files:
   - any-glob-to-any-file: ['Code/api/**']
 
-"Changes: Sprites":
+"Changes: Systems":
 - changed-files:
-  - any-glob-to-any-file: ['Sprites/**']
+  - any-glob-to-any-file: ['Code/systems/**']
 
 "Changes: Prototypes":
 - all:
