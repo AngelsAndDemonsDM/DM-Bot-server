@@ -41,7 +41,6 @@ if __name__ == "__main__":
     args = parse_arguments()
     debug = args.debug
 
-    # Добавление вашего обработчика
     logger = logging.getLogger()
     if debug:
         logger.setLevel(logging.DEBUG)
