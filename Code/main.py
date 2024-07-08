@@ -40,12 +40,6 @@ def run_file_in_new_console(file_path):
 if __name__ == "__main__":
     args = parse_arguments()
     debug = args.debug
-    
-    if asyncio.run(SettingsManager().get_setting("app.auto_update")):
-        if needs_update():
-            logging.info("Updating application...")
-            run_file_in_new_console(os.path.join("Code", "auto_updater", "auto_updater.py"))
-            sys.exit(0)
 
     # Добавление вашего обработчика
     logger = logging.getLogger()
@@ -53,5 +47,12 @@ if __name__ == "__main__":
         logger.setLevel(logging.DEBUG)
     else:
         logger.setLevel(logging.INFO)
+    
+    if asyncio.run(SettingsManager().get_setting("app.auto_update")):
+        if needs_update():
+            logging.info("Updating application...")
+            run_file_in_new_console(os.path.join("Code", "auto_updater", "auto_updater.py"))
+            sys.exit(0)
+
     
     app.run(debug=debug)
