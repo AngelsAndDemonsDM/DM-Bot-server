@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Type
 
+
 class BaseComponent(ABC):
     __slots__ = ['comp_type', 'owner']
     
