@@ -7,7 +7,6 @@ import subprocess
 import sys
 
 from api.auth import auth_bp
-from colorlog import ColoredFormatter
 from quart import Quart
 from systems.auto_updater import needs_update
 from systems.db_manager import SettingsManager
