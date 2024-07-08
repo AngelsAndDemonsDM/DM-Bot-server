@@ -47,30 +47,12 @@ if __name__ == "__main__":
             logging.info("Updating application...")
             run_file_in_new_console(os.path.join("Code", "auto_updater", "auto_updater.py"))
             sys.exit(0)
-    
+
+    # Добавление вашего обработчика
     logger = logging.getLogger()
     if debug:
         logger.setLevel(logging.DEBUG)
     else:
         logger.setLevel(logging.INFO)
-    logger.handlers.clear()
-    
-    console_handler = logging.StreamHandler()
-    formatter = ColoredFormatter(
-        "[%(asctime)s] [%(log_color)s%(levelname)s%(reset)s] - %(message)s",
-        datefmt=None,
-        reset=True,
-        log_colors={
-            'DEBUG': 'cyan',
-            'INFO': 'green',
-            'WARNING': 'yellow',
-            'ERROR': 'red',
-            'CRITICAL': 'purple',
-        },
-        secondary_log_colors={},
-        style='%'
-    )
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
     
     app.run(debug=debug)

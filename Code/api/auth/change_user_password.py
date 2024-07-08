@@ -1,4 +1,4 @@
-from auth.bp_reg import auth_bp
+from api.auth.bp_reg import auth_bp
 from main_impt import auth_manager
 from quart import jsonify, request
 from systems.access_manager import CAN_CHANGE_PASSWORD
