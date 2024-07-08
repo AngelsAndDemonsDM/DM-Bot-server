@@ -5,12 +5,14 @@ entities:
   # Пример:
   # PlayerEntity: "PlayerEntity"
   # EnemyEntity: "EnemyEntity"
+  MapEntity: "MapEntity"
 
 # Раздел для регистрации классов компонентов
 components:
   # Пример:
   # HealthComponent: "HealthComponent"
   # PositionComponent: "PositionComponent"
+  MapItemsComponent: "MapItemsComponent"
 
 # Пример определения экземпляров сущностей В ДРУГИХ YML ФАЙЛАХ:
 # - type: "PlayerEntity"  # Указываем тип сущности, который соответствует зарегистрированному имени класса

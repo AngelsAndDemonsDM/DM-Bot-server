@@ -1,9 +1,10 @@
+from abc import ABC
 from typing import List
 
 from systems.entity_system.base_component import BaseComponent
 
 
-class BaseEntity:
+class BaseEntity(ABC):
     __slots__ = ['enti_type', 'id', 'components']
     
     def __init__(self) -> None:

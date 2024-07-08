@@ -1,20 +1,22 @@
 import os
-from typing import Any, Dict, List, Type
+from typing import Dict, List, Optional, Type
 
 import yaml
 from main_impt import ROOT_PATH
 from systems.entity_system.base_component import BaseComponent
 from systems.entity_system.base_entity import BaseEntity
 
-# Тут бога нет. Если надо что-то изменить - подумайте дважды.
+
 class EntityFactory:
-    __slots__ = ['_entity_registry', '_component_registry', '_existing_ids']
+    __slots__ = ['_entity_registry', '_component_registry', '_existing_ids', '_entities']
     
     def __init__(self):
         self._entity_registry: Dict[str, Type[BaseEntity]] = {}
         self._component_registry: Dict[str, Type[BaseComponent]] = {}
         self._existing_ids: Dict[str, List[str]] = {}
+        self._entities: List[BaseEntity] = []
         self._register_from_yaml()
+        self.load_entities_from_directory(os.path.join(ROOT_PATH, "Prototype"))
 
     def _register_entity(self, entity_type: str, entity_class: Type[BaseEntity]):
         self._entity_registry[entity_type] = entity_class
@@ -80,3 +82,18 @@ class EntityFactory:
             entities.append(entity)
 
         return entities
+
+    def load_entities_from_directory(self, directory_path: str) -> None:
+        self._entities.clear()
+        for root, _, files in os.walk(directory_path):
+            for file in files:
+                if file.endswith('.yaml') or file.endswith('.yml'):
+                    file_path = os.path.join(root, file)
+                    self._entities.extend(self.load_entities_from_yaml(file_path))
+
+    def get_entity_by_id(self, entity_type: str, entity_id: str) -> Optional[BaseEntity]:
+        for entity in self._entities:
+            if entity.id == entity_id and entity.__class__.__name__ == entity_type:
+                return entity
+        
+        return None
