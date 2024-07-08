@@ -6,7 +6,7 @@ from main_impt import ROOT_PATH
 from systems.entity_system.base_component import BaseComponent
 from systems.entity_system.base_entity import BaseEntity
 
-
+# Тут бога нет. Если надо что-то изменить - подумайте дважды.
 class EntityFactory:
     __slots__ = ['_entity_registry', '_component_registry', '_existing_ids']
     
