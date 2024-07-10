@@ -19,8 +19,8 @@ async def change_user_password():
             return jsonify({'message': 'Field "requester_token" is required'}), 400
 
         try:
-            requester_login = await auth_manager.get_user_login(data['requester_token'])
-            access: AccessFlags = await auth_manager.get_user_access(data['requester_token'])
+            requester_login = await auth_manager.get_user_login_by_token(data['requester_token'])
+            access: AccessFlags = await auth_manager.get_user_access_by_token(data['requester_token'])
 
             if not access["change_password"] and requester_login != data['login']:
                 return jsonify({'message': 'Access denied'}), 403

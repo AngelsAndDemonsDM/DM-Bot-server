@@ -57,14 +57,23 @@ class TestAuthManager(unittest.IsolatedAsyncioTestCase):
             user_data = await db.select('users', ['access'], {'login': 'testuser'})
         self.assertEqual(user_data[0]['access'], AccessFlags().to_bytes())
 
-    async def test_get_user_access(self):
-        token = await self.auth_manager.register_user('testuser', 'testpassword')
-        access = await self.auth_manager.get_user_access(token)
-        self.assertEqual(str(access), str(AccessFlags()))
+    async def test_get_user_access_by_token(self):
+        accses_reg: AccessFlags = AccessFlags()
+        accses_reg.toggle_flag("change_access")
+        token = await self.auth_manager.register_user('testuser', 'testpassword', accses_reg)
+        access = await self.auth_manager.get_user_access_by_token(token)
+        self.assertEqual(str(access), str(accses_reg))
 
-    async def test_get_user_login(self):
+    async def test_get_user_access_by_login(self):
+        accses_reg: AccessFlags = AccessFlags()
+        accses_reg.toggle_flag("change_access")
+        token = await self.auth_manager.register_user('testuser', 'testpassword', accses_reg)
+        access = await self.auth_manager.get_user_access_by_login('testuser')
+        self.assertEqual(str(access), str(accses_reg))
+    
+    async def test_get_user_login_by_token(self):
         token = await self.auth_manager.register_user('testuser', 'testpassword')
-        login = await self.auth_manager.get_user_login(token)
+        login = await self.auth_manager.get_user_login_by_token(token)
         self.assertEqual(login, 'testuser')
 
 if __name__ == '__main__':

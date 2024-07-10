@@ -186,7 +186,7 @@ class AuthManager:
         async with self._db as db:
             await db.update('users', {'access': new_access.to_bytes()}, {'login': login})
 
-    async def get_user_access(self, token: str) -> AccessFlags:
+    async def get_user_access_by_token(self, token: str) -> AccessFlags:
         """Получение уровня доступа пользователя по токену.
 
         Args:
@@ -213,7 +213,27 @@ class AuthManager:
             
             return AccessFlags.from_bytes(user_data[0]['access'])
 
-    async def get_user_login(self, token: str) -> str:
+    async def get_user_access_by_login(self, login: str) -> AccessFlags:
+        """Получение уровня доступа пользователя по логину.
+
+        Args:
+            login (str): Токен пользователя.
+
+        Raises:
+            ValueError: В случае ненайденного токена или пользователя.
+
+        Returns:
+            AccessFlags: Уровень доступа пользователя.
+        """
+        async with self._db as db:
+            user_data = await db.select('users', ['access'], {'login': login})
+            
+            if not user_data:
+                raise ValueError(f"User '{login}' not found")
+            
+            return AccessFlags.from_bytes(user_data[0]['access'])
+
+    async def get_user_login_by_token(self, token: str) -> str:
         """Получение логина пользователя по токену.
 
         Args:

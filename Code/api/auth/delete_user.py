@@ -16,7 +16,7 @@ async def api_delete_user():
             return jsonify({'message': 'Field "login" is required'}), 400
         
         try:
-            access: AccessFlags = await auth_manager.get_user_access(data['requester_token'])
+            access: AccessFlags = await auth_manager.get_user_access_by_token(data['requester_token'])
             if not access["delete_users"]:
                 return jsonify({'message': 'Access denied'}), 403
         

@@ -3,11 +3,9 @@ from main_impt import auth_manager
 from quart import jsonify, request
 from systems.access_manager import AccessFlags
 
-
 @auth_bp.route('/change_user_access', methods=['POST'])
 async def change_user_access():
     try:
-        ПОФИКСИТЬ БЛЯТЬ
         data = await request.get_json()
 
         if 'login' not in data:
@@ -28,14 +26,21 @@ async def change_user_access():
             if not isinstance(new_access_flags, dict):
                 return jsonify({'message': 'Field "new_access" must be a dictionary'}), 400
 
+            target_access: AccessFlags = await auth_manager.get_user_access_by_login(data['login'])
+            
             for flag, value in new_access_flags.items():
-                if flag not in requester_access._flags or requester_access[flag] is False:
+                if not isinstance(flag, str) or not isinstance(value, bool):
+                    return jsonify({'message': 'Field "new_access" must be a dictionary with string keys and boolean values'}), 400
+                
+                if requester_access[flag] is None or requester_access[flag] is False:
                     return jsonify({'message': f'Cannot grant access level for flag: {flag}'}), 403
+
+                target_access.set_flag(flag, value)
 
         except ValueError as e:
             return jsonify({'message': str(e)}), 403
 
-        await auth_manager.change_user_access(data['login'], new_access_flags)
+        await auth_manager.change_user_access(data['login'], target_access)
         return jsonify({'message': 'Access level changed successfully'}), 200
 
     except ValueError as e:
