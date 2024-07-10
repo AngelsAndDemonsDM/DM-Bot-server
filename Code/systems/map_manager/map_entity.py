@@ -20,21 +20,22 @@ class MapEntity(BaseEntity):
     __slots__ = []
     
     def __init__(self) -> None:
+        """Инициализирует сущность карты."""
         super().__init__()
     
     def self_save(self, name: str) -> None:
-        """_summary_
+        """Сохраняет текущее состояние карты.
 
         Args:
-            name (str): _description_
+            name (str): Имя файла, в который будет сохранена карта.
         """
         MapManager.save_map(self, name)
     
     def self_load(self, name: str) -> None:
-        """_summary_
+        """Загружает состояние карты из файла.
 
         Args:
-            name (str): _description_
+            name (str): Имя файла, из которого будет загружена карта.
         """
         self = MapManager.load_map(name)
 
@@ -45,16 +46,16 @@ class MapEntity(BaseEntity):
         visibility_range: int, 
         entity_factory: EntityFactory
     ) -> List[Dict[str, Any]]:
-        """_summary_
+        """Вычисляет область видимости с заданной позиции.
 
         Args:
-            position (Coordinate): _description_
-            detection_level (int): _description_
-            visibility_range (int): _description_
-            entity_factory (EntityFactory): _description_
+            position (Coordinate): Позиция наблюдателя на карте.
+            detection_level (int): Уровень обнаружения.
+            visibility_range (int): Дальность видимости.
+            entity_factory (EntityFactory): Фабрика сущностей для создания объектов.
 
         Returns:
-            List[Dict[str, Any]]: _description_
+            List[Dict[str, Any]]: Список видимых предметов, включая их координаты и другие свойства.
         """
         map_items_component: MapItemsComponent = self.get_component("MapItemsComponent")
         if not map_items_component:
@@ -64,7 +65,7 @@ class MapEntity(BaseEntity):
 
         for item in map_items_component.items:
             item_visible = False
-            entity: BaseEntity = entity_factory(item['entity_type'], item['entity_id'])
+            entity: BaseEntity = entity_factory.get_entity_by_id(item['entity_type'], item['entity_id'])
             if not entity:
                 continue
             
