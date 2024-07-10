@@ -1,33 +1,29 @@
 from typing import Any, Dict, List, Type, TypedDict
 
 from systems.entity_system import BaseComponent
+from systems.map_manager.coordinates import Coordinate
 
 """
-- type: "MapEntity"
-  id: "SomeValue"
+  ...
   components:
     - type: MapItemsComponent
       items:
         - entity_id: "item1"
           entity_type: "type1"
-          points:
+          coordinates:
             - {x: 0, y: 0}
             - {x: 1, y: 0}
         - entity_id: "item2"
           entity_type: "type2"
-          points:
+          coordinates:
             - {x: 2, y: 2}
             - {x: 3, y: 3}
 """
 
-class Point(TypedDict):
-    x: int
-    y: int
-
 class Item(TypedDict):
     entity_id: str
     entity_type: str
-    points: List[Point]
+    coordinates: List[Coordinate]
 
 class MapItemsComponent(BaseComponent):
     __slots__ = ['items']
@@ -41,4 +37,6 @@ class MapItemsComponent(BaseComponent):
     
     @staticmethod
     def get_type_hints() -> Dict[str, Type[Any]]:
-        return {'items': List[Item]}
+        return {
+            'items': List[Item]
+          }
