@@ -7,6 +7,7 @@ from systems.access_manager import AccessFlags
 @auth_bp.route('/change_user_access', methods=['POST'])
 async def change_user_access():
     try:
+        ПОФИКСИТЬ БЛЯТЬ
         data = await request.get_json()
 
         if 'login' not in data:
