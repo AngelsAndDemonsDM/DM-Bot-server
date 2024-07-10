@@ -67,19 +67,19 @@
             <h2><span class="method">POST</span> <span class="url">/auth/change_user_access</span></h2>
 
             <div class="description">
-                <p>Данный endpoint служит для смены доступа у пользователя. Не работает при отсутствии флага CAN_CHANGE_ACCESS.</p>
+                <p>Данный endpoint служит для смены доступа у пользователя. Запрашивающий пользователь должен иметь флаг change_access и не может выдавать права, которых у него самого нет.</p>
             </div>
             
             <div class="parameters">
                 <h3>Параметры:</h3>
                 <div class="parameter">
-                    <code>login</code> (тип: string, обязательный: да) - Логин у которого будем менять права доступа.
+                    <code>login</code> (тип: string, обязательный: да) - Логин пользователя, у которого будем менять права доступа.
                 </div>
                 <div class="parameter">
-                    <code>new_access</code> (тип: bytes, обязательный: да) - Новый доступ.
+                    <code>new_access</code> (тип: dict, обязательный: да) - Новый доступ в виде словаря, где ключи - названия флагов, а значения - их состояния (True или False).
                 </div>
                 <div class="parameter">
-                    <code>requester_token</code> (тип: string, обязательный: да) - Токен запрашивающего изменения доступа для логина.
+                    <code>requester_token</code> (тип: string, обязательный: да) - Токен пользователя, запрашивающего изменения уровня доступа.
                 </div>
             </div>
 
@@ -92,7 +92,7 @@
 }</code></pre>
                 </div>
                 <div class="return">
-                    <p><code>400 Bad Request</code> - JSON объект с ошибкой, если отсутствует обязательное поле:</p>
+                    <p><code>400 Bad Request</code> - JSON объект с ошибкой, если отсутствует обязательное поле или формат данных неверный:</p>
                     <pre><code>{
     "message": "Field \"login\" is required"
 }</code></pre>
@@ -102,14 +102,17 @@
                     <pre><code>{
     "message": "Field \"requester_token\" is required"
 }</code></pre>
+                    <pre><code>{
+    "message": "Field \"new_access\" must be a dictionary"
+}</code></pre>
                 </div>
                 <div class="return">
-                    <p><code>403 Forbidden</code> - JSON объект с ошибкой, если доступ запрещен или произошла ошибка при проверке доступа:</p>
+                    <p><code>403 Forbidden</code> - JSON объект с ошибкой, если доступ запрещен или запрашивающий пользователь пытается выдать права, которых у него нет:</p>
                     <pre><code>{
     "message": "Access denied"
 }</code></pre>
                     <pre><code>{
-    "message": "Invalid token"
+    "message": "Cannot grant access level for flag: flag_name"
 }</code></pre>
                 </div>
                 <div class="return">

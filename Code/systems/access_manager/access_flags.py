@@ -1,16 +1,85 @@
-# В данном файле прописаны ВСЕ флаги доступа.
-# Правила создания флагов:
-# 1 - Подумайте для начала, нужно ли это?
-# 2 - НИКОГДА не менять порядок флагов. НИКОГДА БЛЯТЬ
-# 3 - Соблюдайте порядок.
-# 4 - Подписывайте флаги.
-# 5 - Не забывайте кидать флаги в __init__.py
+import pickle
+from typing import Dict, Optional
 
-# Флаг необходимый для доступа к смене пароля
-CAN_CHANGE_PASSWORD: bytes = 1 << 0
 
-# Флаг необходимый для доступа к смене доступа (можно выдать фулл доступ себе. Будьте аккуратны)
-CAN_CHANGE_ACCESS: bytes = 1 << 1
+class AccessFlags:
+    __slots__ = ['_flags']
 
-# Флаг необходимый для доступа к удалению пользователей
-CAN_DELETE_USERS: bytes = 1 << 2
+    DEFAULT_FLAGS: Dict = {
+        'change_password': False, # Флаг, указывающий, может ли пользователь изменять пароли
+        'change_access': False,   # Флаг, указывающий, может ли пользователь изменять уровни доступа
+        'delete_users': False     # Флаг, указывающий, может ли пользователь удалять других пользователей
+    }
+
+    def __init__(self):
+        """Инициализация объекта AccessFlags с флагами доступа по умолчанию.
+        """
+        self._flags: Dict = self.DEFAULT_FLAGS.copy()
+    
+    def set_flag(self, flag_name: str, value: bool) -> None:
+        """Устанавливает значение заданного флага.
+
+        Args:
+            flag_name (str): Имя флага, значение которого необходимо изменить.
+            value (bool): Новое значение флага.
+
+        Raises:
+            ValueError: Если флаг с заданным именем не существует.
+        """
+        if flag_name in self._flags:
+            self._flags[flag_name] = value
+        else:
+            raise ValueError(f"Unknown flag: {flag_name}")
+    
+    def __getitem__(self, flag_name: str) -> Optional[bool]:
+        """Возвращает значение заданного флага или None, если флаг не существует.
+
+        Args:
+            flag_name (str): Имя флага, значение которого необходимо получить.
+
+        Returns:
+            Optional[bool]: Текущее значение флага или None, если флаг не существует.
+        """
+        return self._flags.get(flag_name, None)
+    
+    def toggle_flag(self, flag_name: str) -> None:
+        """Переключает значение заданного флага на противоположное.
+
+        Args:
+            flag_name (str): Имя флага, значение которого необходимо переключить.
+
+        Raises:
+            ValueError: Если флаг с заданным именем не существует.
+        """
+        if flag_name in self._flags:
+            self._flags[flag_name] = not self._flags[flag_name]
+        else:
+            raise ValueError(f"Unknown flag: {flag_name}")
+
+    def to_bytes(self) -> bytes:
+        """Сериализует объект AccessFlags в байтовую строку.
+
+        Returns:
+            bytes: Сериализованный объект в виде байтовой строки.
+        """
+        return pickle.dumps(self)
+
+    @staticmethod
+    def from_bytes(binary_data: bytes) -> 'AccessFlags':
+        """Десериализует объект AccessFlags из байтовой строки.
+
+        Args:
+            binary_data (bytes): Сериализованные данные в виде байтовой строки.
+
+        Returns:
+            AccessFlags: Десериализованный объект AccessFlags.
+        """
+        return pickle.loads(binary_data)
+
+    def __str__(self) -> str:
+        """Возвращает строковое представление объекта AccessFlags.
+
+        Returns:
+            str: Строковое представление флагов доступа.
+        """
+        return str(self._flags)
