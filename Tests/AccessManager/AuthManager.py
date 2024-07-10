@@ -56,7 +56,7 @@ class TestAuthManager(unittest.IsolatedAsyncioTestCase):
         await self.auth_manager.change_user_access('testuser', AccessFlags())
         async with self.auth_manager._db as db:
             user_data = await db.select('users', ['access'], {'login': 'testuser'})
-        self.assertEqual(user_data[0]['access'], AccessFlags())
+        self.assertEqual(user_data[0]['access'], AccessFlags().to_bytes())
 
     async def test_get_user_access(self):
         token = await self.auth_manager.register_user('testuser', 'testpassword')
