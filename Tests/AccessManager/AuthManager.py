@@ -2,6 +2,7 @@ import os
 import unittest
 
 from Code.systems.access_manager import AuthManager
+from Code.systems.access_manager.access_flags import AccessFlags
 
 
 class TestAuthManager(unittest.IsolatedAsyncioTestCase):
@@ -52,18 +53,18 @@ class TestAuthManager(unittest.IsolatedAsyncioTestCase):
 
     async def test_change_user_access(self):
         await self.auth_manager.register_user('testuser', 'testpassword')
-        await self.auth_manager.change_user_access('testuser', b'\x01')
+        await self.auth_manager.change_user_access('testuser', AccessFlags())
         async with self.auth_manager._db as db:
             user_data = await db.select('users', ['access'], {'login': 'testuser'})
-        self.assertEqual(user_data[0]['access'], b'\x01')
+        self.assertEqual(user_data[0]['access'], AccessFlags())
 
     async def test_get_user_access(self):
-        token = await self.auth_manager.register_user('testuser', 'testpassword', b'\x02')
+        token = await self.auth_manager.register_user('testuser', 'testpassword')
         access = await self.auth_manager.get_user_access(token)
-        self.assertEqual(access, b'\x02')
+        self.assertEqual(str(access), str(AccessFlags()))
 
     async def test_get_user_login(self):
-        token = await self.auth_manager.register_user('testuser', 'testpassword', b'\x02')
+        token = await self.auth_manager.register_user('testuser', 'testpassword')
         login = await self.auth_manager.get_user_login(token)
         self.assertEqual(login, 'testuser')
 
