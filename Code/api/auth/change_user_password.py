@@ -1,7 +1,7 @@
 from auth.bp_reg import auth_bp
 from main_impt import auth_manager
 from quart import jsonify, request
-from systems.access_manager import CAN_CHANGE_PASSWORD
+from systems.access_manager import AccessFlags
 
 
 @auth_bp.route('/change_user_password', methods=['POST'])
@@ -20,9 +20,9 @@ async def change_user_password():
 
         try:
             requester_login = await auth_manager.get_user_login(data['requester_token'])
-            access = await auth_manager.get_user_access(data['requester_token'])
+            access: AccessFlags = await auth_manager.get_user_access(data['requester_token'])
 
-            if not access & CAN_CHANGE_PASSWORD and requester_login != data['login']:
+            if not access["change_password"] and requester_login != data['login']:
                 return jsonify({'message': 'Access denied'}), 403
         
         except ValueError as e:

@@ -1,9 +1,9 @@
 import pickle
-from typing import Dict
+from typing import Dict, Optional
 
 
 class AccessFlags:
-    __slots__ = ['flags']
+    __slots__ = ['_flags']
 
     DEFAULT_FLAGS: Dict = {
         'change_password': False, # Флаг, указывающий, может ли пользователь изменять пароли
@@ -31,22 +31,16 @@ class AccessFlags:
         else:
             raise ValueError(f"Unknown flag: {flag_name}")
     
-    def get_flag(self, flag_name: str) -> bool:
-        """Возвращает значение заданного флага.
+    def __getitem__(self, flag_name: str) -> Optional[bool]:
+        """Возвращает значение заданного флага или None, если флаг не существует.
 
         Args:
             flag_name (str): Имя флага, значение которого необходимо получить.
 
-        Raises:
-            ValueError: Если флаг с заданным именем не существует.
-
         Returns:
-            bool: Текущее значение флага.
+            Optional[bool]: Текущее значение флага или None, если флаг не существует.
         """
-        if flag_name in self._flags:
-            return self._flags[flag_name]
-        else:
-            raise ValueError(f"Unknown flag: {flag_name}")
+        return self._flags.get(flag_name, None)
     
     def toggle_flag(self, flag_name: str) -> None:
         """Переключает значение заданного флага на противоположное.

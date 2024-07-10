@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import uuid
 
+from systems.access_manager.access_flags import AccessFlags
 from systems.db_manager import AsyncDB
 
 
@@ -20,7 +21,7 @@ class AuthManager:
                     ("login", str, (AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE), None), 
                     ("password", str, (AsyncDB.NOT_NULL), None),
                     ("salt", str, (AsyncDB.NOT_NULL), None),
-                    ("access", bytes, (AsyncDB.DEFAULT | AsyncDB.NOT_NULL), "def|X'00000000'")
+                    ("access", bytes, 0, None)
                 ],
                 "cur_sessions": [
                     ("token", str, (AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE), None),
@@ -118,13 +119,13 @@ class AuthManager:
             
             await db.delete('cur_sessions', {'token': token})
     
-    async def register_user(self, login: str, password: str, access: bytes = b'\x00') -> str:
+    async def register_user(self, login: str, password: str, access: AccessFlags = None) -> str:
         """Регистрация нового пользователя.
 
         Args:
             login (str): Логин пользователя.
             password (str): Пароль пользователя.
-            access (bytes, optional): Уровень доступа. По умолчанию b'\x00'.
+            access (AccessFlags, optional): Уровень доступа. По умолчанию None.
 
         Returns:
             str: Токен для новой зарегистрированной сессии.
@@ -134,12 +135,15 @@ class AuthManager:
         
         token: str = AuthManager._generate_token()
         
+        if not access:
+            access = AccessFlags()
+        
         async with self._db as db:
             await db.insert('users', {
                 'login': login,
                 'password': encrypted_password,
                 'salt': salt,
-                'access': access
+                'access': access.to_bytes()
             })
         
             await db.insert('cur_sessions', {
@@ -172,17 +176,17 @@ class AuthManager:
         async with self._db as db:
             await db.update('users', {'password': encrypted_password, 'salt': salt}, {'login': login})
     
-    async def change_user_access(self, login: str, new_access: bytes) -> None:
+    async def change_user_access(self, login: str, new_access: AccessFlags) -> None:
         """Изменение уровня доступа пользователя.
 
         Args:
             login (str): Логин пользователя.
-            new_access (bytes): Новый уровень доступа пользователя.
+            new_access (AccessFlags): Новый уровень доступа пользователя.
         """
         async with self._db as db:
-            await db.update('users', {'access': new_access}, {'login': login})
+            await db.update('users', {'access': new_access.to_bytes()}, {'login': login})
 
-    async def get_user_access(self, token: str) -> bytes:
+    async def get_user_access(self, token: str) -> AccessFlags:
         """Получение уровня доступа пользователя по токену.
 
         Args:
@@ -192,7 +196,7 @@ class AuthManager:
             ValueError: В случае ненайденного токена или пользователя.
 
         Returns:
-            bytes: Уровень доступа пользователя.
+            AccessFlags: Уровень доступа пользователя.
         """
         async with self._db as db:
             session_data = await db.select('cur_sessions', ['user'], {'token': token})
@@ -207,7 +211,7 @@ class AuthManager:
             if not user_data:
                 raise ValueError(f"User '{user_login}' not found")
             
-            return user_data[0]['access']
+            return AccessFlags.from_bytes(user_data[0]['access'])
 
     async def get_user_login(self, token: str) -> str:
         """Получение логина пользователя по токену.
