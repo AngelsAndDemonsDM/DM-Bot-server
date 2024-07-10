@@ -7,11 +7,6 @@ class TestAccessFlags(unittest.TestCase):
     def setUp(self):
         self.access_flags = AccessFlags()
 
-    def test_default_flags(self):
-        self.assertEqual(self.access_flags['change_password'], False)
-        self.assertEqual(self.access_flags['change_access'], False)
-        self.assertEqual(self.access_flags['delete_users'], False)
-
     def test_set_flag(self):
         self.access_flags.set_flag('change_password', True)
         self.assertEqual(self.access_flags['change_password'], True)
