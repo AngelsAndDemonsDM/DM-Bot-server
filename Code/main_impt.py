@@ -1,5 +1,9 @@
+import os
+
 from systems.access_manager import AuthManager
-from systems.entiti_factory import PrototypeFactory
+from systems.entity_system import EntityFactory
+
+ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 
 auth_manager = AuthManager()
-prototype_factory = PrototypeFactory()
+entity_factory = EntityFactory()

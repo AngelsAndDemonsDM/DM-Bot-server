@@ -126,6 +126,8 @@ class AsyncDB:
         """
         connect = sqlite3.connect(self._file_path)
         cursor = connect.cursor()
+        
+        cursor.execute("PRAGMA foreign_keys = ON;")
 
         for table_name, columns in config.items():
             column_definitions = []
@@ -190,7 +192,7 @@ class AsyncDB:
                 parsed_info[key] = match.group(1).strip()
 
         return parsed_info
-    
+
     def _get_column_flags(self, column: Tuple[str, type, bytes, Optional[str]], config: Dict[str, List[Tuple[str, type, bytes, Optional[str]]]]) -> str:
         """Получение флагов колонки.
 
@@ -222,10 +224,7 @@ class AsyncDB:
         if column_flags & AsyncDB.AUTOINCREMENT and column_type is not int:
             raise ValueError(f"Column '{column_name}': AUTOINCREMENT can only be used with int type")
         
-        if column_add_info and column_add_info != "":
-            parsed_add_info = self._parse_column_add_info(column_add_info)
-        else:
-            parsed_add_info = {}
+        parsed_add_info = self._parse_column_add_info(column_add_info) if column_add_info else {}
         
         # FOREIGN_KEY должен быть корректным и ссылка должна существовать
         if column_flags & AsyncDB.FOREIGN_KEY:
@@ -239,7 +238,7 @@ class AsyncDB:
             ref_columns = [col[0] for col in config[ref_table]]
             if ref_column not in ref_columns:
                 raise ValueError(f"Referenced column '{ref_column}' in table '{ref_table}' for column '{column_name}' does not exist")
-        
+            
         # Генерация строки флагов
         flag_str = ""
         
@@ -263,7 +262,7 @@ class AsyncDB:
         
         if column_flags & AsyncDB.FOREIGN_KEY and 'FOREIGN_KEY' in parsed_add_info:
             ref_table, ref_column = parsed_add_info['FOREIGN_KEY'].split('.')
-            flag_str += f"REFERENCES {ref_table}({ref_column}) "
+            flag_str += f"REFERENCES {ref_table}({ref_column}) ON DELETE CASCADE ON UPDATE CASCADE "
         
         flag_str = flag_str.strip()
         

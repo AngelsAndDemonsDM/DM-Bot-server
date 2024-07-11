@@ -7,7 +7,6 @@ import subprocess
 import sys
 
 from api.auth import auth_bp
-from colorlog import ColoredFormatter
 from quart import Quart
 from systems.auto_updater import needs_update
 from systems.db_manager import SettingsManager
@@ -41,36 +40,17 @@ def run_file_in_new_console(file_path):
 if __name__ == "__main__":
     args = parse_arguments()
     debug = args.debug
+
+    logger = logging.getLogger()
+    if debug:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
     
     if asyncio.run(SettingsManager().get_setting("app.auto_update")):
         if needs_update():
             logging.info("Updating application...")
             run_file_in_new_console(os.path.join("Code", "auto_updater", "auto_updater.py"))
             sys.exit(0)
-    
-    logger = logging.getLogger()
-    if debug:
-        logger.setLevel(logging.DEBUG)
-    else:
-        logger.setLevel(logging.INFO)
-    logger.handlers.clear()
-    
-    console_handler = logging.StreamHandler()
-    formatter = ColoredFormatter(
-        "[%(asctime)s] [%(log_color)s%(levelname)s%(reset)s] - %(message)s",
-        datefmt=None,
-        reset=True,
-        log_colors={
-            'DEBUG': 'cyan',
-            'INFO': 'green',
-            'WARNING': 'yellow',
-            'ERROR': 'red',
-            'CRITICAL': 'purple',
-        },
-        secondary_log_colors={},
-        style='%'
-    )
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-    
+
     app.run(debug=debug)

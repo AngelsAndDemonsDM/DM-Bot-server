@@ -1,3 +1,0 @@
-from systems.entiti_factory.base_component import Component
-from systems.entiti_factory.base_entity import Entity
-from systems.entiti_factory.prototype_factory import PrototypeFactory

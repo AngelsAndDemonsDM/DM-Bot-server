@@ -1,1 +1,1 @@
-from auth.bp_reg import auth_bp
+from api.auth.bp_reg import auth_bp
