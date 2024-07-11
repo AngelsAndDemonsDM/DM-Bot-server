@@ -53,5 +53,4 @@ if __name__ == "__main__":
             run_file_in_new_console(os.path.join("Code", "auto_updater", "auto_updater.py"))
             sys.exit(0)
 
-    
     app.run(debug=debug)
