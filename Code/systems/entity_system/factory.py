@@ -5,6 +5,7 @@ import yaml
 from main_impt import ROOT_PATH
 from systems.entity_system.base_component import BaseComponent
 from systems.entity_system.base_entity import BaseEntity
+from systems.map_manager.coordinates import Coordinate
 
 
 class EntityFactory:
@@ -107,6 +108,9 @@ class EntityFactory:
 
         type_hints = component_class.get_type_hints()
         for key, expected_type in type_hints.items():
+            if key == 'coordinates':
+                component_data[key] = [Coordinate.from_dict(coord) for coord in component_data[key]]
+            
             if key in component_data and not isinstance(component_data[key], expected_type):
                 raise TypeError(f"Expected {key} to be {expected_type} but got {type(component_data[key])}")
 

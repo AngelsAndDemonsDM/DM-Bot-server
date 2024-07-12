@@ -1,6 +1,8 @@
+import logging
 from typing import Any, Dict, List, Type, TypedDict
 
 from systems.entity_system import BaseComponent
+from systems.entity_system.factory import EntityFactory
 from systems.map_manager.coordinates import Coordinate
 
 """
@@ -33,7 +35,7 @@ class Item(TypedDict):
     coordinates: List[Coordinate]
 
 class MapItemsComponent(BaseComponent):
-    __slots__ = ['items']
+    __slots__ = ['items', 'objects']
     
     def __init__(self, items: List[Item]) -> None:
         """Инициализирует компонент MapItemsComponent с заданным списком элементов.
@@ -43,6 +45,7 @@ class MapItemsComponent(BaseComponent):
         """
         super().__init__('MapItemsComponent')
         self.items: List[Item] = items
+        self.objects: List[Dict['BaseEntity', List[Coordinate]]] = [] # type: ignore
     
     def __repr__(self) -> str:
         """Возвращает строковое представление компонента MapItemsComponent.
@@ -62,3 +65,18 @@ class MapItemsComponent(BaseComponent):
         return {
             'items': List[Item]
         }
+
+    def setup_objects(self, entity_factory: EntityFactory) -> None:
+        if not self.items:
+            return
+
+        for item in self.items:
+            obj = entity_factory.get_entity_by_id(item['entity_type'], item['entity_id'])
+
+            if not obj:
+                logging.warning(f"Entity ID: {item['entity_id']}, entity type: {item['entity_type']} is not a valid entity object")
+                continue
+
+            self.objects.append({obj: item['coordinates']})
+
+        self.items.clear()
