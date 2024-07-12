@@ -23,12 +23,15 @@ class MapEntity(BaseEntity):
         """Инициализирует сущность карты."""
         super().__init__()
     
-    def self_save(self, name: str) -> None:
+    def self_save(self, name: str, entity_factory: EntityFactory) -> None:
         """Сохраняет текущее состояние карты.
 
         Args:
             name (str): Имя файла, в который будет сохранена карта.
+            entity_factory (EntityFactory): Фабрика сущностей для создания объектов.
         """
+        comp: MapItemsComponent = self.get_component("MapItemsComponent")
+        comp.setup_objects(entity_factory)
         MapManager.save_map(self, name)
     
     def self_load(self, name: str) -> None:
@@ -61,28 +64,27 @@ class MapEntity(BaseEntity):
         if not map_items_component:
             return []
 
-        visible_items = []
+        map_items_component.setup_objects(entity_factory)
+        
+        visible_items: List[Dict[str, Any]] = []
 
-        for item in map_items_component.items:
-            item_visible = False
-            entity: BaseEntity = entity_factory.get_entity_by_id(item['entity_type'], item['entity_id'])
-            if not entity:
-                continue
-            
-            physics_component: MapPhysicsComponent = entity.get_component("MapPhysicsComponent")
-            
-            if physics_component:
-                if physics_component.invisibility_level > detection_level:
-                    continue  # пропускаем предмет, если уровень невидимости выше уровня обнаружения
+        for obj in map_items_component.objects:
+            for entity, coordinates in obj.items():
+                item_visible = False
+                physics_component: MapPhysicsComponent = entity.get_component("MapPhysicsComponent")
                 
-                if physics_component.opaque:
-                    for coord in item['coordinates']:
-                        distance = abs(coord['x'] - position['x']) + abs(coord['y'] - position['y'])
-                        if distance <= visibility_range:
-                            item_visible = True
-                            break  # если предмет видим, добавляем его и выходим из цикла по точкам
+                if physics_component:
+                    if physics_component.invisibility_level > detection_level:
+                        continue  # пропускаем предмет, если уровень невидимости выше уровня обнаружения
+                    
+                    if physics_component.opaque:
+                        for coord in coordinates:
+                            distance = Coordinate.distance(position, coord)
+                            if distance <= visibility_range:
+                                item_visible = True
+                                break  # если предмет видим, добавляем его и выходим из цикла по точкам
 
-            if item_visible:
-                visible_items.append(item)
+                if item_visible:
+                    visible_items.append({'entity': entity, 'coordinates': coordinates})
 
         return visible_items
