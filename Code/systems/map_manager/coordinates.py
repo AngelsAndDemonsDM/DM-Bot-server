@@ -1,5 +1,6 @@
 from typing import Dict, Tuple
 
+
 class Coordinate:
     """Класс для представления координат точки на плоскости.
 
