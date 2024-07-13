@@ -1,7 +1,7 @@
 from api.auth.bp_reg import auth_bp
 from main_impt import auth_manager
 from quart import jsonify, request
-from systems.access_manager import AccessFlags
+from systems.access_system import AccessFlags
 
 
 @auth_bp.route('/change_user_access', methods=['POST'])

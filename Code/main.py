@@ -9,7 +9,7 @@ import sys
 from api.auth import auth_bp
 from quart import Quart, jsonify
 from systems.auto_updater import needs_update
-from systems.db_manager import SettingsManager
+from systems.db_systems import SettingsManager
 
 app = Quart(__name__)
 

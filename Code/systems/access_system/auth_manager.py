@@ -2,8 +2,8 @@ import hashlib
 import hmac
 import uuid
 
-from systems.access_manager.access_flags import AccessFlags
-from systems.db_manager import AsyncDB
+from systems.access_system.access_flags import AccessFlags
+from systems.db_systems import AsyncDB
 
 
 class AuthManager:

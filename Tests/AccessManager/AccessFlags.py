@@ -1,6 +1,6 @@
 import unittest
 
-from Code.systems.access_manager import AccessFlags
+from Code.systems.access_system import AccessFlags
 
 
 class TestAccessFlags(unittest.TestCase):
