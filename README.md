@@ -24,7 +24,7 @@ Pull request открыт для всех желающих. Просьба со�
 Если у вас есть вопросы или предложения, вы можете связаться с нами через [Discord](https://discord.gg/vxzegFkRjB) или написать на email: `dm.bot.adm@gmail.com`.
 - Discord: https://discord.gg/vxzegFkRjB
 - Boosty: https://boosty.to/themanyfaceddemon
-- Wiki-server: https://angelsanddemonsdm.github.io/DM-Bot-server/index.html
+- Wiki-server: https://angelsanddemonsdm.github.io/DM-Bot-server
 - GitHub DM-Bot-server: https://github.com/AngelsAndDemonsDM/DM-Bot-server
 - GitHub DM-Bot-client: https://github.com/AngelsAndDemonsDM/DM-Bot-client
 - GitHub DM-Bot-tools: https://github.com/AngelsAndDemonsDM/DM-Bot-tools
