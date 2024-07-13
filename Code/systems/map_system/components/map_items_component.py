@@ -1,9 +1,10 @@
 import logging
 from typing import Any, Dict, List, Type, TypedDict
 
-from systems.entity_system import BaseComponent
-from systems.entity_system.factory import EntityFactory
-from systems.map_manager.coordinates import Coordinate
+from systems.entity_system import BaseComponent, EntityFactory
+from systems.map_system.components.map_coordinates_component import \
+    MapCoordinateComponent
+from systems.map_system.coordinates import Coordinate
 
 """
   ...
@@ -20,6 +21,7 @@ from systems.map_manager.coordinates import Coordinate
           coordinates:
             - {x: 2, y: 2}
             - {x: 3, y: 3}
+        ...
 """
 
 class Item(TypedDict):
@@ -45,7 +47,7 @@ class MapItemsComponent(BaseComponent):
         """
         super().__init__('MapItemsComponent')
         self.items: List[Item] = items
-        self.objects: List[Dict['BaseEntity', List[Coordinate]]] = [] # type: ignore
+        self.objects: List['BaseEntity'] = [] # type: ignore
     
     def __repr__(self) -> str:
         """Возвращает строковое представление компонента MapItemsComponent.
@@ -53,7 +55,7 @@ class MapItemsComponent(BaseComponent):
         Returns:
             str: Строковое представление компонента.
         """
-        return f"MapItemsComponent(items={self.items})"
+        return f"MapItemsComponent(items={self.items}, objects={self.objects})"
     
     @staticmethod
     def get_type_hints() -> Dict[str, Type[Any]]:
@@ -77,6 +79,7 @@ class MapItemsComponent(BaseComponent):
                 logging.warning(f"Entity ID: {item['entity_id']}, entity type: {item['entity_type']} is not a valid entity object")
                 continue
 
-            self.objects.append({obj: item['coordinates']})
+            self.objects.append(obj)
+            obj.add_component(MapCoordinateComponent(self.owner, item['coordinates']))
 
         self.items.clear()

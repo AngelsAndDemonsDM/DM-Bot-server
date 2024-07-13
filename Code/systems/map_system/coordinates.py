@@ -1,3 +1,4 @@
+import math
 from typing import Dict, Tuple
 
 
@@ -11,6 +12,12 @@ class Coordinate:
     __slots__ = ['x', 'y']
     
     def __init__(self, x: int, y: int) -> None:
+        """Инициализирует объект Coordinate с заданными координатами.
+
+        Args:
+            x (int): Координата по оси X.
+            y (int): Координата по оси Y.
+        """
         self.x = x
         self.y = y
 
@@ -55,17 +62,22 @@ class Coordinate:
         return Coordinate(x=data[0], y=data[1])
 
     @staticmethod
-    def distance(coord1: 'Coordinate', coord2: 'Coordinate') -> int:
-        """Вычисляет Манхэттенское расстояние между двумя координатами.
+    def distance(coord1: 'Coordinate', coord2: 'Coordinate') -> float:
+        """Вычисляет расстояние между двумя координатами.
 
         Args:
             coord1 (Coordinate): Первая координата.
             coord2 (Coordinate): Вторая координата.
 
         Returns:
-            int: Манхэттенское расстояние между координатами.
+            float: Расстояние между двумя координатами.
         """
-        return abs(coord1.x - coord2.x) + abs(coord1.y - coord2.y)
+        return math.sqrt((coord1.x - coord2.x) ** 2 + (coord1.y - coord2.y) ** 2)
 
     def __repr__(self) -> str:
+        """Возвращает строковое представление объекта Coordinate.
+
+        Returns:
+            str: Строковое представление координат.
+        """
         return f"Coordinate(x={self.x}, y={self.y})"
