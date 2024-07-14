@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 
-from Code.systems.db_manager import SettingsManager
+from Code.systems.db_systems import SettingsManager
 
 
 class TestSettingsManager(unittest.IsolatedAsyncioTestCase):

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="/DM-Bot-server/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="endpoint">
+            <h2><span class="method">POST</span> <span class="url">/account/register</span></h2>
+
+            <div class="description">
+                <p>Данный endpoint служит для регистрации нового пользователя. Пользователь должен предоставить свой логин и пароль для создания учетной записи.</p>
+            </div>
+            
+            <div class="parameters">
+                <h3>Параметры:</h3>
+                <div class="parameter">
+                    <code>login</code> <span class="type">(тип: string, обязательный: да)</span> - Логин пользователя.
+                </div>
+                <div class="parameter">
+                    <code>password</code> <span class="type">(тип: string, обязательный: да)</span> - Пароль пользователя.
+                </div>
+            </div>
+
+            <div class="returns">
+                <h3>Возвращаемые данные:</h3>
+                <div class="return">
+                    <p><code>200 OK</code> - JSON объект с сообщением об успешной регистрации и токеном доступа:</p>
+                    <pre><code class="json">{
+    "message": "Register successful",
+    "token": "your_token_here"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>400 Bad Request</code> - JSON объект с ошибкой, если отсутствует обязательное поле или формат данных неверный:</p>
+                    <pre><code class="json">{
+    "message": "Field(s) login, password are required"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>500 Internal Server Error</code> - JSON объект с сообщением об ошибке на сервере:</p>
+                    <pre><code class="json">{
+    "message": "Register failed"
+}</code></pre>
+                    <pre><code class="json">{
+    "message": "An unexpected error occurred",
+    "error": "Detailed error message"
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</body>
+
+</html>

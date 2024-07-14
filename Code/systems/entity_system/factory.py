@@ -2,10 +2,10 @@ import os
 from typing import Dict, List, Optional, Type
 
 import yaml
-from main_impt import ROOT_PATH
+from root_path import ROOT_PATH
 from systems.entity_system.base_component import BaseComponent
 from systems.entity_system.base_entity import BaseEntity
-from systems.map_manager.coordinates import Coordinate
+from systems.map_system import Coordinate
 
 
 class EntityFactory:

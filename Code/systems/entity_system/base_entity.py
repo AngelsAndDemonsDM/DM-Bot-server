@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import List, Optional
+from typing import Dict, Optional
 
 from systems.entity_system.base_component import BaseComponent
 
@@ -8,11 +8,11 @@ class BaseEntity(ABC):
     __slots__ = ['enti_type', 'id', 'components']
     
     def __init__(self) -> None:
-        """Инициализирует базовую сущность с пустыми идентификатором, типом и списком компонентов.
+        """Инициализирует базовую сущность с пустыми идентификатором, типом и словарем компонентов.
         """
         self.id: str = ""
         self.enti_type: str = ""
-        self.components: List[BaseComponent] = []
+        self.components: Dict[str, BaseComponent] = {}
     
     def add_component(self, component: BaseComponent) -> None:
         """Добавляет компонент к сущности.
@@ -20,7 +20,7 @@ class BaseEntity(ABC):
         Args:
             component (BaseComponent): Компонент, который необходимо добавить.
         """
-        self.components.append(component)
+        self.components[component.comp_type] = component
         component.owner = self
     
     def remove_component(self, component: BaseComponent) -> None:
@@ -29,8 +29,8 @@ class BaseEntity(ABC):
         Args:
             component (BaseComponent): Компонент, который необходимо удалить.
         """
-        if component in self.components:
-            self.components.remove(component)
+        if component.comp_type in self.components:
+            del self.components[component.comp_type]
             component.owner = None
     
     def get_component(self, component_type: str) -> Optional[BaseComponent]:
@@ -42,8 +42,4 @@ class BaseEntity(ABC):
         Returns:
             Optional[BaseComponent]: Компонент, если найден, иначе None.
         """
-        for component in self.components:
-            if component.comp_type == component_type:
-                return component
-        
-        return None
+        return self.components.get(component_type, None)
