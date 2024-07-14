@@ -17,6 +17,10 @@
       - any-glob-to-any-file: ['Prototype/**']
       - all-globs-to-all-files: ['!Prototype/factory_mappings.yml']
 
+"Changes: Sprites":
+- changed-files:
+  - any-glob-to-any-file: ['Sprites/**']
+
 "Changes: Docs":
 - changed-files:
   - any-glob-to-any-file: ['README.md', 'LICENSE.md', 'Docs/**']
