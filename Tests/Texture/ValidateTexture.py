@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from Code.main_impt import ROOT_PATH
+from Code.root_path import ROOT_PATH
 from Code.systems.texture_validator import (DMSValidator, InvalidSpriteError,
                                             SpriteValidationError)
 
