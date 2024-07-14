@@ -1,3 +1,4 @@
+import importlib
 import os
 from typing import Dict, List, Optional, Type
 
@@ -5,12 +6,11 @@ import yaml
 from root_path import ROOT_PATH
 from systems.entity_system.base_component import BaseComponent
 from systems.entity_system.base_entity import BaseEntity
-from systems.map_system import Coordinate
 
 
 class EntityFactory:
     __slots__ = ['_entity_registry', '_component_registry', '_existing_ids', '_entities']
-    
+
     def __init__(self):
         """Инициализирует фабрику сущностей и регистрирует сущности и компоненты из конфигурационных файлов.
         """
@@ -39,17 +39,32 @@ class EntityFactory:
         """
         self._component_registry[component_type] = component_class
 
+    def _import_class(self, full_class_string: str):
+        """Импортирует класс по строке с его полным путем.
+
+        Args:
+            full_class_string (str): Полный путь до класса.
+
+        Returns:
+            Type: Импортированный класс.
+        """
+        module_path, class_name = full_class_string.rsplit('.', 1)
+        module = importlib.import_module(module_path)
+        return getattr(module, class_name)
+
     def _register_from_yaml(self):
         """Регистрирует сущности и компоненты из YAML файла конфигурации.
         """
         with open(os.path.join(ROOT_PATH, "Prototype", "factory_mappings.yml"), 'r', encoding="UTF-8") as file:
             data = yaml.safe_load(file)
 
-        for entity_type, entity_class_name in data.get('entities', {}).items():
-            self._register_entity(entity_type, globals()[entity_class_name])
+        for entity_type, full_class_string in data.get('entities', {}).items():
+            entity_class = self._import_class(full_class_string)
+            self._register_entity(entity_type, entity_class)
 
-        for component_type, component_class_name in data.get('components', {}).items():
-            self._register_component(component_type, globals()[component_class_name])
+        for component_type, full_class_string in data.get('components', {}).items():
+            component_class = self._import_class(full_class_string)
+            self._register_component(component_type, component_class)
 
     def _create_entity(self, entity_data: dict) -> BaseEntity:
         """Создает сущность на основе данных из конфигурации.
@@ -101,6 +116,8 @@ class EntityFactory:
         Returns:
             BaseComponent: Созданный компонент.
         """
+        from systems.map_system.coordinates import Coordinate
+        
         component_type = component_data.pop('type')
         component_class = self._component_registry.get(component_type)
         if not component_class:
@@ -144,7 +161,7 @@ class EntityFactory:
         self._entities.clear()
         for root, _, files in os.walk(directory_path):
             for file in files:
-                if file.endswith('.yaml') or file.endswith('.yml'):
+                if file.endswith('.yaml') or file.endswith('.yml') and file != "factory_mappings.yml":
                     file_path = os.path.join(root, file)
                     self._entities.extend(self.load_entities_from_yaml(file_path))
 

@@ -1,7 +1,6 @@
 from typing import Any, Dict, List
 
-from systems.entity_system import BaseEntity
-from systems.entity_system.factory import EntityFactory
+from systems.entity_system import BaseEntity, EntityFactory
 from systems.map_system.components.map_coordinates_component import \
     MapCoordinateComponent
 from systems.map_system.components.map_items_component import MapItemsComponent

@@ -2,18 +2,13 @@
 
 # Раздел для регистрации классов сущностей
 entities:
-  # Пример:
-  # PlayerEntity: "PlayerEntity"
-  # EnemyEntity: "EnemyEntity"
-  MapEntity: "MapEntity"
+  MapEntity: "systems.map_system.map_entity.MapEntity"
 
 # Раздел для регистрации классов компонентов
 components:
-  # Пример:
-  # HealthComponent: "HealthComponent"
-  # PositionComponent: "PositionComponent"
-  MapItemsComponent: "MapItemsComponent"
-  MapPhysicsComponent: "MapPhysicsComponent"
+  MapCoordinateComponent: "systems.map_system.components.map_coordinates_component.MapCoordinateComponent"
+  MapItemsComponent: "systems.map_system.components.map_items_component.MapItemsComponent"
+  MapPhysicsComponent: "systems.map_system.components.map_physics_component.MapPhysicsComponent"
 
 # Пример определения экземпляров сущностей В ДРУГИХ YML ФАЙЛАХ:
 # - type: "PlayerEntity"  # Указываем тип сущности, который соответствует зарегистрированному имени класса
