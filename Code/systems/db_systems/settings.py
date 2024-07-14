@@ -5,6 +5,7 @@ from functools import reduce
 from typing import Any, Optional
 
 import aiofiles
+from root_path import ROOT_PATH
 
 
 class SettingsManager:
@@ -21,7 +22,7 @@ class SettingsManager:
         settings_manager = SettingsManager("app_settings")
         ```
         """
-        self._path: str = os.path.join(os.getcwd(), 'data', 'settings', f'{settings_name}.json')
+        self._path: str = os.path.join(ROOT_PATH, 'data', 'settings', f'{settings_name}.json')
         self._lock = asyncio.Lock()
 
     async def _create_file(self) -> bool:

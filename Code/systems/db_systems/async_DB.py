@@ -4,6 +4,7 @@ import sqlite3
 from typing import Any, Dict, List, Optional, Tuple
 
 import aiosqlite
+from root_path import ROOT_PATH
 
 
 class AsyncDBError(Exception):
@@ -108,7 +109,7 @@ class AsyncDB:
             raise ValueError("Database configuration is required")
 
         file_path = file_path.replace('/', os.sep)
-        file_path = os.path.join(os.getcwd(), file_path)
+        file_path = os.path.join(ROOT_PATH, "data", file_path)
 
         if not os.path.exists(file_path):
             os.makedirs(file_path)

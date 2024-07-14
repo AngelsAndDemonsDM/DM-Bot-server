@@ -2,8 +2,9 @@ import os
 import zipfile
 
 from api.server.bp_reg import server_bp
-from main_impt import ROOT_PATH, auth_manager
+from main_impt import auth_manager
 from quart import jsonify, request, send_file
+from root_path import ROOT_PATH
 
 
 def create_zip_archive():
