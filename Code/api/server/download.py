@@ -20,11 +20,11 @@ def create_zip_archive():
     return archive_path
 
 @server_bp.route('/download', methods=['POST'])
-async def download():
-    user_token = request.headers.get('user_token')
+async def api_download():
+    requester_token = request.headers.get('token')
 
     try:
-        auth_manager.get_user_login_by_token(user_token)
+        auth_manager.get_user_login_by_token(requester_token)
     
     except ValueError:
         return jsonify({"message": "Access denied"}), 403

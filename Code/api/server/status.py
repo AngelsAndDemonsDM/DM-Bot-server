@@ -3,5 +3,5 @@ from quart import jsonify
 
 
 @server_bp.route('/status', methods=['GET'])
-async def get_status():
+async def api_get_status():
     return jsonify({"message": "Online"}), 200

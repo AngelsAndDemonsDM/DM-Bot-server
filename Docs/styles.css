@@ -12,10 +12,13 @@ body {
     padding: 20px;
     background-color: #1e1e1e;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
 }
 
 h1, h2, h3 {
     color: #e0e0e0;
+    border-bottom: 1px solid #333;
+    padding-bottom: 5px;
 }
 
 code {
@@ -26,8 +29,44 @@ code {
     color: #e0e0e0;
 }
 
+pre code {
+    display: block;
+    padding: 20px;
+    background-color: #2c2c2c;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.hljs-string {
+    color: #a8e2a8;
+}
+
+.hljs-number {
+    color: #f8c555;
+}
+
+.hljs-keyword,
+.hljs-literal,
+.hljs-symbol,
+.hljs-name,
+.hljs-bullet,
+.hljs-link {
+    color: #d19a66;
+}
+
+.hljs-attr {
+    color: #61afef;
+}
+
+.hljs-punctuation {
+    color: #e0e0e0;
+}
+
 .endpoint {
     margin: 20px 0;
+    padding: 20px;
+    background-color: #2a2a2a;
+    border-radius: 8px;
 }
 
 .method {
@@ -45,21 +84,34 @@ code {
     color: #b0b0b0;
 }
 
-.parameters, .returns {
+.headers, .parameters, .returns {
     margin: 20px 0;
     padding: 10px;
     background-color: #1e1e1e;
     border: 1px solid #333;
+    border-radius: 8px;
 }
 
-.parameters h3, .returns h3 {
+.headers h3, .parameters h3, .returns h3 {
     margin-top: 0;
     color: #e0e0e0;
 }
 
-.parameter, .return {
+.parameter, .return, .header {
     margin: 10px 0;
     color: #b0b0b0;
+}
+
+.parameter code, .return code, .header code {
+    background-color: #333;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: Consolas, monospace;
+    color: #e0e0e0;
+}
+
+.parameter .type, .header .type {
+    color: #3498db;
 }
 
 .doc-link {
