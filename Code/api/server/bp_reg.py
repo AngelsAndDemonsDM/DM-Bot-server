@@ -1,3 +1,3 @@
 from quart import Blueprint
 
-server_bp = Blueprint('setup', __name__)
+server_bp = Blueprint('server', __name__)
