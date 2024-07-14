@@ -7,6 +7,7 @@ import subprocess
 import sys
 
 from api.auth import auth_bp
+from api.server import server_bp
 from quart import Quart, jsonify
 from systems.auto_updater import needs_update
 from systems.db_systems import SettingsManager
@@ -15,11 +16,7 @@ app = Quart(__name__)
 
 # Blueprint
 app.register_blueprint(auth_bp, url_predix='/auth')
-
-# Status resp
-@app.route('/status', methods=['GET'])
-async def get_status():
-    return jsonify({"message": "Service is running"}), 200
+app.register_blueprint(server_bp, url_prefix='/server')
 
 # Argument parsing
 def parse_arguments():
