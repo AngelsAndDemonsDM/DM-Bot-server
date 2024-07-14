@@ -1,7 +1,7 @@
 import os
 import pickle
 
-from main_impt import ROOT_PATH
+from root_path import ROOT_PATH
 
 
 class MapManager:

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="/DM-Bot-server/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="endpoint">
+            <h2><span class="method">GET</span> <span class="url">/server/status</span></h2>
+
+            <div class="description">
+                <p>Данный endpoint служит для проверки статуса сервера. Возвращает сообщение о текущем состоянии сервера.</p>
+            </div>
+            
+            <div class="returns">
+                <h3>Возвращаемые данные:</h3>
+                <div class="return">
+                    <p><code>200 OK</code> - JSON объект с сообщением о состоянии сервера:</p>
+                    <pre><code class="json">{
+    "message": "Online"
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</body>
+
+</html>
