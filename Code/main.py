@@ -15,7 +15,7 @@ from systems.db_systems import SettingsManager
 app = Quart(__name__)
 
 # Blueprint
-app.register_blueprint(account_bp, url_predix='/account')
+app.register_blueprint(account_bp, url_prefix='/account')
 app.register_blueprint(server_bp, url_prefix='/server')
 
 # Argument parsing
