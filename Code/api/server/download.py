@@ -1,6 +1,7 @@
 import os
 import zipfile
 
+from api.api_tools import get_requester_token
 from api.server.bp_reg import server_bp
 from main_impt import auth_manager
 from quart import jsonify, request, send_file
@@ -22,10 +23,10 @@ def create_zip_archive():
 
 @server_bp.route('/download', methods=['POST'])
 async def api_download():
-    requester_token = request.headers.get('token')
+    requester_token = get_requester_token(request.headers)
 
     try:
-        auth_manager.get_user_login_by_token(requester_token)
+        await auth_manager.get_user_login_by_token(requester_token)
     
     except ValueError:
         return jsonify({"message": "Access denied"}), 403

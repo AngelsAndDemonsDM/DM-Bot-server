@@ -1,4 +1,5 @@
 from api.account.bp_reg import account_bp
+from api.api_tools import check_required_fields, get_requester_token
 from main_impt import auth_manager
 from quart import jsonify, request
 from systems.access_system import AccessFlags
@@ -7,13 +8,12 @@ from systems.access_system import AccessFlags
 @account_bp.route('/change_user_password', methods=['POST'])
 async def api_change_user_password():
     try:
-        requester_token = request.headers.get('token')
+        requester_token = get_requester_token(request.headers)
         data = await request.get_json()
 
-        required_fields = ['login', 'new_password']
-        missing_fields = [field for field in required_fields if field not in data]
+        missing_fields = check_required_fields(data, "login", "new_password")
         if missing_fields:
-            return jsonify({'message': f'Field(s) {", ".join(missing_fields)} are required'}), 400
+            return jsonify({'message': f'Field(s) {missing_fields} are required'}), 400
 
         target_login = data['login']
         new_target_password = data['new_password']

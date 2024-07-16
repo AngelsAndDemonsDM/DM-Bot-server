@@ -1,4 +1,5 @@
 from api.account.bp_reg import account_bp
+from api.api_tools import get_requester_token
 from main_impt import auth_manager
 from quart import jsonify, request
 from systems.access_system import AccessFlags
@@ -7,7 +8,7 @@ from systems.access_system import AccessFlags
 @account_bp.route('/delete_user', methods=['POST'])
 async def api_delete_user():
     try:
-        requester_token = request.headers.get('token')
+        requester_token = get_requester_token(request.headers)
         data = await request.get_json()
 
         if 'login' not in data:
