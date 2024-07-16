@@ -15,7 +15,7 @@ class AuthManager:
         """
         self._db: AsyncDB = AsyncDB(
             file_name="auth",
-            file_path="data",
+            file_path="",
             config= { 
                 "users": [ 
                     ("login", str, (AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE), None), 
