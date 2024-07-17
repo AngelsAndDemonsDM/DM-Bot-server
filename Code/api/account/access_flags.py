@@ -1,10 +1,10 @@
+from api.account.bp_reg import account_bp
 from api.api_tools import get_requester_token
-from api.server.bp_reg import server_bp
 from main_impt import auth_manager
 from quart import jsonify, request
 
 
-@server_bp.route('/access_flags', methods=['POST'])
+@account_bp.route('/access_flags', methods=['POST'])
 async def api_access_flags():
     requester_token = get_requester_token(request.headers)
 
