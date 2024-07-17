@@ -1,3 +1,4 @@
+from api.account.access_flags import api_access_flags
 from api.account.bp_reg import account_bp
 from api.account.change_user_access import api_change_user_access
 from api.account.change_user_password import api_change_user_password
