@@ -1,10 +1,32 @@
 from typing import Optional, Tuple
 
 from main_impt import auth_manager
+from quart import jsonify
 from systems.access_system import AuthError
 from systems.access_system.access_flags import AccessFlags
 
 HEADER_FOR_TOKEN: str = 'user_token'
+
+def catch_403_500(func):
+    """Функция ловит AuthError и другие Exception которые долетели до функции. Возвращает 403 и 500 клиенту соответственно.
+    
+    Args:
+        func (Callable): Функция, которую нужно обернуть.
+
+    Returns:
+        Callable: Обернутая функция.
+    """
+    async def wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+    
+        except AuthError:
+            return jsonify({"message": "Access denied"}), 403
+        
+        except Exception as err:
+            return jsonify({"message": "An unexpected error occurred", "error": str(err)}), 500
+    
+    return wrapper
 
 async def get_requester_info(header: dict) -> Tuple[str, str, AccessFlags]: #TODO: Декоратор чтобы не ловить постоянно ошибки на подобии 500 и AuthError
     """_summary_

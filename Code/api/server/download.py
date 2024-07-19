@@ -1,11 +1,10 @@
 import os
 import zipfile
 
-from api.api_tools import get_requester_info
+from api.api_tools import catch_403_500, get_requester_info
 from api.server.bp_reg import server_bp
-from quart import jsonify, request, send_file
+from quart import request, send_file
 from root_path import ROOT_PATH
-from systems.access_system.auth_manager import AuthError
 
 
 def create_zip_archive(): # TODO Проверка хеша архива
@@ -21,17 +20,11 @@ def create_zip_archive(): # TODO Проверка хеша архива
 
     return archive_path
 
+@catch_403_500
 @server_bp.route('/download', methods=['POST'])
 async def api_download():
-    try:
-        await get_requester_info(request.headers)
+    await get_requester_info(request.headers)
     
-    except AuthError:
-        return jsonify({"message": "Access denied"}), 403
-    
-    except Exception as err:
-        return jsonify({"message": "An unexpected error occurred", "error": str(err)}), 500
-
     archive_path = create_zip_archive()
 
     return await send_file(
