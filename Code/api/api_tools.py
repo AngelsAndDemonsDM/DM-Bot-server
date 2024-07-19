@@ -38,28 +38,24 @@ def catch_MissingFilds_Auth_Exception(func):
     return wrapper
 
 async def get_requester_info(header: dict) -> Tuple[str, str, AccessFlags]:
-    """_summary_
+    """Получает информацию о запрашивающем пользователе из заголовка.
 
     Args:
-        header (dict): _description_
+        header (dict): Словарь заголовков, содержащий информацию о запросе.
 
     Raises:
-        AuthError: _description_
+        AuthError: Если токен не предоставлен или произошла ошибка при получении информации о пользователе.
 
     Returns:
-        Tuple[str, str, AccessFlags]: _description_
+        Tuple[str, str, AccessFlags]: Кортеж, содержащий токен запроса, логин запрашивающего пользователя и его права доступа.
     """
     requester_token = header.get(HEADER_FOR_TOKEN, None)
     
     if not requester_token:
         raise AuthError("Token not provided")
     
-    try:
-        requester_login, requester_accsess = await auth_manager.get_user_login_and_access_by_token(requester_token)
+    requester_login, requester_accsess = await auth_manager.get_user_login_and_access_by_token(requester_token)
     
-    except ValueError:
-        raise AuthError("Error while get info about requester")
-        
     return (requester_token, requester_login, requester_accsess)
 
 def get_required_fields(data: dict, *args: str) -> Tuple[str, ...]:
