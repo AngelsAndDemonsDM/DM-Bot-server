@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 from main_impt import auth_manager
 from quart import jsonify
@@ -10,7 +10,8 @@ HEADER_FOR_TOKEN: str = 'user_token'
 class MissingFieldsError(Exception):
     """Ошибка вызываемая при недостающих полях.
     """
-    pass
+    def __init__(self, missing_fields: List[str]):
+        super().__init__(', '.join(missing_fields))
 
 def catch_MissingFilds_Auth_Exception(func):
     """Функция ловит AuthError и другие Exception которые долетели до функции. Возвращает 403 и 500 клиенту соответственно.
@@ -61,15 +62,21 @@ async def get_requester_info(header: dict) -> Tuple[str, str, AccessFlags]:
         
     return (requester_token, requester_login, requester_accsess)
 
-def get_required_fields(data: dict, *args: str) -> Optional[str]: #TODO: Возвращать просто список аргсов которое запросили. Если аргов каких то нет - кинуть MissingFieldsError. Упрощаем код. Мяф.
-    """Проверяет, что все необходимые поля присутствуют в данных.
+def get_required_fields(data: dict, *args: str) -> Tuple[str, ...]:
+    """Возвращает кортеж запрашиваемых аргументов
 
     Args:
         data (dict): Словарь данных, в котором проверяются поля.
         *args (str): Переменное количество строковых аргументов, представляющих имена необходимых полей.
 
     Returns:
-        Optional[str]: None, если все необходимые поля присутствуют, иначе строка с перечислением отсутствующих полей.
+        Tuple[str, ...]: Кортеж запрашиваемых аргументов.
+    
+    Raises:
+        MissingFieldsError: Если каких-то аргументов нет в данных.
     """
     missing_fields = [field for field in args if field not in data]
-    return ", ".join(missing_fields) if missing_fields else None
+    if missing_fields:
+        raise MissingFieldsError(missing_fields)
+    
+    return tuple(args)
