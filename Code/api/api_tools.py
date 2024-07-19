@@ -1,17 +1,35 @@
-from typing import Optional
+from typing import Optional, Tuple
+
+from main_impt import auth_manager
+from systems.access_system import AuthError
+from systems.access_system.access_flags import AccessFlags
 
 HEADER_FOR_TOKEN: str = 'user_token'
 
-def get_requester_token(header: dict) -> Optional[str]:
-    """Получает токен пользователя из заголовков запроса.
+async def get_requester_info(header: dict) -> Tuple[str, str, AccessFlags]:
+    """_summary_
 
     Args:
-        header (dict): Словарь заголовков запроса.
+        header (dict): _description_
+
+    Raises:
+        AuthError: _description_
 
     Returns:
-        Optional[str]: Значение токена, если найдено, иначе None.
+        Tuple[str, str, AccessFlags]: _description_
     """
-    return header.get(HEADER_FOR_TOKEN, None)
+    requester_token = header.get(HEADER_FOR_TOKEN, None)
+    
+    if not requester_token:
+        raise AuthError("Token not provided")
+    
+    try:
+        requester_login, requester_accsess = await auth_manager.get_user_login_and_access_by_token(requester_token)
+    
+    except ValueError:
+        raise AuthError("Error while get info about requester")
+        
+    return (requester_token, requester_login, requester_accsess)
 
 def check_required_fields(data: dict, *args: str) -> Optional[str]:
     """

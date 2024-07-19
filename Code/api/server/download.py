@@ -1,14 +1,14 @@
 import os
 import zipfile
 
-from api.api_tools import get_requester_token
+from api.api_tools import get_requester_info
 from api.server.bp_reg import server_bp
-from main_impt import auth_manager
 from quart import jsonify, request, send_file
 from root_path import ROOT_PATH
+from systems.access_system.auth_manager import AuthError
 
 
-def create_zip_archive():
+def create_zip_archive(): # TODO Проверка хеша архива
     folder_path = os.path.join(ROOT_PATH, "Sprites")
     archive_path = os.path.join(ROOT_PATH, "data", "sprites.zip")
 
@@ -23,12 +23,10 @@ def create_zip_archive():
 
 @server_bp.route('/download', methods=['POST'])
 async def api_download():
-    requester_token = get_requester_token(request.headers)
-
     try:
-        await auth_manager.get_user_login_by_token(requester_token)
+        await get_requester_info(request.headers)
     
-    except ValueError:
+    except AuthError:
         return jsonify({"message": "Access denied"}), 403
     
     except Exception as err:

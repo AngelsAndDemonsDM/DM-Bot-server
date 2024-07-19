@@ -1,10 +1,16 @@
 import hashlib
 import hmac
 import uuid
+from typing import Tuple
 
 from systems.access_system.access_flags import AccessFlags
 from systems.db_systems import AsyncDB
 
+
+class AuthError(Exception):
+    """Общая ошибка выбрасываемая при ошибке получения доступа
+    """
+    pass
 
 class AuthManager:
     __slots__ = ['_db']
@@ -208,10 +214,10 @@ class AuthManager:
             
             user_data = await db.select('users', ['access'], {'login': user_login})
             
-            if not user_data:
-                raise ValueError(f"User '{user_login}' not found")
-            
-            return AccessFlags.from_bytes(user_data[0]['access'])
+        if not user_data:
+            raise ValueError(f"User '{user_login}' not found")
+        
+        return AccessFlags.from_bytes(user_data[0]['access'])
 
     async def get_user_access_by_login(self, login: str) -> AccessFlags:
         """Получение уровня доступа пользователя по логину.
@@ -228,10 +234,10 @@ class AuthManager:
         async with self._db as db:
             user_data = await db.select('users', ['access'], {'login': login})
             
-            if not user_data:
-                raise ValueError(f"User '{login}' not found")
-            
-            return AccessFlags.from_bytes(user_data[0]['access'])
+        if not user_data:
+            raise ValueError(f"User '{login}' not found")
+        
+        return AccessFlags.from_bytes(user_data[0]['access'])
 
     async def get_user_login_by_token(self, token: str) -> str:
         """Получение логина пользователя по токену.
@@ -248,7 +254,35 @@ class AuthManager:
         async with self._db as db:
             session_data = await db.select('cur_sessions', ['user'], {'token': token})
             
+        if not session_data:
+            raise ValueError(f"Session with token '{token}' not found")
+        
+        return session_data[0]['user']
+
+    async def get_user_login_and_access_by_token(self, token: str) -> Tuple[str, AccessFlags]:
+        """_summary_
+
+        Args:
+            token (str): _description_
+
+        Raises:
+            ValueError: _description_
+            ValueError: _description_
+
+        Returns:
+            Tuple[AccessFlags, str]: _description_
+        """
+        async with self._db as db:
+            session_data = await db.select('cur_sessions', ['user'], {'token': token})
+            
             if not session_data:
                 raise ValueError(f"Session with token '{token}' not found")
             
-            return session_data[0]['user']
+            user_login = session_data[0]['user']
+            
+            user_data = await db.select('users', ['access'], {'login': user_login})
+            
+        if not user_data:
+            raise ValueError(f"User '{user_login}' not found")
+        
+        return (user_login, AccessFlags.from_bytes(user_data[0]['access']))

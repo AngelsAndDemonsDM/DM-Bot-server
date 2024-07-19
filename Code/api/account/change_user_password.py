@@ -1,14 +1,22 @@
 from api.account.bp_reg import account_bp
-from api.api_tools import check_required_fields, get_requester_token
+from api.api_tools import check_required_fields, get_requester_info
 from main_impt import auth_manager
 from quart import jsonify, request
-from systems.access_system import AccessFlags
+from systems.access_system.auth_manager import AuthError
 
 
 @account_bp.route('/change_user_password', methods=['POST'])
 async def api_change_user_password():
     try:
-        requester_token = get_requester_token(request.headers)
+        try:
+            _, requester_login, requester_accses = await get_requester_info(request.headers)
+        
+        except AuthError:
+            return jsonify({"message": "Access denied"}), 403
+        
+        except Exception as err:
+            return jsonify({"message": "An unexpected error occurred", "error": str(err)}), 500
+
         data = await request.get_json()
 
         missing_fields = check_required_fields(data, "login", "new_password")
@@ -18,10 +26,7 @@ async def api_change_user_password():
         target_login = data['login']
         new_target_password = data['new_password']
 
-        requester_login = await auth_manager.get_user_login_by_token(requester_token)
-        requester_access: AccessFlags = await auth_manager.get_user_access_by_token(requester_token)
-        
-        if not requester_access["change_password"] and requester_login != target_login:
+        if not requester_accses["change_password"] and requester_login != target_login:
             return jsonify({'message': 'Access denied'}), 403
 
         await auth_manager.change_user_password(target_login, new_target_password)

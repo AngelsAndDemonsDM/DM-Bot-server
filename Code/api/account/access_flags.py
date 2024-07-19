@@ -1,20 +1,20 @@
 from api.account.bp_reg import account_bp
-from api.api_tools import get_requester_token
+from api.api_tools import get_requester_info
 from main_impt import auth_manager
 from quart import jsonify, request
+
+from Code.systems.access_system.auth_manager import AuthError
 
 
 @account_bp.route('/access_flags', methods=['POST'])
 async def api_access_flags():
-    requester_token = get_requester_token(request.headers)
-
     try:
-        accses = await auth_manager.get_user_access_by_token(requester_token)
+        _, _, requester_accses = await get_requester_info(request.headers)
     
-    except ValueError:
+    except AuthError:
         return jsonify({"message": "Access denied"}), 403
     
     except Exception as err:
         return jsonify({"message": "An unexpected error occurred", "error": str(err)}), 500
 
-    return jsonify(accses._flags), 200 # Ай, ай, так низя, но мне похеру =)
+    return jsonify(requester_accses._flags), 200 # Ай, ай, так низя, но мне похеру =)
