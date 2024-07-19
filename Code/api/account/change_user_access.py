@@ -1,6 +1,6 @@
 from api.account.bp_reg import account_bp
 from api.api_tools import (catch_MissingFilds_Auth_Exception,
-                           get_required_fields, get_requester_info)
+                           get_requester_info, get_required_fields)
 from main_impt import auth_manager
 from quart import jsonify, request
 from systems.access_system import AccessFlags
@@ -14,14 +14,7 @@ async def api_change_user_access():
     if not requester_accses["change_access"]:
         return jsonify({'message': 'Access denied'}), 403
     
-    data = await request.get_json()
-
-    missing_fields = get_required_fields(data, "login", "new_access")
-    if missing_fields:
-        return jsonify({'message': f'Field(s) {missing_fields} are required'}), 400
-
-    target_login = data['login']
-    new_target_access = data['new_access']
+    target_login, new_target_access = get_required_fields(await request.get_json(), "login", "new_access")
 
     if not isinstance(new_target_access, dict):
         return jsonify({'message': 'Field "new_access" must be a dictionary'}), 400

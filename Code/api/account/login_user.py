@@ -8,14 +8,7 @@ from quart import jsonify, request
 @catch_MissingFilds_Auth_Exception
 @account_bp.route('/login', methods=['POST'])
 async def api_login_user():
-    data = await request.get_json()
-
-    missing_fields = get_required_fields(data, "login", "password")
-    if missing_fields:
-        return jsonify({'message': f'Field(s) {missing_fields} are required'}), 400
-
-    login = data['login']
-    password = data['password']
+    login, password = get_required_fields(await request.get_json(), "login", "password")
 
     token = await auth_manager.login_user(login, password)
     return jsonify({'message': 'Login successful', 'token': token}), 200
