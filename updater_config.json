@@ -1,7 +1,7 @@
 {
     "VERSION": "0.1.1",
     "USER": "AngelsAndDemonsDM",
-    "REPO": "DM-Bot",
+    "REPO": "DM-Bot-server",
     "EXCLUDE_DIRS": [
         "data",
         ".git",
