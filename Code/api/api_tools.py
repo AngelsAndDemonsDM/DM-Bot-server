@@ -53,7 +53,7 @@ async def get_requester_info(header: dict) -> Tuple[str, str, AccessFlags]: #TOD
         
     return (requester_token, requester_login, requester_accsess)
 
-def check_required_fields(data: dict, *args: str) -> Optional[str]:
+def check_required_fields(data: dict, *args: str) -> Optional[str]: #TODO: Сделать кастомную ошибку и выкидывать её, её же ловить в catch_403_500 (которое будет потом catch_400_403_500), возвращать просто список аргсов которое запросили. Упрощаем код. Мяф.
     """Проверяет, что все необходимые поля присутствуют в данных.
 
     Args:
