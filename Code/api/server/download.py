@@ -1,7 +1,7 @@
 import os
 import zipfile
 
-from api.api_tools import catch_403_500, get_requester_info
+from api.api_tools import catch_MissingFilds_Auth_Exception, get_requester_info
 from api.server.bp_reg import server_bp
 from quart import request, send_file
 from root_path import ROOT_PATH
@@ -20,7 +20,7 @@ def create_zip_archive(): # TODO Проверка хеша архива
 
     return archive_path
 
-@catch_403_500
+@catch_MissingFilds_Auth_Exception
 @server_bp.route('/download', methods=['POST'])
 async def api_download():
     await get_requester_info(request.headers)

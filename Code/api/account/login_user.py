@@ -1,10 +1,11 @@
 from api.account.bp_reg import account_bp
-from api.api_tools import catch_403_500, check_required_fields
+from api.api_tools import (catch_MissingFilds_Auth_Exception,
+                           check_required_fields)
 from main_impt import auth_manager
 from quart import jsonify, request
 
 
-@catch_403_500
+@catch_MissingFilds_Auth_Exception
 @account_bp.route('/login', methods=['POST'])
 async def api_login_user():
     data = await request.get_json()

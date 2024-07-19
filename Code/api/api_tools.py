@@ -7,7 +7,12 @@ from systems.access_system.access_flags import AccessFlags
 
 HEADER_FOR_TOKEN: str = 'user_token'
 
-def catch_403_500(func):
+class MissingFieldsError(Exception):
+    """Ошибка вызываемая при недостающих полях.
+    """
+    pass
+
+def catch_MissingFilds_Auth_Exception(func):
     """Функция ловит AuthError и другие Exception которые долетели до функции. Возвращает 403 и 500 клиенту соответственно.
     
     Args:
@@ -19,7 +24,10 @@ def catch_403_500(func):
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
-    
+
+        except MissingFieldsError as err:
+            return jsonify({'message': f'Field(s) {err} are required'}), 400
+        
         except AuthError:
             return jsonify({"message": "Access denied"}), 403
         
@@ -28,7 +36,7 @@ def catch_403_500(func):
     
     return wrapper
 
-async def get_requester_info(header: dict) -> Tuple[str, str, AccessFlags]: #TODO: Декоратор чтобы не ловить постоянно ошибки на подобии 500 и AuthError
+async def get_requester_info(header: dict) -> Tuple[str, str, AccessFlags]:
     """_summary_
 
     Args:
@@ -53,7 +61,7 @@ async def get_requester_info(header: dict) -> Tuple[str, str, AccessFlags]: #TOD
         
     return (requester_token, requester_login, requester_accsess)
 
-def check_required_fields(data: dict, *args: str) -> Optional[str]: #TODO: Сделать кастомную ошибку и выкидывать её, её же ловить в catch_403_500 (которое будет потом catch_400_403_500), возвращать просто список аргсов которое запросили. Упрощаем код. Мяф.
+def check_required_fields(data: dict, *args: str) -> Optional[str]: #TODO: Возвращать просто список аргсов которое запросили. Если аргов каких то нет - кинуть MissingFieldsError. Упрощаем код. Мяф.
     """Проверяет, что все необходимые поля присутствуют в данных.
 
     Args:
