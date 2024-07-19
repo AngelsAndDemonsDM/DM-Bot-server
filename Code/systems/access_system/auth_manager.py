@@ -7,7 +7,7 @@ from systems.access_system.access_flags import AccessFlags
 from systems.db_systems import AsyncDB
 
 
-class AuthError(Exception):
+class AuthError(Exception): # TODO: Заменить value error на эту ошибку
     """Общая ошибка выбрасываемая при ошибке получения доступа
     """
     pass

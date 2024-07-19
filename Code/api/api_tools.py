@@ -6,7 +6,7 @@ from systems.access_system.access_flags import AccessFlags
 
 HEADER_FOR_TOKEN: str = 'user_token'
 
-async def get_requester_info(header: dict) -> Tuple[str, str, AccessFlags]:
+async def get_requester_info(header: dict) -> Tuple[str, str, AccessFlags]: #TODO: Декоратор чтобы не ловить постоянно ошибки на подобии 500 и AuthError
     """_summary_
 
     Args:
