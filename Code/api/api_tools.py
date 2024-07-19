@@ -61,7 +61,7 @@ async def get_requester_info(header: dict) -> Tuple[str, str, AccessFlags]:
         
     return (requester_token, requester_login, requester_accsess)
 
-def check_required_fields(data: dict, *args: str) -> Optional[str]: #TODO: Возвращать просто список аргсов которое запросили. Если аргов каких то нет - кинуть MissingFieldsError. Упрощаем код. Мяф.
+def get_required_fields(data: dict, *args: str) -> Optional[str]: #TODO: Возвращать просто список аргсов которое запросили. Если аргов каких то нет - кинуть MissingFieldsError. Упрощаем код. Мяф.
     """Проверяет, что все необходимые поля присутствуют в данных.
 
     Args:

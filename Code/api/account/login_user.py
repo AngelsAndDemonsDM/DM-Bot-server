@@ -1,6 +1,6 @@
 from api.account.bp_reg import account_bp
 from api.api_tools import (catch_MissingFilds_Auth_Exception,
-                           check_required_fields)
+                           get_required_fields)
 from main_impt import auth_manager
 from quart import jsonify, request
 
@@ -10,7 +10,7 @@ from quart import jsonify, request
 async def api_login_user():
     data = await request.get_json()
 
-    missing_fields = check_required_fields(data, "login", "password")
+    missing_fields = get_required_fields(data, "login", "password")
     if missing_fields:
         return jsonify({'message': f'Field(s) {missing_fields} are required'}), 400
 
