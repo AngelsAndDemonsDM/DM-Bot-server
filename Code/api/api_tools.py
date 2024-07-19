@@ -14,7 +14,7 @@ class MissingFieldsError(Exception):
         super().__init__(', '.join(missing_fields))
 
 def catch_MissingFilds_Auth_Exception(func):
-    """Функция ловит AuthError и другие Exception которые долетели до функции. Возвращает 403 и 500 клиенту соответственно.
+    """Функция ловит MissingFieldsError, AuthError и другие Exception которые долетели до функции. Возвращает 400, 403 и 500 клиенту соответственно.
     
     Args:
         func (Callable): Функция, которую нужно обернуть.
