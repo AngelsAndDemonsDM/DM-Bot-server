@@ -32,8 +32,7 @@ async def get_requester_info(header: dict) -> Tuple[str, str, AccessFlags]: #TOD
     return (requester_token, requester_login, requester_accsess)
 
 def check_required_fields(data: dict, *args: str) -> Optional[str]:
-    """
-    Проверяет, что все необходимые поля присутствуют в данных.
+    """Проверяет, что все необходимые поля присутствуют в данных.
 
     Args:
         data (dict): Словарь данных, в котором проверяются поля.
