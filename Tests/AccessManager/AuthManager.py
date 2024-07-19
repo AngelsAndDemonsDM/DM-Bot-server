@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from Code.systems.access_system import AccessFlags, AuthManager, AuthError
+from Code.systems.access_system import AccessFlags, AuthError, AuthManager
 
 
 class TestAuthManager(unittest.IsolatedAsyncioTestCase):
