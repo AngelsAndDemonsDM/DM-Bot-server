@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from Code.systems.access_system import AccessFlags, AuthManager
+from Code.systems.access_system import AccessFlags, AuthManager, AuthError
 
 
 class TestAuthManager(unittest.IsolatedAsyncioTestCase):
@@ -27,7 +27,7 @@ class TestAuthManager(unittest.IsolatedAsyncioTestCase):
 
     async def test_login_user_invalid_password(self):
         await self.auth_manager.register_user('testuser', 'testpassword')
-        with self.assertRaises(ValueError):
+        with self.assertRaises(AuthError):
             await self.auth_manager.login_user('testuser', 'wrongpassword')
 
     async def test_logout_user(self):
