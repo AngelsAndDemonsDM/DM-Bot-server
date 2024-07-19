@@ -7,7 +7,7 @@ from systems.access_system.access_flags import AccessFlags
 from systems.db_systems import AsyncDB
 
 
-class AuthError(Exception): # TODO: Заменить value error на эту ошибку
+class AuthError(Exception):
     """Общая ошибка выбрасываемая при ошибке получения доступа
     """
     pass
@@ -80,7 +80,7 @@ class AuthManager:
             password (str): Пароль пользователя.
 
         Raises:
-            ValueError: В случае ненайденного пользователя или неверного пароля.
+            AuthError: В случае ненайденного пользователя или неверного пароля.
 
         Returns:
             str: Токен, под которым подключился пользователь.
@@ -89,7 +89,7 @@ class AuthManager:
             data = await db.select('users', ['login', 'password', 'salt'], {'login': login})
         
         if not data:
-            raise ValueError(f"User '{login}' not found")
+            raise AuthError(f"User '{login}' not found")
         
         data = data[0]
         
@@ -97,7 +97,7 @@ class AuthManager:
                 str(data['password']),
                 AuthManager._get_encrypted_password(password, data['salt'])
             ):
-            raise ValueError("Password is incorrect")
+            raise AuthError("Password is incorrect")
         
         token: str = AuthManager._generate_token()
         async with self._db as db:
@@ -115,13 +115,13 @@ class AuthManager:
             token (str): Токен пользователя.
 
         Raises:
-            ValueError: В случае ненайденного токена.
+            AuthError: В случае ненайденного токена.
         """
         async with self._db as db:
             session_data = await db.select('cur_sessions', ['user'], {'token': token})
             
             if not session_data:
-                raise ValueError(f"Session with token '{token}' not found")
+                raise AuthError(f"Session with token '{token}' not found")
             
             await db.delete('cur_sessions', {'token': token})
     
@@ -199,7 +199,7 @@ class AuthManager:
             token (str): Токен пользователя.
 
         Raises:
-            ValueError: В случае ненайденного токена или пользователя.
+            AuthError: В случае ненайденного токена или пользователя.
 
         Returns:
             AccessFlags: Уровень доступа пользователя.
@@ -208,14 +208,14 @@ class AuthManager:
             session_data = await db.select('cur_sessions', ['user'], {'token': token})
             
             if not session_data:
-                raise ValueError(f"Session with token '{token}' not found")
+                raise AuthError(f"Session with token '{token}' not found")
             
             user_login = session_data[0]['user']
             
             user_data = await db.select('users', ['access'], {'login': user_login})
             
         if not user_data:
-            raise ValueError(f"User '{user_login}' not found")
+            raise AuthError(f"User '{user_login}' not found")
         
         return AccessFlags.from_bytes(user_data[0]['access'])
 
@@ -226,7 +226,7 @@ class AuthManager:
             login (str): Токен пользователя.
 
         Raises:
-            ValueError: В случае ненайденного токена или пользователя.
+            AuthError: В случае ненайденного токена или пользователя.
 
         Returns:
             AccessFlags: Уровень доступа пользователя.
@@ -235,7 +235,7 @@ class AuthManager:
             user_data = await db.select('users', ['access'], {'login': login})
             
         if not user_data:
-            raise ValueError(f"User '{login}' not found")
+            raise AuthError(f"User '{login}' not found")
         
         return AccessFlags.from_bytes(user_data[0]['access'])
 
@@ -246,7 +246,7 @@ class AuthManager:
             token (str): Токен пользователя.
 
         Raises:
-            ValueError: В случае ненайденного токена или пользователя.
+            AuthError: В случае ненайденного токена или пользователя.
 
         Returns:
             str: Логин пользователя.
@@ -255,34 +255,33 @@ class AuthManager:
             session_data = await db.select('cur_sessions', ['user'], {'token': token})
             
         if not session_data:
-            raise ValueError(f"Session with token '{token}' not found")
+            raise AuthError(f"Session with token '{token}' not found")
         
         return session_data[0]['user']
 
     async def get_user_login_and_access_by_token(self, token: str) -> Tuple[str, AccessFlags]:
-        """_summary_
+        """Получает логин пользователя и его права доступа по предоставленному токену.
 
         Args:
-            token (str): _description_
+            token (str): Токен, используемый для идентификации сессии пользователя.
 
         Raises:
-            ValueError: _description_
-            ValueError: _description_
+            AuthError: Если сессия с данным токеном не найдена или если пользователь с найденным логином не найден в базе данных.
 
         Returns:
-            Tuple[AccessFlags, str]: _description_
+            Tuple[str, AccessFlags]: Кортеж, содержащий логин пользователя и его права доступа.
         """
         async with self._db as db:
             session_data = await db.select('cur_sessions', ['user'], {'token': token})
             
             if not session_data:
-                raise ValueError(f"Session with token '{token}' not found")
+                raise AuthError(f"Session with token '{token}' not found")
             
             user_login = session_data[0]['user']
             
             user_data = await db.select('users', ['access'], {'login': user_login})
             
         if not user_data:
-            raise ValueError(f"User '{user_login}' not found")
+            raise AuthError(f"User '{user_login}' not found")
         
         return (user_login, AccessFlags.from_bytes(user_data[0]['access']))
