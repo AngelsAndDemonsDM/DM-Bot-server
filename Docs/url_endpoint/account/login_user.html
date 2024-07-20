@@ -1,52 +1,48 @@
 <!DOCTYPE html>
 <html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>API Documentation</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/atom-one-dark.min.css" />
+        <link rel="stylesheet" href="/DM-Bot-server/styles.css" />
+    </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Documentation</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/atom-one-dark.min.css">
-    <link rel="stylesheet" href="/DM-Bot-server/styles.css">
-</head>
+    <body>
+        <div class="container">
+            <div class="endpoint">
+                <h2><span class="method">POST</span> <span class="url">/account/login</span></h2>
 
-<body>
-    <div class="container">
-        <div class="endpoint">
-            <h2><span class="method">POST</span> <span class="url">/account/login</span></h2>
-
-            <div class="description">
-                <p>Данный endpoint служит для входа пользователя в систему. Пользователь должен предоставить свой логин и пароль для получения токена доступа.</p>
-            </div>
-            
-            <div class="response-container">
-                <p>Может вернуть все <a href="/DM-Bot-server/url_endpoint/http_error.html">стандартные коды ответов</a>.</p>
-            </div>
-
-            <div class="parameters">
-                <h3>Параметры:</h3>
-                <div class="parameter">
-                    <code>login</code> <span class="type">(тип: string, обязательный: да)</span> - Логин пользователя.
+                <div class="description">
+                    <p>Данный endpoint служит для входа пользователя в систему. Пользователь должен предоставить свой логин и пароль для получения токена доступа.</p>
                 </div>
-                <div class="parameter">
-                    <code>password</code> <span class="type">(тип: string, обязательный: да)</span> - Пароль пользователя.
-                </div>
-            </div>
 
-            <div class="returns">
-                <h3>Возвращаемые данные:</h3>
-                <div class="return">
-                    <p><code>200 OK</code> - JSON объект с сообщением об успешном входе и токеном доступа:</p>
-                    <pre><code class="json">{
+                <div class="response-container">
+                    <p>Может вернуть все <a href="/DM-Bot-server/url_endpoint/http_error.html">стандартные коды ответов</a>.</p>
+                </div>
+
+                <div class="parameters">
+                    <h3>Параметры:</h3>
+                    <div class="parameter"><code>login</code> <span class="type">(тип: string, обязательный: да)</span> - Логин пользователя.</div>
+                    <div class="parameter"><code>password</code> <span class="type">(тип: string, обязательный: да)</span> - Пароль пользователя.</div>
+                </div>
+
+                <div class="returns">
+                    <h3>Возвращаемые данные:</h3>
+                    <div class="return">
+                        <p><code>200 OK</code> - JSON объект с сообщением об успешном входе и токеном доступа:</p>
+                        <pre><code class="json">{
     "message": "Login successful",
     "token": "your_token_here"
 }</code></pre>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
-    <script>hljs.highlightAll();</script>
-</body>
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+        <script>
+            hljs.highlightAll();
+        </script>
+    </body>
 </html>
