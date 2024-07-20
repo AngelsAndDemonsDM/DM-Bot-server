@@ -52,10 +52,11 @@ if __name__ == "__main__":
     else:
         logger.setLevel(logging.INFO)
     
-    if asyncio.run(SettingsManager().get_setting("app.auto_update")):
-        updater = AutoUpdater()
-        if updater.is_needs_update():
-            run_file_in_new_console(os.path.join("Code", "auto_updater", "auto_updater.py"))
-            sys.exit(0)
+    with SettingsManager() as config:
+        if config.get_setting('app.auto_update'):
+            updater = AutoUpdater()
+            if updater.is_needs_update():
+                run_file_in_new_console(os.path.join("Code", "auto_updater", "auto_updater.py"))
+                sys.exit(0)
 
     app.run(debug=debug)
