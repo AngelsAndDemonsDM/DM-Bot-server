@@ -37,8 +37,8 @@ class TestSettingsManager(unittest.TestCase):
 
     def test_set_setting(self):
         self.settings_manager.set_setting('level1.level2.key', 'value')
-        settings = self.settings_manager._load_settings()
-        self.assertEqual(settings['level1']['level2']['key'], 'value')
+        self.settings_manager._load_settings()
+        self.assertEqual(self.settings_manager._settings['level1']['level2']['key'], 'value')
 
     def test_get_setting(self):
         self.settings_manager._settings = {'level1': {'level2': {'key': 'value'}}}
