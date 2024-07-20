@@ -11,7 +11,7 @@ from api.account import (account_bp, api_access_flags, api_change_user_access,
                          api_login_user, api_logout_user, api_register_user)
 from api.server import api_download, api_get_status, server_bp
 from quart import Quart
-from systems.auto_updater import needs_update
+from systems.auto_updater import AutoUpdater
 from systems.db_systems import SettingsManager
 
 app = Quart(__name__)
@@ -53,8 +53,8 @@ if __name__ == "__main__":
         logger.setLevel(logging.INFO)
     
     if asyncio.run(SettingsManager().get_setting("app.auto_update")):
-        if needs_update():
-            logging.info("Updating application...")
+        updater = AutoUpdater()
+        if updater.is_needs_update():
             run_file_in_new_console(os.path.join("Code", "auto_updater", "auto_updater.py"))
             sys.exit(0)
 

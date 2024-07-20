@@ -3,168 +3,232 @@ import logging
 import os
 import shutil
 import subprocess
+import sys
+import tempfile
 import zipfile
-from typing import Optional, Tuple
+from typing import Tuple
 
 import requests
-from colorlog import ColoredFormatter
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-CONFIG_FILE = os.path.join(BASE_DIR, "updater_config.json")
 
-def load_config() -> dict:
-    with open(CONFIG_FILE, 'r') as f:
-        return json.load(f)
+class AutoUpdater:
+    __slots__ = [
+        '_root_path',
+        '_user',
+        '_repo',
+        '_exclude_dirs',
+        '_merge_dirs',
+        '_user_dir_prefix',
+        '_current_version',
+        '_main_script_path',
+        '_session',
+        '_remote_version',
+        '_remote_zip_url',
+        '_zip_path'
+    ]
+    
+    def __init__(self) -> None:
+        """Инициализирует AutoUpdater, загружая конфигурацию и устанавливая начальные параметры.
+        """
+        self._root_path = os.path.abspath(os.path.join(__file__, os.pardir, os.pardir, os.pardir, os.pardir))
+        
+        with open(os.path.join(self._root_path, "updater_config.json"), 'r') as file:
+            config = json.load(file)
+        
+        self._user = config["USER"]
+        self._repo = config["REPO"]
+        self._exclude_dirs = config["EXCLUDE_DIRS"]
+        self._merge_dirs = config["MERGE_DIRS"]
+        self._user_dir_prefix = config["USER_DIR_PREFIX"]
+        self._current_version = config["VERSION"]
+        self._main_script_path = os.path.join(self._root_path, "Code", "main.py")
+        self._session = requests.Session()
+        self._remote_version = None
+        self._remote_zip_url = None
+        self._zip_path = os.path.join(self._root_path, "update.zip")
+        
+    def update_app(self) -> None:
+        """Основной метод для обновления приложения.
+        Сначала проверяет удаленные данные, затем обновляет приложение, если это необходимо.
+        """
+        self._get_remote_data()
+        
+        if not self.is_needs_update():
+            logging.info("Update not needed")
+            return
 
-def get_remote_version_and_zip_url(user: str, repo: str) -> Tuple[Optional[str], Optional[str]]:
-    releases_url = f"https://api.github.com/repos/{user}/{repo}/releases/latest"
-    response = requests.get(releases_url)
-    if response.status_code == 200:
+        self._download_remote_zip()
+        if not os.path.exists(self._zip_path):
+            logging.error("Zip file didn't download")
+            return
+        
+        self._remove_old_files()
+        self._extract_remote_zip()
+        logging.info("Update completed successfully")
+        self._run_main_script()
+        
+    def is_needs_update(self) -> bool:
+        """Проверяет, необходимо ли обновление на основе текущей и удаленной версии.
+
+        Returns:
+            bool: True, если обновление необходимо, иначе False.
+        """
+        if self._remote_version and AutoUpdater._version_tuple(self._current_version) < AutoUpdater._version_tuple(self._remote_version):
+            return True
+        
+        return False
+    
+    def _get_remote_data(self) -> None:
+        """Получает данные о последнем выпуске из удаленного репозитория.
+        """
+        try:
+            response = self._session.get(f"https://api.github.com/repos/{self._user}/{self._repo}/releases/latest")
+            response.raise_for_status()
+        
+        except requests.RequestException as e:
+            logging.error(f"Failed to fetch the latest release information: {e}")
+            return
+        
         try:
             latest_release = response.json()
-            version = latest_release['tag_name']
-            zip_url = f"https://github.com/{user}/{repo}/archive/refs/tags/{version}.zip"
-            
-            return version, zip_url
+            self._remote_version = latest_release['tag_name']
+            self._remote_zip_url = f"https://github.com/{self._user}/{self._repo}/archive/refs/tags/{self._remote_version}.zip"
         
         except (ValueError, KeyError, AttributeError) as e:
             logging.error(f"Error parsing JSON response: {e}")
-            return None, None
     
-    logging.error(f"Failed to fetch the latest release information. Status code: {response.status_code}")
-    return None, None
+    @staticmethod
+    def _version_tuple(version: str) -> Tuple[int, ...]:
+        """Преобразует строку версии в кортеж целых чисел для сравнения.
 
-def download_and_extract_zip(url: str, extract_to: str) -> str:
-    local_filename = url.split('/')[-1] + ".zip"
-    logging.info(f"Downloading {url}")
-    
-    with requests.get(url, stream=True) as r:
-        with open(local_filename, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
-    logging.info(f"Extracting {local_filename}")
-    
-    with zipfile.ZipFile(local_filename, 'r') as zip_ref:
-        zip_ref.extractall(extract_to)
-    
-    os.remove(local_filename)
-    extracted_dir = os.path.join(extract_to, zip_ref.namelist()[0].split('/')[0])
-    
-    return extracted_dir
+        Args:
+            version (str): Строка версии.
 
-def is_user_dir(dirpath: str, user_dir_prefix: str) -> bool:
-    return any(part.startswith(user_dir_prefix) for part in dirpath.split(os.sep))
-
-def clean_old_version(app_dir: str, exclude_dirs: list, merge_dirs: list, user_dir_prefix: str, script_name: str) -> None:
-    for item in os.listdir(app_dir):
-        item_path = os.path.join(app_dir, item)
-        if item not in exclude_dirs and item != script_name:
-            if os.path.isdir(item_path):
-                if item in merge_dirs:
-                    for subitem in os.listdir(item_path):
-                        subitem_path = os.path.join(item_path, subitem)
-                        if os.path.isdir(subitem_path) and not is_user_dir(subitem_path, user_dir_prefix):
-                            shutil.rmtree(subitem_path)
-                            logging.info(f"Removed directory: {subitem_path}")
-            
+        Returns:
+            Tuple[int, ...]: Кортеж с частями версии как целыми числами.
+        """
+        return tuple(map(int, (version.split("."))))
+    
+    def _download_remote_zip(self) -> None:
+        """Скачивает zip-архив с обновлением из удаленного репозитория.
+        """
+        logging.info(f"Downloading {self._remote_zip_url}")
+        try:
+            with self._session.get(self._remote_zip_url, stream=True) as r:
+                r.raise_for_status()
+                with open(self._zip_path, 'wb') as file:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        file.write(chunk)
+        
+        except requests.RequestException as e:
+            logging.error(f"Failed to download the zip file: {e}")
+    
+    def _extract_remote_zip(self) -> None:
+        """Извлекает скачанный zip-архив и удаляет его после извлечения.
+        Если в архиве содержится одна папка, извлекает только ее содержимое.
+        """
+        logging.info(f"Extracting {self._zip_path}")
+        try:
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                with zipfile.ZipFile(self._zip_path, 'r') as zip_ref:
+                    zip_ref.extractall(tmpdirname)
+                
+                extracted_items = os.listdir(tmpdirname)
+                if len(extracted_items) == 1 and os.path.isdir(os.path.join(tmpdirname, extracted_items[0])):
+                    source_dir = os.path.join(tmpdirname, extracted_items[0])
+                    for item in os.listdir(source_dir):
+                        src_path = os.path.join(source_dir, item)
+                        dest_path = os.path.join(self._root_path, item)
+                        if os.path.isdir(src_path):
+                            shutil.copytree(src_path, dest_path, dirs_exist_ok=True)
+                        else:
+                            shutil.copy2(src_path, dest_path)
                 else:
-                    shutil.rmtree(item_path)
-                    logging.info(f"Removed directory: {item_path}")
-            
-            else:
-                os.remove(item_path)
-                logging.info(f"Removed file: {item_path}")
-
-def merge_directories(src_dir: str, dest_dir: str) -> None:
-    for item in os.listdir(src_dir):
-        src_item = os.path.join(src_dir, item)
-        dest_item = os.path.join(dest_dir, item)
-        if os.path.isdir(src_item):
-            if not os.path.exists(dest_item):
-                shutil.copytree(src_item, dest_item)
-                logging.info(f"Copied directory: {src_item} to {dest_item}")
+                    for item in extracted_items:
+                        src_path = os.path.join(tmpdirname, item)
+                        dest_path = os.path.join(self._root_path, item)
+                        if os.path.isdir(src_path):
+                            shutil.copytree(src_path, dest_path, dirs_exist_ok=True)
+                        else:
+                            shutil.copy2(src_path, dest_path)
         
-            else:
-                merge_directories(src_item, dest_dir)
+            logging.info(f"Removing {self._zip_path}")
+            os.remove(self._zip_path)
+        except zipfile.BadZipFile as e:
+            logging.error(f"Failed to extract the zip file: {e}")
         
-        else:
-            shutil.copy2(src_item, dest_item)
-            logging.info(f"Copied file: {src_item} to {dest_item}")
-
-def version_tuple(version: str) -> Tuple[int, ...]:
-    return tuple(map(int, (version.split("."))))
-
-def needs_update() -> Tuple[bool, Optional[str], Optional[str]]:
-    config = load_config()
-    current_version = config["VERSION"]
-    user = config["USER"]
-    repo = config["REPO"]
+        except shutil.Error as e:
+            logging.error(f"Failed to move files: {e}")
     
-    remote_version, _ = get_remote_version_and_zip_url(user, repo)
-    if remote_version and version_tuple(current_version) < version_tuple(remote_version):
-        return True, current_version, remote_version
-    
-    return False, current_version, remote_version
+    def _remove_old_files(self) -> None:
+        """Удаляет старые файлы и директории, исключая указанные в конфигурации и пользовательские директории.
+        """
+        def is_user_dir(directory: str, prefix: str) -> bool:
+            """Проверяет, начинается ли имя директории с префикса пользовательской директории.
 
-def update_application(zip_url: str, temp_dir: str, app_dir: str, exclude_dirs: list, merge_dirs: list, user_dir_prefix: str, script_name: str) -> None:
-    logging.info("Starting application update...")
-    extracted_dir = download_and_extract_zip(zip_url, extract_to=temp_dir)
-    
-    logging.info("Removing old version...")
-    clean_old_version(app_dir, exclude_dirs, merge_dirs, user_dir_prefix, script_name)
-    
-    logging.info("Installing new version...")
-    merge_directories(extracted_dir, app_dir)
-    
-    shutil.rmtree(temp_dir)
-    logging.info("Update complete.")
+            Args:
+                directory (str): Имя директории.
+                prefix (str): Префикс пользовательской директории.
 
-def run_main_script(main_script: str) -> None:
-    logging.info(f"Running main script: {main_script}")
-    subprocess.run(["python", main_script])
+            Returns:
+                bool: True, если директория является пользовательской, иначе False.
+            """
+            return os.path.basename(directory).startswith(prefix)
 
-def run_update(main_script: str) -> None:
-    config = load_config()
+        def remove_directory(directory: str) -> None:
+            """Удаляет директорию и логирует это действие.
 
-    user = config["USER"]
-    repo = config["REPO"]
-    exclude_dirs = config["EXCLUDE_DIRS"]
-    merge_dirs = config["MERGE_DIRS"]
-    user_dir_prefix = config["USER_DIR_PREFIX"]
-    current_version = config["VERSION"]
+            Args:
+                directory (str): Путь к директории.
+            """
+            shutil.rmtree(directory)
+            logging.info(f"Removed directory: {directory}")
 
-    current_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    app_dir = current_dir
-    temp_dir = os.path.join(current_dir, "temp")
-    script_name = os.path.basename(__file__)
+        def remove_file(file: str) -> None:
+            """Удаляет файл и логирует это действие.
 
-    remote_version, zip_url = get_remote_version_and_zip_url(user, repo)
+            Args:
+                file (str): Путь к файлу.
+            """
+            os.remove(file)
+            logging.info(f"Removed file: {file}")
 
-    logging.info(f"Updating from version {current_version} to {remote_version}")
-    update_application(zip_url, temp_dir, app_dir, exclude_dirs, merge_dirs, user_dir_prefix, script_name)
+        def clean_subdirectories(directory: str, prefix: str) -> None:
+            """Очищает поддиректории в указанной директории, исключая пользовательские директории.
 
-    run_main_script(main_script)
+            Args:
+                directory (str): Путь к директории.
+                prefix (str): Префикс пользовательской директории.
+            """
+            for subitem in os.listdir(directory):
+                subitem_path = os.path.join(directory, subitem)
+                if os.path.isdir(subitem_path) and not is_user_dir(subitem_path, prefix):
+                    remove_directory(subitem_path)
+        
+        for item in os.listdir(self._root_path):
+            item_path = os.path.join(self._root_path, item)
+            if item not in self._exclude_dirs and item != os.path.basename(__file__) and item != "update.zip":
+                if os.path.isdir(item_path):
+                    if item in self._merge_dirs:
+                        clean_subdirectories(item_path, self._user_dir_prefix)
+                    
+                    else:
+                        remove_directory(item_path)
+                
+                else:
+                    remove_file(item_path)
+
+    def _run_main_script(self) -> None:
+        """Запускает основной скрипт приложения.
+        """
+        logging.info(f"Running main script: {self._main_script_path}")
+        subprocess.run(["python", self._main_script_path])
 
 if __name__ == "__main__":
     logger = logging.getLogger()
-    console_handler = logging.StreamHandler()
-    formatter = ColoredFormatter(
-        "[%(asctime)s] [%(log_color)s%(levelname)s%(reset)s] - %(message)s",
-        datefmt=None,
-        reset=True,
-        log_colors={
-            'DEBUG': 'cyan',
-            'INFO': 'green',
-            'WARNING': 'yellow',
-            'ERROR': 'red',
-            'CRITICAL': 'purple',
-        },
-        secondary_log_colors={},
-        style='%'
-    )
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
+    logger.setLevel(logging.INFO)
     
-    logging.basicConfig(level=logging.INFO)
-    MAIN_SCRIPT = os.path.join(BASE_DIR, "Code", "main.py")
-    run_update(MAIN_SCRIPT)
+    updater = AutoUpdater()
+    updater.update_app()
+    sys.exit(0)
+    
