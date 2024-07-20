@@ -1,7 +1,6 @@
 aiofiles
 aiosqlite
 beautifulsoup4
-colorlog
 imageio
 isort
 pyyaml
