@@ -1,16 +1,15 @@
-import asyncio
+import atexit
 import json
 import os
 from functools import reduce
 from typing import Any, Optional
 
-import aiofiles
 from root_path import ROOT_PATH
 
 
 class SettingsManager:
-    __slots__ = ['_path', '_lock']
-    
+    __slots__ = ['_path', '_settings']
+
     def __init__(self, settings_name: str = "main_settings") -> None:
         """Инициализирует менеджер настроек.
 
@@ -23,9 +22,10 @@ class SettingsManager:
         ```
         """
         self._path: str = os.path.join(ROOT_PATH, 'data', 'settings', f'{settings_name}.json')
-        self._lock = asyncio.Lock()
+        self._settings: dict = self._load_settings()
+        atexit.register(self._save_settings)
 
-    async def _create_file(self) -> bool:
+    def _create_file(self) -> bool:
         """Создает файл настроек, если он не существует.
 
         Returns:
@@ -33,7 +33,7 @@ class SettingsManager:
 
         Example:
         ```py
-        created = await settings_manager._create_file()
+        created = settings_manager._create_file()
         print(created)  # True, если файл создан, иначе False
         ```
         """
@@ -43,72 +43,39 @@ class SettingsManager:
             os.makedirs(directory)
 
         if not os.path.exists(self._path):
-            async with aiofiles.open(self._path, "w") as file:
-                await file.write(json.dumps({}))
-            
+            with open(self._path, "w") as file:
+                file.write(json.dumps({}))
+
             return True
-            
+
         return False
 
-    async def _load_settings(self) -> dict:
+    def _load_settings(self) -> dict:
         """Загружает настройки из файла без использования блокировки.
 
         Returns:
             dict: Словарь с настройками.
         """
-        if not os.path.exists(self._path):
-            await self._create_file()
+        self._create_file()
 
-        async with aiofiles.open(self._path, "r") as file:
-            content = await file.read()
+        with open(self._path, "r") as file:
+            content = file.read()
             settings = json.loads(content)
-        
+
         return settings
 
-    async def _save_settings(self, settings: dict) -> None:
-        """Сохраняет настройки в файл без использования блокировки.
-
-        Args:
-            settings (dict): Словарь с настройками.
-
-        Example:
-        ```py
-        await settings_manager._save_settings_unlocked({"theme": "dark", "volume": 75})
-        ```
-        """
-        async with aiofiles.open(self._path, "w") as file:
-            await file.write(json.dumps(settings, indent=4))
-
-    async def load_settings(self) -> dict:
-        """Загружает настройки из файла.
-
-        Returns:
-            dict: Словарь с настройками.
-
-        Example:
-        ```py
-        settings = await settings_manager.load_settings()
-        print(settings)
-        ```
-        """
-        async with self._lock:
-            return await self._load_settings()
-
-    async def save_settings(self, settings: dict) -> None:
+    def _save_settings(self) -> None:
         """Сохраняет настройки в файл.
 
-        Args:
-            settings (dict): Словарь с настройками.
-
         Example:
         ```py
-        await settings_manager.save_settings({"theme": "dark", "volume": 75})
+        settings_manager.save_settings()
         ```
         """
-        async with self._lock:
-            await self._save_settings(settings)
+        with open(self._path, "w") as file:
+            file.write(json.dumps(self._settings, indent=4))
 
-    async def set_setting(self, key: str, value: Any) -> None:
+    def set_setting(self, key: str, value: Any) -> None:
         """Устанавливает значение настройки.
 
         Args:
@@ -117,24 +84,20 @@ class SettingsManager:
 
         Example:
         ```py
-        await settings_manager.set_setting("user.preferences.theme", "dark")
+        settings_manager.set_setting("user.preferences.theme", "dark")
         ```
         """
-        async with self._lock:
-            settings = await self._load_settings()
-            keys = key.split('.')
-            d = settings
+        keys = key.split('.')
+        d = self._settings
 
-            for k in keys[:-1]:
-                if k not in d:
-                    d[k] = {}
-                d = d[k]
-            
-            d[keys[-1]] = value
-            
-            await self._save_settings(settings)
+        for k in keys[:-1]:
+            if k not in d:
+                d[k] = {}
+            d = d[k]
 
-    async def get_setting(self, key: str) -> Optional[Any]:
+        d[keys[-1]] = value
+
+    def get_setting(self, key: str) -> Optional[Any]:
         """Получает значение настройки.
 
         Args:
@@ -145,14 +108,20 @@ class SettingsManager:
 
         Example:
         ```py
-        theme = await settings_manager.get_setting("user.preferences.theme")
+        theme = settings_manager.get_setting("user.preferences.theme")
         print(theme)  # "dark"
         ```
         """
-        async with self._lock:
-            settings = await self._load_settings()
-            try:
-                return reduce(lambda d, k: d[k], key.split('.'), settings)
-            
-            except KeyError:
-                return None
+        try:
+            return reduce(lambda d, k: d[k], key.split('.'), self._settings)
+
+        except KeyError:
+            return None
+
+    def __enter__(self):
+        """Контекстный менеджер вход."""
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Контекстный менеджер выход."""
+        self._save_settings()
