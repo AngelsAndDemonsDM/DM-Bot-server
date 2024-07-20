@@ -22,8 +22,7 @@ class SettingsManager:
         ```
         """
         self._path: str = os.path.join(ROOT_PATH, 'data', 'settings', f'{settings_name}.json')
-        self._settings: dict = {}
-        self._load_settings()
+        self._settings: dict = self._load_settings()
         atexit.register(self._save_settings)
 
     def _create_file(self) -> bool:
@@ -45,15 +44,15 @@ class SettingsManager:
 
         return False
 
-    def _load_settings(self) -> None:
+    def _load_settings(self) -> dict:
         """Загружает настройки из файла."""
         self._create_file()
 
         if os.path.getsize(self._path) > 0:
             with open(self._path, "r") as file:
-                self._settings = json.load(file)
+                return json.load(file)
         else:
-            self._settings = {}
+            return {}
 
     def _save_settings(self) -> None:
         """Сохраняет настройки в файл."""
@@ -99,7 +98,6 @@ class SettingsManager:
         """
         try:
             return reduce(lambda d, k: d[k], key.split('.'), self._settings)
-        
         except KeyError:
             return None
 
