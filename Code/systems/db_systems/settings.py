@@ -30,12 +30,6 @@ class SettingsManager:
 
         Returns:
             bool: Возвращает True, если файл был создан, иначе False.
-
-        Example:
-        ```py
-        created = settings_manager._create_file()
-        print(created)  # True, если файл создан, иначе False
-        ```
         """
         directory = os.path.dirname(self._path)
 
@@ -50,27 +44,17 @@ class SettingsManager:
 
         return False
 
-    def _load_settings(self) -> dict:
-        """Загружает настройки из файла без использования блокировки.
-
-        Returns:
-            dict: Словарь с настройками.
+    def _load_settings(self) -> None:
+        """Загружает настройки из файла.
         """
         self._create_file()
 
         with open(self._path, "r") as file:
             content = file.read()
-            settings = json.loads(content)
-
-        return settings
+            self._settings = json.loads(content)
 
     def _save_settings(self) -> None:
         """Сохраняет настройки в файл.
-
-        Example:
-        ```py
-        settings_manager.save_settings()
-        ```
         """
         with open(self._path, "w") as file:
             file.write(json.dumps(self._settings, indent=4))
