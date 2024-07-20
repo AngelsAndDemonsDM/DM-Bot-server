@@ -18,13 +18,17 @@ class TestSettingsManager(unittest.TestCase):
         self.assertTrue(os.path.exists(self.settings_manager._path))
 
     def test_load_settings(self):
-        self.settings_manager._save_settings({'test_key': 'test_value'})
-        settings = self.settings_manager.load_settings()
-        self.assertEqual(settings, {'test_key': 'test_value'})
+        self.settings_manager._settings = {'test_key': 'test_value'}
+        self.settings_manager._save_settings()
+        
+        self.settings_manager._settings = {}
+        self.settings_manager._load_settings()
+        self.assertEqual(self.settings_manager._settings, {'test_key': 'test_value'})
 
     def test_save_settings(self):
         settings = {'key': 'value'}
-        self.settings_manager._save_settings(settings)
+        self.settings_manager._settings = settings
+        self.settings_manager._save_settings()
         
         with open(self.settings_manager._path, 'r') as file:
             content = json.load(file)
@@ -37,7 +41,8 @@ class TestSettingsManager(unittest.TestCase):
         self.assertEqual(settings['level1']['level2']['key'], 'value')
 
     def test_get_setting(self):
-        self.settings_manager._save_settings({'level1': {'level2': {'key': 'value'}}})
+        self.settings_manager._settings = {'level1': {'level2': {'key': 'value'}}}
+        self.settings_manager._save_settings()
         value = self.settings_manager.get_setting('level1.level2.key')
         self.assertEqual(value, 'value')
 
