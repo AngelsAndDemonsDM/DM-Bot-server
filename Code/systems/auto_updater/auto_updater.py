@@ -3,6 +3,7 @@ import logging
 import os
 import shutil
 import subprocess
+import tempfile
 import zipfile
 from typing import Tuple
 
@@ -123,14 +124,26 @@ class AutoUpdater:
     
     def _extract_remote_zip(self) -> None:
         """Извлекает скачанный zip-архив и удаляет его после извлечения.
+        Если в архиве содержится одна папка, извлекает только ее содержимое.
         """
         logging.info(f"Extracting {self._zip_path}")
         try:
-            with zipfile.ZipFile(self._zip_path, 'r') as zip_ref:
-                zip_ref.extractall(self._root_path)
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                with zipfile.ZipFile(self._zip_path, 'r') as zip_ref:
+                    zip_ref.extractall(tmpdirname)
+                
+                extracted_items = os.listdir(tmpdirname)
+                if len(extracted_items) == 1 and os.path.isdir(os.path.join(tmpdirname, extracted_items[0])):
+                    source_dir = os.path.join(tmpdirname, extracted_items[0])
+                    for item in os.listdir(source_dir):
+                        shutil.move(os.path.join(source_dir, item), self._root_path)
+                
+                else:
+                    for item in extracted_items:
+                        shutil.move(os.path.join(tmpdirname, item), self._root_path)
+                
             logging.info(f"Removing {self._zip_path}")
             os.remove(self._zip_path)
-        
         except zipfile.BadZipFile as e:
             logging.error(f"Failed to extract the zip file: {e}")
     
