@@ -39,19 +39,20 @@
                 </div>
             </div>
 
-            <div class="returns">
-                <h3>Возвращаемые данные:</h3>
-                <div class="return">
-                    <p><code>200 OK</code> - JSON объект с сообщением об успешном изменении доступа:</p>
-                    <pre><code class="json">{
-    "message": "Access level changed successfully"
-}</code></pre>
-                </div>
-
+            <div class="return">
                 <div class="return">
                     <p><code>400 Bad Request</code> - JSON объект с ошибкой, если отсутствует обязательное поле или формат данных неверный:</p>
                     <pre><code class="json">{
     "message": "Field \"new_access\" must be a dictionary"
+}</code></pre>
+                    <pre><code class="json">{
+    "message": "Field \"new_access\" must be a dictionary with string keys and boolean values"
+}</code></pre>
+                </div>
+                <div class="return">
+                    <p><code>403 Forbidden</code> - JSON объект с ошибкой, если доступ запрещен или запрашивающий пользователь пытается выдать права, которых у него нет:</p>
+                    <pre><code class="json">{
+    "message": "Cannot grant access level for flag: flag_name"
 }</code></pre>
                 </div>
             </div>
