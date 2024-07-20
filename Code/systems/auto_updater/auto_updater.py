@@ -53,7 +53,7 @@ class AutoUpdater:
         """
         self._get_remote_data()
         
-        if not self._is_needs_update():
+        if not self.is_needs_update():
             logging.info("Update not needed")
             return
 
@@ -67,7 +67,7 @@ class AutoUpdater:
         logging.info("Update completed successfully")
         self._run_main_script()
         
-    def _is_needs_update(self) -> bool:
+    def is_needs_update(self) -> bool:
         """Проверяет, необходимо ли обновление на основе текущей и удаленной версии.
 
         Returns:
