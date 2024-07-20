@@ -4,18 +4,18 @@ import os
 import shutil
 import subprocess
 import zipfile
-from typing import List, Optional, Tuple
-import os
-import shutil
-import logging
-from typing import List
+from typing import Tuple
+
 import requests
-from root_path import ROOT_PATH
+
+
 class AutoUpdater:
     __slots__ = ['_root_path', '_user', '_repo', '_exclude_dirs', '_merge_dirs', '_user_dir_prefix', '_current_version', '_session', '_remote_version', '_remote_zip_url', '_zip_path']
     
     def __init__(self) -> None:
-        self._root_path = ROOT_PATH # Более быстрый доступ и исключаю косяк с возможностью потери данных
+        """Инициализирует AutoUpdater, загружая конфигурацию и устанавливая начальные параметры.
+        """
+        self._root_path = os.path.abspath(os.path.join(__file__, os.pardir, os.pardir, os.pardir, os.pardir)) # Скрипт должен быть как можно более независимым от всего. Опять определям говно.
         
         with open(os.path.join(self._root_path, "updater_config.json"), 'r') as file:
             config = json.load(file)
@@ -27,85 +27,140 @@ class AutoUpdater:
         self._user_dir_prefix = config["USER_DIR_PREFIX"]
         self._current_version = config["VERSION"]
         self._main_script_path = os.path.join(self._root_path, "Code", "main.py")
-        self._session = requests.Session
+        self._session = requests.Session()
         self._remote_version = None
         self._remote_zip_url = None
         self._zip_path = os.path.join(self._root_path, "update.zip")
         
     def update_app(self) -> None:
+        """Основной метод для обновления приложения.
+        Сначала проверяет удаленные данные, затем обновляет приложение, если это необходимо.
+        """
         self._get_remote_data()
         
         if not self._is_needs_update():
-            logging.info("Update not need")
+            logging.info("Update not needed")
             return
 
         self._download_remote_zip()
         if not os.path.exists(self._zip_path):
-            logging.error("zip dosn't download")
+            logging.error("Zip file didn't download")
             return
         
         self._remove_old_files()
-        self._exstract_remote_zip()
-        logging.info("done")
+        self._extract_remote_zip()
+        logging.info("Update completed successfully")
+        self._run_main_script()
         
     def _is_needs_update(self) -> bool:
+        """Проверяет, необходимо ли обновление на основе текущей и удаленной версии.
+
+        Returns:
+            bool: True, если обновление необходимо, иначе False.
+        """
         if self._remote_version and AutoUpdater._version_tuple(self._current_version) < AutoUpdater._version_tuple(self._remote_version):
             return True
         
         return False
     
     def _get_remote_data(self) -> None:
-        response: requests.Response = self._session.get(f"https://api.github.com/repos/{self._user}/{self._repo}/releases/latest")
-        if response.status_code == 200:
-            try:
-                latest_release = response.json()
-                self._remote_version = latest_release['tag_name']
-                self._remote_zip_url = f"https://github.com/{self._user}/{self._repo}/archive/refs/tags/{self._remote_version}.zip"
-                return
-            
-            except (ValueError, KeyError, AttributeError) as e:
-                logging.error(f"Error parsing JSON response: {e}")
-                return
+        """Получает данные о последнем выпуске из удаленного репозитория.
+        """
+        try:
+            response = self._session.get(f"https://api.github.com/repos/{self._user}/{self._repo}/releases/latest")
+            response.raise_for_status()
         
-        logging.error(f"Failed to fetch the latest release information. Status code: {response.status_code}")
-        return
+        except requests.RequestException as e:
+            logging.error(f"Failed to fetch the latest release information: {e}")
+            return
+        
+        try:
+            latest_release = response.json()
+            self._remote_version = latest_release['tag_name']
+            self._remote_zip_url = f"https://github.com/{self._user}/{self._repo}/archive/refs/tags/{self._remote_version}.zip"
+        
+        except (ValueError, KeyError, AttributeError) as e:
+            logging.error(f"Error parsing JSON response: {e}")
     
     @staticmethod
     def _version_tuple(version: str) -> Tuple[int, ...]:
+        """Преобразует строку версии в кортеж целых чисел для сравнения.
+
+        Args:
+            version (str): Строка версии.
+
+        Returns:
+            Tuple[int, ...]: Кортеж с частями версии как целыми числами.
+        """
         return tuple(map(int, (version.split("."))))
     
     def _download_remote_zip(self) -> None:
+        """Скачивает zip-архив с обновлением из удаленного репозитория.
+        """
         logging.info(f"Downloading {self._remote_zip_url}")
-        with self._session.get(self._remote_zip_url, stream=True) as r:
-            with open(self._zip_path, 'wb') as file:
-                for chunk in r.iter_content(chunk_size=8192):
-                    file.write(chunk)
-    
-    def _exstract_remote_zip(self) -> None:
-        logging.info(f"Extracting {self._zip_path}")
-        with zipfile.ZipFile(self._zip_path, 'r') as zip_ref:
-            zip_ref.extractall(self._root_path)
+        try:
+            with self._session.get(self._remote_zip_url, stream=True) as r:
+                r.raise_for_status()
+                with open(self._zip_path, 'wb') as file:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        file.write(chunk)
         
-        logging.info(f"Removing {self._zip_path}")
-        os.remove(self._zip_path)
+        except requests.RequestException as e:
+            logging.error(f"Failed to download the zip file: {e}")
     
-    def _remove_old_files(self, script_name: str) -> None:
+    def _extract_remote_zip(self) -> None:
+        """Извлекает скачанный zip-архив и удаляет его после извлечения.
+        """
+        logging.info(f"Extracting {self._zip_path}")
+        try:
+            with zipfile.ZipFile(self._zip_path, 'r') as zip_ref:
+                zip_ref.extractall(self._root_path)
+            logging.info(f"Removing {self._zip_path}")
+            os.remove(self._zip_path)
+        
+        except zipfile.BadZipFile as e:
+            logging.error(f"Failed to extract the zip file: {e}")
+    
+    def _remove_old_files(self) -> None:
+        """Удаляет старые файлы и директории, исключая указанные в конфигурации и пользовательские директории.
+        """
         def is_user_dir(directory: str, prefix: str) -> bool:
-            """Checks if the directory name starts with the user directory prefix."""
+            """Проверяет, начинается ли имя директории с префикса пользовательской директории.
+
+            Args:
+                directory (str): Имя директории.
+                prefix (str): Префикс пользовательской директории.
+
+            Returns:
+                bool: True, если директория является пользовательской, иначе False.
+            """
             return os.path.basename(directory).startswith(prefix)
 
         def remove_directory(directory: str) -> None:
-            """Removes the specified directory and logs the action."""
+            """Удаляет директорию и логирует это действие.
+
+            Args:
+                directory (str): Путь к директории.
+            """
             shutil.rmtree(directory)
             logging.info(f"Removed directory: {directory}")
 
         def remove_file(file: str) -> None:
-            """Removes the specified file and logs the action."""
+            """Удаляет файл и логирует это действие.
+
+            Args:
+                file (str): Путь к файлу.
+            """
             os.remove(file)
             logging.info(f"Removed file: {file}")
 
         def clean_subdirectories(directory: str, prefix: str) -> None:
-            """Cleans subdirectories within the given directory, excluding user directories."""
+            """Очищает поддиректории в указанной директории, исключая пользовательские директории.
+
+            Args:
+                directory (str): Путь к директории.
+                prefix (str): Префикс пользовательской директории.
+            """
             for subitem in os.listdir(directory):
                 subitem_path = os.path.join(directory, subitem)
                 if os.path.isdir(subitem_path) and not is_user_dir(subitem_path, prefix):
@@ -113,7 +168,7 @@ class AutoUpdater:
         
         for item in os.listdir(self._root_path):
             item_path = os.path.join(self._root_path, item)
-            if item not in self._exclude_dirs and item != script_name and item != "update.zip":
+            if item not in self._exclude_dirs and item != os.path.basename(__file__) and item != "update.zip":
                 if os.path.isdir(item_path):
                     if item in self._merge_dirs:
                         clean_subdirectories(item_path, self._user_dir_prefix)
@@ -125,4 +180,11 @@ class AutoUpdater:
                     remove_file(item_path)
 
     def _run_main_script(self) -> None:
-        subprocess.run(["python", os.path.join(self._root_path, "Code", "main.py")])
+        """Запускает основной скрипт приложения.
+        """
+        logging.info(f"Running main script: {self._main_script_path}")
+        subprocess.run(["python", self._main_script_path])
+
+if __name__ == "__main__":
+    updater = AutoUpdater()
+    updater.update_app()
