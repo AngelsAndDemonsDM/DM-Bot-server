@@ -1,79 +1,60 @@
 <!DOCTYPE html>
 <html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>API Documentation</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/atom-one-dark.min.css" />
+        <link rel="stylesheet" href="/DM-Bot-server/styles.css" />
+    </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Documentation</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/atom-one-dark.min.css">
-    <link rel="stylesheet" href="/DM-Bot-server/styles.css">
-</head>
+    <body>
+        <div class="container">
+            <div class="endpoint">
+                <h2><span class="method">POST</span> <span class="url">/account/change_user_access</span></h2>
 
-<body>
-    <div class="container">
-        <div class="endpoint">
-            <h2><span class="method">POST</span> <span class="url">/account/change_user_access</span></h2>
-
-            <div class="description">
-                <p>Данный endpoint служит для смены доступа у пользователя. Запрашивающий пользователь должен иметь флаг change_access и не может выдавать права, которых у него самого нет.</p>
-            </div>
-            
-            <div class="headers">
-                <h3>Заголовки:</h3>
-                <div class="header">
-                    <code>token</code> <span class="type">(тип: string, обязательный: да)</span> - Токен пользователя, запрашивающего изменения уровня доступа.
+                <div class="description">
+                    <p>Данный endpoint служит для смены доступа у пользователя. Запрашивающий пользователь должен иметь флаг change_access и не может выдавать права, которых у него самого нет.</p>
                 </div>
-            </div>
 
-            <div class="parameters">
-                <h3>Параметры:</h3>
-                <div class="parameter">
-                    <code>login</code> <span class="type">(тип: string, обязательный: да)</span> - Логин пользователя, у которого будем менять права доступа.
+                <div class="response-container">
+                    <p>Может вернуть все <a href="/DM-Bot-server/url_endpoint/http_error.html">стандартные коды ответов</a>.</p>
                 </div>
-                <div class="parameter">
-                    <code>new_access</code> <span class="type">(тип: dict, обязательный: да)</span> - Новый доступ в виде словаря, где ключи - названия флагов, а значения - их состояния (True или False).
-                </div>
-            </div>
 
-            <div class="returns">
-                <h3>Возвращаемые данные:</h3>
+                <div class="headers">
+                    <h3>Заголовки:</h3>
+                    <div class="header"><code>user_token</code> <span class="type">тип: string, обязательный</span> - Токен пользователя, запрашивающего изменения уровня доступа.</div>
+                </div>
+
+                <div class="parameters">
+                    <h3>Параметры:</h3>
+                    <div class="parameter"><code>login</code> <span class="type">тип: string, обязательный</span> - Логин пользователя, у которого будем менять права доступа.</div>
+                    <div class="parameter"><code>new_access</code> <span class="type">тип: dict, обязательный</span> - Новый доступ в виде словаря, где ключи - названия флагов, а значения - их состояния (True или False).</div>
+                </div>
+
                 <div class="return">
-                    <p><code>200 OK</code> - JSON объект с сообщением об успешном изменении доступа:</p>
-                    <pre><code class="json">{
-    "message": "Access level changed successfully"
-}</code></pre>
-                </div>
-                <div class="return">
-                    <p><code>400 Bad Request</code> - JSON объект с ошибкой, если отсутствует обязательное поле или формат данных неверный:</p>
-                    <pre><code class="json">{
-    "message": "Field(s) login, new_access are required"
-}</code></pre>
-                    <pre><code class="json">{
+                    <div class="return">
+                        <p><code>400 Bad Request</code> - JSON объект с ошибкой, если отсутствует обязательное поле или формат данных неверный:</p>
+                        <pre><code class="json">{
     "message": "Field \"new_access\" must be a dictionary"
 }</code></pre>
-                </div>
-                <div class="return">
-                    <p><code>403 Forbidden</code> - JSON объект с ошибкой, если доступ запрещен или запрашивающий пользователь пытается выдать права, которых у него нет:</p>
-                    <pre><code class="json">{
-    "message": "Access denied"
+                        <pre><code class="json">{
+    "message": "Field \"new_access\" must be a dictionary with string keys and boolean values"
 }</code></pre>
-                    <pre><code class="json">{
+                    </div>
+                    <div class="return">
+                        <p><code>403 Forbidden</code> - JSON объект с ошибкой, если доступ запрещен или запрашивающий пользователь пытается выдать права, которых у него нет:</p>
+                        <pre><code class="json">{
     "message": "Cannot grant access level for flag: flag_name"
 }</code></pre>
-                </div>
-                <div class="return">
-                    <p><code>500 Internal Server Error</code> - JSON объект с сообщением об ошибке на сервере:</p>
-                    <pre><code class="json">{
-    "message": "An unexpected error occurred",
-    "error": "Detailed error message"
-}</code></pre>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
-    <script>hljs.highlightAll();</script>
-</body>
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+        <script>
+            hljs.highlightAll();
+        </script>
+    </body>
 </html>

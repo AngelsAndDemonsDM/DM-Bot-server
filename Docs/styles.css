@@ -132,3 +132,23 @@ pre code {
 .doc-description {
     color: #b0b0b0;
 }
+
+.response-container {
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    border: 1px solid #333;
+    color: #e0e0e0;
+    font-size: 1.1em;
+}
+
+.response-container a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.response-container a:hover {
+    text-decoration: underline;
+    color: #61afef;
+}

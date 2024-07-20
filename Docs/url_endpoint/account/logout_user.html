@@ -1,57 +1,46 @@
 <!DOCTYPE html>
 <html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>API Documentation</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/atom-one-dark.min.css" />
+        <link rel="stylesheet" href="/DM-Bot-server/styles.css" />
+    </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Documentation</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/atom-one-dark.min.css">
-    <link rel="stylesheet" href="/DM-Bot-server/styles.css">
-</head>
+    <body>
+        <div class="container">
+            <div class="endpoint">
+                <h2><span class="method">POST</span> <span class="url">/account/logout</span></h2>
 
-<body>
-    <div class="container">
-        <div class="endpoint">
-            <h2><span class="method">POST</span> <span class="url">/account/logout</span></h2>
-
-            <div class="description">
-                <p>Данный endpoint служит для выхода пользователя из системы. Пользователь должен предоставить свой токен для завершения сеанса.</p>
-            </div>
-            
-            <div class="headers">
-                <h3>Заголовки:</h3>
-                <div class="header">
-                    <code>token</code> <span class="type">(тип: string, обязательный: да)</span> - Токен пользователя, который пытается выйти из системы.
+                <div class="description">
+                    <p>Данный endpoint служит для выхода пользователя из системы. Пользователь должен предоставить свой токен для завершения сеанса.</p>
                 </div>
-            </div>
 
-            <div class="returns">
-                <h3>Возвращаемые данные:</h3>
-                <div class="return">
-                    <p><code>202 Accepted</code> - JSON объект с сообщением о том, что попытка выхода была выполнена:</p>
-                    <pre><code class="json">{
+                <div class="response-container">
+                    <p>Может вернуть все <a href="/DM-Bot-server/url_endpoint/http_error.html">стандартные коды ответов</a>.</p>
+                </div>
+
+                <div class="headers">
+                    <h3>Заголовки:</h3>
+                    <div class="header"><code>user_token</code> <span class="type">тип: string, обязательный</span> - Токен пользователя, который пытается выйти из системы.</div>
+                </div>
+
+                <div class="returns">
+                    <h3>Возвращаемые данные:</h3>
+                    <div class="return">
+                        <p><code>202 Accepted</code> - JSON объект с сообщением о том, что попытка выхода была выполнена:</p>
+                        <pre><code class="json">{
     "message": "Logout attempt was made"
 }</code></pre>
-                </div>
-                <div class="return">
-                    <p><code>403 Forbidden</code> - JSON объект с ошибкой, если доступ запрещен:</p>
-                    <pre><code class="json">{
-    "message": "Access denied"
-}</code></pre>
-                </div>
-                <div class="return">
-                    <p><code>500 Internal Server Error</code> - JSON объект с сообщением об ошибке на сервере:</p>
-                    <pre><code class="json">{
-    "message": "An unexpected error occurred",
-    "error": "Detailed error message"
-}</code></pre>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
-    <script>hljs.highlightAll();</script>
-</body>
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+        <script>
+            hljs.highlightAll();
+        </script>
+    </body>
 </html>

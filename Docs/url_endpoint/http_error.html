@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>API Documentation</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/atom-one-dark.min.css" />
+        <link rel="stylesheet" href="/DM-Bot-server/styles.css" />
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="endpoint">
+                <h1>Базовые возможные ответы от любых запросов</h1>
+
+                <div class="description">
+                    <p>Данная страница описывает базовые ответы от endpoint'тов.</p>
+                </div>
+
+                <div class="returns">
+                    <h3>Возможные ответы</h3>
+                    <div class="response">
+                        <h4>Код 400 (Bad Request)</h4>
+                        <pre><code class="json">{
+    "message": "Field(s) <названия полей> are required"
+}</code></pre>
+                        <p class="description">Этот код возвращается, когда в запросе отсутствуют необходимые поля.</p>
+                    </div>
+                    <div class="response">
+                        <h4>Код 401 (Unauthorized)</h4>
+                        <pre><code class="json">{
+    "message": "Unauthorized"
+}</code></pre>
+                        <p class="description">Этот код возвращается, если пользователь не авторизован.</p>
+                    </div>
+                    <div class="response">
+                        <h4>Код 403 (Forbidden)</h4>
+                        <pre><code class="json">{
+    "message": "Access denied"
+}</code></pre>
+                        <p class="description">Этот код возвращается, если доступ к ресурсу запрещен.</p>
+                    </div>
+                    <div class="response">
+                        <h4>Код 500 (Internal Server Error)</h4>
+                        <pre><code class="json">{
+    "message": "An unexpected error occurred",
+    "error": "<описание ошибки>"
+}</code></pre>
+                        <p class="description">Этот код возвращается при непредвиденной ошибке на сервере.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+        <script>
+            hljs.highlightAll();
+        </script>
+    </body>
+</html>

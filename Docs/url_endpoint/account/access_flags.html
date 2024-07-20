@@ -1,59 +1,48 @@
 <!DOCTYPE html>
 <html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>API Documentation</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/atom-one-dark.min.css" />
+        <link rel="stylesheet" href="/DM-Bot-server/styles.css" />
+    </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Documentation</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/atom-one-dark.min.css">
-    <link rel="stylesheet" href="/DM-Bot-server/styles.css">
-</head>
+    <body>
+        <div class="container">
+            <div class="endpoint">
+                <h2><span class="method">POST</span> <span class="url">/account/access_flags</span></h2>
 
-<body>
-    <div class="container">
-        <div class="endpoint">
-            <h2><span class="method">POST</span> <span class="url">/account/access_flags</span></h2>
+                <div class="description">
+                    <p>Данный endpoint служит для получения флагов доступа пользователя. Требует предоставления токена пользователя в заголовках запроса.</p>
+                </div>
 
-            <div class="description">
-                <p>Данный endpoint служит для получения флагов доступа пользователя. Требует предоставления токена пользователя в заголовках запроса.</p>
-            </div>
-            
-            <div class="request-headers">
-                <h3>Заголовки запроса:</h3>
-                <ul>
-                    <li><code>Authorization</code>: <em>Bearer {requester_token}</em></li>
-                </ul>
-            </div>
+                <div class="response-container">
+                    <p>Может вернуть все <a href="/DM-Bot-server/url_endpoint/http_error.html">стандартные коды ответов</a>.</p>
+                </div>
 
-            <div class="returns">
-                <h3>Возвращаемые данные:</h3>
-                <div class="return">
-                    <p><code>200 OK</code> - JSON объект с флагами доступа пользователя:</p>
-                    <pre><code class="json">{
+                <div class="headers">
+                    <h3>Заголовки:</h3>
+                    <div class="header"><code>user_token</code> <span class="type">тип: string, обязательный</span> - Токен пользователя, запрашивающего изменения уровня доступа.</div>
+                </div>
+
+                <div class="returns">
+                    <h3>Возвращаемые данные:</h3>
+                    <div class="return">
+                        <p><code>200 OK</code> - JSON объект с флагами доступа пользователя:</p>
+                        <pre><code class="json">{
     "flag1": "value1",
     "flag2": "value2",
     ...
 }</code></pre>
-                </div>
-                <div class="return">
-                    <p><code>403 Forbidden</code> - JSON объект с сообщением об отказе в доступе:</p>
-                    <pre><code class="json">{
-    "message": "Access denied"
-}</code></pre>
-                </div>
-                <div class="return">
-                    <p><code>500 Internal Server Error</code> - JSON объект с сообщением об ошибке:</p>
-                    <pre><code class="json">{
-    "message": "An unexpected error occurred",
-    "error": "Error details"
-}</code></pre>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
-    <script>hljs.highlightAll();</script>
-</body>
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+        <script>
+            hljs.highlightAll();
+        </script>
+    </body>
 </html>

@@ -1,8 +1,10 @@
 import hashlib
 import hmac
 import uuid
+from typing import Tuple
 
 from systems.access_system.access_flags import AccessFlags
+from systems.access_system.errors import AuthError
 from systems.db_systems import AsyncDB
 
 
@@ -74,7 +76,7 @@ class AuthManager:
             password (str): Пароль пользователя.
 
         Raises:
-            ValueError: В случае ненайденного пользователя или неверного пароля.
+            AuthError: В случае ненайденного пользователя или неверного пароля.
 
         Returns:
             str: Токен, под которым подключился пользователь.
@@ -83,7 +85,7 @@ class AuthManager:
             data = await db.select('users', ['login', 'password', 'salt'], {'login': login})
         
         if not data:
-            raise ValueError(f"User '{login}' not found")
+            raise AuthError(f"User '{login}' not found")
         
         data = data[0]
         
@@ -91,7 +93,7 @@ class AuthManager:
                 str(data['password']),
                 AuthManager._get_encrypted_password(password, data['salt'])
             ):
-            raise ValueError("Password is incorrect")
+            raise AuthError("Password is incorrect")
         
         token: str = AuthManager._generate_token()
         async with self._db as db:
@@ -109,13 +111,13 @@ class AuthManager:
             token (str): Токен пользователя.
 
         Raises:
-            ValueError: В случае ненайденного токена.
+            AuthError: В случае ненайденного токена.
         """
         async with self._db as db:
             session_data = await db.select('cur_sessions', ['user'], {'token': token})
             
             if not session_data:
-                raise ValueError(f"Session with token '{token}' not found")
+                raise AuthError(f"Session with token '{token}' not found")
             
             await db.delete('cur_sessions', {'token': token})
     
@@ -193,7 +195,7 @@ class AuthManager:
             token (str): Токен пользователя.
 
         Raises:
-            ValueError: В случае ненайденного токена или пользователя.
+            AuthError: В случае ненайденного токена или пользователя.
 
         Returns:
             AccessFlags: Уровень доступа пользователя.
@@ -202,16 +204,16 @@ class AuthManager:
             session_data = await db.select('cur_sessions', ['user'], {'token': token})
             
             if not session_data:
-                raise ValueError(f"Session with token '{token}' not found")
+                raise AuthError(f"Session with token '{token}' not found")
             
             user_login = session_data[0]['user']
             
             user_data = await db.select('users', ['access'], {'login': user_login})
             
-            if not user_data:
-                raise ValueError(f"User '{user_login}' not found")
-            
-            return AccessFlags.from_bytes(user_data[0]['access'])
+        if not user_data:
+            raise AuthError(f"User '{user_login}' not found")
+        
+        return AccessFlags.from_bytes(user_data[0]['access'])
 
     async def get_user_access_by_login(self, login: str) -> AccessFlags:
         """Получение уровня доступа пользователя по логину.
@@ -220,7 +222,7 @@ class AuthManager:
             login (str): Токен пользователя.
 
         Raises:
-            ValueError: В случае ненайденного токена или пользователя.
+            AuthError: В случае ненайденного токена или пользователя.
 
         Returns:
             AccessFlags: Уровень доступа пользователя.
@@ -228,10 +230,10 @@ class AuthManager:
         async with self._db as db:
             user_data = await db.select('users', ['access'], {'login': login})
             
-            if not user_data:
-                raise ValueError(f"User '{login}' not found")
-            
-            return AccessFlags.from_bytes(user_data[0]['access'])
+        if not user_data:
+            raise AuthError(f"User '{login}' not found")
+        
+        return AccessFlags.from_bytes(user_data[0]['access'])
 
     async def get_user_login_by_token(self, token: str) -> str:
         """Получение логина пользователя по токену.
@@ -240,7 +242,7 @@ class AuthManager:
             token (str): Токен пользователя.
 
         Raises:
-            ValueError: В случае ненайденного токена или пользователя.
+            AuthError: В случае ненайденного токена или пользователя.
 
         Returns:
             str: Логин пользователя.
@@ -248,7 +250,34 @@ class AuthManager:
         async with self._db as db:
             session_data = await db.select('cur_sessions', ['user'], {'token': token})
             
-            if not session_data:
-                raise ValueError(f"Session with token '{token}' not found")
+        if not session_data:
+            raise AuthError(f"Session with token '{token}' not found")
+        
+        return session_data[0]['user']
+
+    async def get_user_login_and_access_by_token(self, token: str) -> Tuple[str, AccessFlags]:
+        """Получает логин пользователя и его права доступа по предоставленному токену.
+
+        Args:
+            token (str): Токен, используемый для идентификации сессии пользователя.
+
+        Raises:
+            AuthError: Если сессия с данным токеном не найдена или если пользователь с найденным логином не найден в базе данных.
+
+        Returns:
+            Tuple[str, AccessFlags]: Кортеж, содержащий логин пользователя и его права доступа.
+        """
+        async with self._db as db:
+            session_data = await db.select('cur_sessions', ['user'], {'token': token})
             
-            return session_data[0]['user']
+            if not session_data:
+                raise AuthError(f"Session with token '{token}' not found")
+            
+            user_login = session_data[0]['user']
+            
+            user_data = await db.select('users', ['access'], {'login': user_login})
+            
+        if not user_data:
+            raise AuthError(f"User '{user_login}' not found")
+        
+        return (user_login, AccessFlags.from_bytes(user_data[0]['access']))
