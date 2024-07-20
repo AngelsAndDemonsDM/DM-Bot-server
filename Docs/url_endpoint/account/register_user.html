@@ -18,6 +18,10 @@
                 <p>Данный endpoint служит для регистрации нового пользователя. Пользователь должен предоставить свой логин и пароль для создания учетной записи.</p>
             </div>
             
+            <div class="response-container">
+                <p>Из <a href="/DM-Bot-server/url_endpoint/http_error.html">стандартных коды ответов</a> может вернуть только 400 и 500</p>
+            </div>
+
             <div class="parameters">
                 <h3>Параметры:</h3>
                 <div class="parameter">
@@ -35,22 +39,6 @@
                     <pre><code class="json">{
     "message": "Register successful",
     "token": "your_token_here"
-}</code></pre>
-                </div>
-                <div class="return">
-                    <p><code>400 Bad Request</code> - JSON объект с ошибкой, если отсутствует обязательное поле или формат данных неверный:</p>
-                    <pre><code class="json">{
-    "message": "Field(s) login, password are required"
-}</code></pre>
-                </div>
-                <div class="return">
-                    <p><code>500 Internal Server Error</code> - JSON объект с сообщением об ошибке на сервере:</p>
-                    <pre><code class="json">{
-    "message": "Register failed"
-}</code></pre>
-                    <pre><code class="json">{
-    "message": "An unexpected error occurred",
-    "error": "Detailed error message"
 }</code></pre>
                 </div>
             </div>

@@ -17,11 +17,15 @@
             <div class="description">
                 <p>Данный endpoint служит для загрузки архива с текстурами. Пользователь должен предоставить свой токен для получения доступа к архиву.</p>
             </div>
-            
+
+            <div class="response-container">
+                <p>Из <a href="/DM-Bot-server/url_endpoint/http_error.html">стандартных коды ответов</a> может вернуть только 401 и 500</p>
+            </div>
+
             <div class="headers">
                 <h3>Заголовки:</h3>
                 <div class="header">
-                    <code>token</code> <span class="type">(тип: string, обязательный: да)</span> - Токен пользователя, запрашивающего загрузку архива.
+                    <code>user_token</code> <span class="type">(тип: string, обязательный: да)</span> - Токен пользователя, запрашивающего загрузку архива.
                 </div>
             </div>
 
@@ -32,19 +36,6 @@
                     <pre><code class="json">{
     "message": "Archive downloaded successfully",
     "file": "sprites.zip"
-}</code></pre>
-                </div>
-                <div class="return">
-                    <p><code>403 Forbidden</code> - JSON объект с ошибкой, если доступ запрещен:</p>
-                    <pre><code class="json">{
-    "message": "Access denied"
-}</code></pre>
-                </div>
-                <div class="return">
-                    <p><code>500 Internal Server Error</code> - JSON объект с сообщением об ошибке на сервере:</p>
-                    <pre><code class="json">{
-    "message": "An unexpected error occurred",
-    "error": "Detailed error message"
 }</code></pre>
                 </div>
             </div>

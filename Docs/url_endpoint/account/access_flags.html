@@ -13,11 +13,15 @@
     <div class="container">
         <div class="endpoint">
             <h2><span class="method">POST</span> <span class="url">/account/access_flags</span></h2>
-
+            
             <div class="description">
                 <p>Данный endpoint служит для получения флагов доступа пользователя. Требует предоставления токена пользователя в заголовках запроса.</p>
             </div>
             
+            <div class="response-container">
+                <p>Может вернуть все <a href="/DM-Bot-server/url_endpoint/http_error.html">стандартные коды ответов</a>.</p>
+            </div>
+
             <div class="request-headers">
                 <h3>Заголовки запроса:</h3>
                 <ul>
@@ -33,19 +37,6 @@
     "flag1": "value1",
     "flag2": "value2",
     ...
-}</code></pre>
-                </div>
-                <div class="return">
-                    <p><code>403 Forbidden</code> - JSON объект с сообщением об отказе в доступе:</p>
-                    <pre><code class="json">{
-    "message": "Access denied"
-}</code></pre>
-                </div>
-                <div class="return">
-                    <p><code>500 Internal Server Error</code> - JSON объект с сообщением об ошибке:</p>
-                    <pre><code class="json">{
-    "message": "An unexpected error occurred",
-    "error": "Error details"
 }</code></pre>
                 </div>
             </div>

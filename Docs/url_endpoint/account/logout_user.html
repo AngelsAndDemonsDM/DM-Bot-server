@@ -18,10 +18,14 @@
                 <p>Данный endpoint служит для выхода пользователя из системы. Пользователь должен предоставить свой токен для завершения сеанса.</p>
             </div>
             
+            <div class="response-container">
+                <p>Может вернуть все <a href="/DM-Bot-server/url_endpoint/http_error.html">стандартные коды ответов</a>.</p>
+            </div>
+
             <div class="headers">
                 <h3>Заголовки:</h3>
                 <div class="header">
-                    <code>token</code> <span class="type">(тип: string, обязательный: да)</span> - Токен пользователя, который пытается выйти из системы.
+                    <code>user_token</code> <span class="type">(тип: string, обязательный: да)</span> - Токен пользователя, который пытается выйти из системы.
                 </div>
             </div>
 
@@ -31,19 +35,6 @@
                     <p><code>202 Accepted</code> - JSON объект с сообщением о том, что попытка выхода была выполнена:</p>
                     <pre><code class="json">{
     "message": "Logout attempt was made"
-}</code></pre>
-                </div>
-                <div class="return">
-                    <p><code>403 Forbidden</code> - JSON объект с ошибкой, если доступ запрещен:</p>
-                    <pre><code class="json">{
-    "message": "Access denied"
-}</code></pre>
-                </div>
-                <div class="return">
-                    <p><code>500 Internal Server Error</code> - JSON объект с сообщением об ошибке на сервере:</p>
-                    <pre><code class="json">{
-    "message": "An unexpected error occurred",
-    "error": "Detailed error message"
 }</code></pre>
                 </div>
             </div>
