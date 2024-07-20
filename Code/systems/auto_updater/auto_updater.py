@@ -10,7 +10,20 @@ import requests
 
 
 class AutoUpdater:
-    __slots__ = ['_root_path', '_user', '_repo', '_exclude_dirs', '_merge_dirs', '_user_dir_prefix', '_current_version', '_session', '_remote_version', '_remote_zip_url', '_zip_path']
+    __slots__ = [
+        '_root_path',
+        '_user',
+        '_repo',
+        '_exclude_dirs',
+        '_merge_dirs',
+        '_user_dir_prefix',
+        '_current_version',
+        '_main_script_path',
+        '_session',
+        '_remote_version',
+        '_remote_zip_url',
+        '_zip_path'
+    ]
     
     def __init__(self) -> None:
         """Инициализирует AutoUpdater, загружая конфигурацию и устанавливая начальные параметры.
