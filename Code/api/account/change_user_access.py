@@ -1,18 +1,18 @@
 from api.account.bp_reg import account_bp
-from api.api_tools import (catch_MissingFilds_Auth_Exception,
-                           get_requester_info, get_required_fields)
+from api.api_tools import (get_requester_info, get_required_fields,
+                           handle_request_errors)
 from main_impt import auth_manager
 from quart import jsonify, request
-from systems.access_system import AccessFlags
+from systems.access_system import AccessError, AccessFlags
 
 
-@catch_MissingFilds_Auth_Exception
+@handle_request_errors
 @account_bp.route('/change_user_access', methods=['POST'])
 async def api_change_user_access():
     _, _, requester_accses = await get_requester_info(request.headers)
     
     if not requester_accses["change_access"]:
-        return jsonify({'message': 'Access denied'}), 403
+        raise AccessError()
     
     target_login, new_target_access = get_required_fields(await request.get_json(), "login", "new_access")
 

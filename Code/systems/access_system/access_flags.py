@@ -76,6 +76,15 @@ class AccessFlags:
         """
         return pickle.loads(binary_data)
 
+    @property
+    def all_access(self) -> Dict[str, bool]:
+        """Геттер на все доступы из класса.
+
+        Returns:
+            Dict[str, bool]: Словарь доступов.
+        """
+        return self._flags
+    
     def __str__(self) -> str:
         """Возвращает строковое представление объекта AccessFlags.
 

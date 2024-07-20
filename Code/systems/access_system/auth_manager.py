@@ -4,13 +4,9 @@ import uuid
 from typing import Tuple
 
 from systems.access_system.access_flags import AccessFlags
+from systems.access_system.errors import AuthError
 from systems.db_systems import AsyncDB
 
-
-class AuthError(Exception):
-    """Общая ошибка выбрасываемая при ошибке получения доступа
-    """
-    pass
 
 class AuthManager:
     __slots__ = ['_db']

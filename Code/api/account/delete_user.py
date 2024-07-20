@@ -1,16 +1,17 @@
 from api.account.bp_reg import account_bp
-from api.api_tools import catch_MissingFilds_Auth_Exception, get_requester_info
+from api.api_tools import get_requester_info, handle_request_errors
 from main_impt import auth_manager
 from quart import jsonify, request
+from systems.access_system import AccessError
 
 
-@catch_MissingFilds_Auth_Exception
+@handle_request_errors
 @account_bp.route('/delete_user', methods=['POST'])
 async def api_delete_user():
     _, _, requester_accses = await get_requester_info(request.headers)
         
     if not requester_accses["delete_users"]:
-        return jsonify({'message': 'Access denied'}), 403
+        raise AccessError()
         
     data = await request.get_json()
 

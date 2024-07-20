@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from main_impt import auth_manager
 from quart import jsonify
-from systems.access_system import AccessFlags, AuthError
+from systems.access_system import AccessError, AccessFlags, AuthError
 
 HEADER_FOR_TOKEN: str = 'user_token'
 
@@ -12,8 +12,8 @@ class MissingFieldsError(Exception):
     def __init__(self, missing_fields: List[str]):
         super().__init__(', '.join(missing_fields))
 
-def catch_MissingFilds_Auth_Exception(func):
-    """Функция ловит MissingFieldsError, AuthError и Exception которые долетели до функции. Возвращает 400, 403 и 500 клиенту соответственно.
+def handle_request_errors(func):
+    """Функция ловит и обрабатывает ошибки запроса которые долетели до функции. Возвращает 400, 401, 403 и 500 клиенту соответственно.
     
     Args:
         func (Callable): Функция, которую нужно обернуть.
@@ -29,6 +29,9 @@ def catch_MissingFilds_Auth_Exception(func):
             return jsonify({'message': f'Field(s) {err} are required'}), 400
         
         except AuthError:
+            return jsonify({"message": "Unauthorized"}), 401
+        
+        except AccessError:
             return jsonify({"message": "Access denied"}), 403
         
         except Exception as err:
