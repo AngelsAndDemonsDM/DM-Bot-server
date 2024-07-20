@@ -5,7 +5,14 @@
     "EXCLUDE_DIRS": [
         "data",
         ".git",
-        "temp"
+        ".env",
+        ".venv",
+        "env",
+        "venv",
+        "ENV",
+        "env.bak",
+        "venv.bak",
+        "update.zip"
     ],
     "MERGE_DIRS": [
         "Sprites",

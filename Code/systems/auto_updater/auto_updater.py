@@ -29,7 +29,7 @@ class AutoUpdater:
     def __init__(self) -> None:
         """Инициализирует AutoUpdater, загружая конфигурацию и устанавливая начальные параметры.
         """
-        self._root_path = os.path.abspath(os.path.join(__file__, os.pardir, os.pardir, os.pardir, os.pardir)) # Скрипт должен быть как можно более независимым от всего. Опять определям говно.
+        self._root_path = os.path.abspath(os.path.join(__file__, os.pardir, os.pardir, os.pardir, os.pardir))
         
         with open(os.path.join(self._root_path, "updater_config.json"), 'r') as file:
             config = json.load(file)
@@ -136,16 +136,19 @@ class AutoUpdater:
                 if len(extracted_items) == 1 and os.path.isdir(os.path.join(tmpdirname, extracted_items[0])):
                     source_dir = os.path.join(tmpdirname, extracted_items[0])
                     for item in os.listdir(source_dir):
-                        shutil.move(os.path.join(source_dir, item), self._root_path)
+                        shutil.copy2(os.path.join(source_dir, item), os.path.join(self._root_path, item))
                 
                 else:
                     for item in extracted_items:
-                        shutil.move(os.path.join(tmpdirname, item), self._root_path)
+                        shutil.copy2(os.path.join(tmpdirname, item), os.path.join(self._root_path, item))
                 
             logging.info(f"Removing {self._zip_path}")
             os.remove(self._zip_path)
         except zipfile.BadZipFile as e:
             logging.error(f"Failed to extract the zip file: {e}")
+        
+        except shutil.Error as e:
+            logging.error(f"Failed to move files: {e}")
     
     def _remove_old_files(self) -> None:
         """Удаляет старые файлы и директории, исключая указанные в конфигурации и пользовательские директории.
