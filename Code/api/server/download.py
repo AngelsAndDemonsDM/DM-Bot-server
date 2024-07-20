@@ -43,7 +43,10 @@ def create_zip_archive() -> str:
         archive_time = os.path.getmtime(archive_path)
         if archive_time >= directory_latest_time:
             return archive_path
-
+        
+        else:
+            os.remove(archive_path)
+    
     with zipfile.ZipFile(archive_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for root, dirs, files in os.walk(folder_path):
             for file in files:
