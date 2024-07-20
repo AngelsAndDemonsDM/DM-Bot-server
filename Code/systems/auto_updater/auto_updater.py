@@ -199,5 +199,8 @@ class AutoUpdater:
         subprocess.run(["python", self._main_script_path])
 
 if __name__ == "__main__":
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    
     updater = AutoUpdater()
     updater.update_app()
