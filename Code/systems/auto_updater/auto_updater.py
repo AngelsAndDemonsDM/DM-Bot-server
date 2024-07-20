@@ -3,6 +3,7 @@ import logging
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import zipfile
 from typing import Tuple
@@ -136,12 +137,21 @@ class AutoUpdater:
                 if len(extracted_items) == 1 and os.path.isdir(os.path.join(tmpdirname, extracted_items[0])):
                     source_dir = os.path.join(tmpdirname, extracted_items[0])
                     for item in os.listdir(source_dir):
-                        shutil.copy2(os.path.join(source_dir, item), os.path.join(self._root_path, item))
-                
+                        src_path = os.path.join(source_dir, item)
+                        dest_path = os.path.join(self._root_path, item)
+                        if os.path.isdir(src_path):
+                            shutil.copytree(src_path, dest_path, dirs_exist_ok=True)
+                        else:
+                            shutil.copy2(src_path, dest_path)
                 else:
                     for item in extracted_items:
-                        shutil.copy2(os.path.join(tmpdirname, item), os.path.join(self._root_path, item))
-                
+                        src_path = os.path.join(tmpdirname, item)
+                        dest_path = os.path.join(self._root_path, item)
+                        if os.path.isdir(src_path):
+                            shutil.copytree(src_path, dest_path, dirs_exist_ok=True)
+                        else:
+                            shutil.copy2(src_path, dest_path)
+        
             logging.info(f"Removing {self._zip_path}")
             os.remove(self._zip_path)
         except zipfile.BadZipFile as e:
@@ -220,3 +230,5 @@ if __name__ == "__main__":
     
     updater = AutoUpdater()
     updater.update_app()
+    sys.exit(0)
+    
