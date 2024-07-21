@@ -16,8 +16,6 @@ class EntityFactory:
     ]
 
     def __init__(self):
-        """_summary_
-        """
         self._entity_registry: Dict[str, Type[BaseEntity]] = {}
         self._component_registry: Dict[str, Type[BaseComponent]] = {}
         self._entities: Dict[str, BaseEntity] = {}
@@ -27,32 +25,32 @@ class EntityFactory:
         self._register_from_yaml()
         self.load_entities_from_directory(os.path.join(ROOT_PATH, "Prototype"))
 
-    def _register_entity(self, entity_type: str, entity_class: Type[BaseEntity]):
-        """_summary_
+    def _register_entity(self, entity_type: str, entity_class: Type[BaseEntity]) -> None:
+        """Регистрация класса сущности.
 
         Args:
-            entity_type (str): _description_
-            entity_class (Type[BaseEntity]): _description_
+            entity_type (str): Тип сущности.
+            entity_class (Type[BaseEntity]): Класс сущности.
         """
         self._entity_registry[entity_type] = entity_class
 
-    def _register_component(self, component_type: str, component_class: Type[BaseComponent]):
-        """_summary_
+    def _register_component(self, component_type: str, component_class: Type[BaseComponent]) -> None:
+        """Регистрация класса компонента.
 
         Args:
-            component_type (str): _description_
-            component_class (Type[BaseComponent]): _description_
+            component_type (str): Тип компонента.
+            component_class (Type[BaseComponent]): Класс компонента.
         """
         self._component_registry[component_type] = component_class
 
-    def _import_class(self, full_class_string: str):
-        """_summary_
+    def _import_class(self, full_class_string: str) -> Any:
+        """Импорт класса по строковому представлению.
 
         Args:
-            full_class_string (str): _description_
+            full_class_string (str): Полное строковое представление класса.
 
         Returns:
-            _type_: _description_
+            Any: Импортированный класс.
         """
         if full_class_string in self._import_cache:
             return self._import_cache[full_class_string]
@@ -63,8 +61,8 @@ class EntityFactory:
         self._import_cache[full_class_string] = cls
         return cls
 
-    def _register_from_yaml(self):
-        """_summary_
+    def _register_from_yaml(self) -> None:
+        """Регистрация сущностей и компонентов из YAML файла.
         """
         with open(os.path.join(ROOT_PATH, "Prototype", "factory_mappings.yml"), 'r', encoding="UTF-8") as file:
             data = yaml.safe_load(file)
@@ -77,18 +75,17 @@ class EntityFactory:
             component_class = self._import_class(full_class_string)
             self._register_component(component_type, component_class)
 
-    def _create_entity(self, entity_data: dict) -> BaseEntity:
-        """_summary_
+    def _create_entity(self, entity_data: Dict[str, Any]) -> BaseEntity:
+        """Создание сущности по данным из словаря.
 
         Args:
-            entity_data (dict): _description_
+            entity_data (Dict[str, Any]): Данные сущности.
 
         Raises:
-            ValueError: _description_
-            ValueError: _description_
+            ValueError: Если тип сущности неизвестен или найден дубликат ID.
 
         Returns:
-            BaseEntity: _description_
+            BaseEntity: Созданная сущность.
         """
         entity_type = entity_data['type']
         entity_class = self._entity_registry.get(entity_type)
@@ -111,18 +108,18 @@ class EntityFactory:
         self._entities[key] = entity
         return entity
 
-    def _create_component(self, component_data: dict) -> BaseComponent:
-        """_summary_
+    def _create_component(self, component_data: Dict[str, Any]) -> BaseComponent:
+        """Создание компонента по данным из словаря.
 
         Args:
-            component_data (dict): _description_
+            component_data (Dict[str, Any]): Данные компонента.
 
         Raises:
-            ValueError: _description_
-            TypeError: _description_
+            ValueError: Если тип компонента неизвестен.
+            TypeError: Если тип данных не соответствует ожидаемому.
 
         Returns:
-            BaseComponent: _description_
+            BaseComponent: Созданный компонент.
         """
         from systems.map_system.coordinates import Coordinate
         
@@ -142,13 +139,13 @@ class EntityFactory:
         return component_class(**component_data)
 
     def load_entities_from_yaml(self, file_path: str) -> List[BaseEntity]:
-        """_summary_
+        """Загрузка сущностей из YAML файла.
 
         Args:
-            file_path (str): _description_
+            file_path (str): Путь к YAML файлу.
 
         Returns:
-            List[BaseEntity]: _description_
+            List[BaseEntity]: Список загруженных сущностей.
         """
         with open(file_path, 'r', encoding="UTF-8") as file:
             data = yaml.safe_load(file)
@@ -156,10 +153,10 @@ class EntityFactory:
         return [self._create_entity(entity_data) for entity_data in data]
 
     def load_entities_from_directory(self, directory_path: str) -> None:
-        """_summary_
+        """Загрузка сущностей из всех YAML файлов в директории.
 
         Args:
-            directory_path (str): _description_
+            directory_path (str): Путь к директории.
         """
         self._entities.clear()
         for root, _, files in os.walk(directory_path):
@@ -169,24 +166,24 @@ class EntityFactory:
                     self._entities.update({f"{entity.type}_{entity.id}": entity for entity in self.load_entities_from_yaml(file_path)})
 
     def _generate_uid(self) -> int:
-        """_summary_
+        """Генерация уникального идентификатора (UID).
 
         Returns:
-            int: _description_
+            int: Сгенерированный UID.
         """
         uid = self._next_uid
         self._next_uid += 1
         return uid
 
     def get_entity_by_id(self, entity_type: str, entity_id: str) -> Optional[BaseEntity]:
-        """_summary_
+        """Получение сущности по типу и ID.
 
         Args:
-            entity_type (str): _description_
-            entity_id (str): _description_
+            entity_type (str): Тип сущности.
+            entity_id (str): ID сущности.
 
         Returns:
-            Optional[BaseEntity]: _description_
+            Optional[BaseEntity]: Сущность, если найдена, иначе None.
         """
         key = f"{entity_type}_{entity_id}"
         if key in self._entities:
@@ -198,12 +195,12 @@ class EntityFactory:
         return None
 
     def get_entity_by_uid(self, uid: int) -> Optional[BaseEntity]:
-        """_summary_
+        """Получение сущности по UID.
 
         Args:
-            uid (int): _description_
+            uid (int): UID сущности.
 
         Returns:
-            Optional[BaseEntity]: _description_
+            Optional[BaseEntity]: Сущность, если найдена, иначе None.
         """
         return self._uid_dict.get(uid, None)
