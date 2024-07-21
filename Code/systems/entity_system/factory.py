@@ -1,6 +1,7 @@
 import importlib
 import os
-from typing import Dict, List, Optional, Type
+from copy import deepcopy
+from typing import Any, Dict, List, Optional, Type
 
 import yaml
 from root_path import ROOT_PATH
@@ -9,20 +10,22 @@ from systems.entity_system.base_entity import BaseEntity
 
 
 class EntityFactory:
-    __slots__ = ['_entity_registry', '_component_registry', '_existing_ids', '_entities']
+    __slots__ = [
+        '_entity_registry', '_component_registry', 
+        '_entities', '_uid_dict', '_next_uid'
+    ]
 
     def __init__(self):
-        """Инициализирует фабрику сущностей и регистрирует сущности и компоненты из конфигурационных файлов.
-        """
         self._entity_registry: Dict[str, Type[BaseEntity]] = {}
         self._component_registry: Dict[str, Type[BaseComponent]] = {}
-        self._existing_ids: Dict[str, List[str]] = {}
-        self._entities: List[BaseEntity] = []
+        self._entities: Dict[str, BaseEntity] = {}
+        self._uid_dict: Dict[int, BaseEntity] = {}
+        self._next_uid: int = 1
         self._register_from_yaml()
         self.load_entities_from_directory(os.path.join(ROOT_PATH, "Prototype"))
 
-    def _register_entity(self, entity_type: str, entity_class: Type[BaseEntity]):
-        """Регистрирует класс сущности по его типу.
+    def _register_entity(self, entity_type: str, entity_class: Type[BaseEntity]) -> None:
+        """Регистрация класса сущности.
 
         Args:
             entity_type (str): Тип сущности.
@@ -30,8 +33,8 @@ class EntityFactory:
         """
         self._entity_registry[entity_type] = entity_class
 
-    def _register_component(self, component_type: str, component_class: Type[BaseComponent]):
-        """Регистрирует класс компонента по его типу.
+    def _register_component(self, component_type: str, component_class: Type[BaseComponent]) -> None:
+        """Регистрация класса компонента.
 
         Args:
             component_type (str): Тип компонента.
@@ -39,21 +42,22 @@ class EntityFactory:
         """
         self._component_registry[component_type] = component_class
 
-    def _import_class(self, full_class_string: str):
-        """Импортирует класс по строке с его полным путем.
+    def _import_class(self, full_class_string: str) -> Any:
+        """Импорт класса по строковому представлению.
 
         Args:
-            full_class_string (str): Полный путь до класса.
+            full_class_string (str): Полное строковое представление класса.
 
         Returns:
-            Type: Импортированный класс.
+            Any: Импортированный класс.
         """
         module_path, class_name = full_class_string.rsplit('.', 1)
         module = importlib.import_module(module_path)
-        return getattr(module, class_name)
+        cls = getattr(module, class_name)
+        return cls
 
-    def _register_from_yaml(self):
-        """Регистрирует сущности и компоненты из YAML файла конфигурации.
+    def _register_from_yaml(self) -> None:
+        """Регистрация сущностей и компонентов из YAML файла.
         """
         with open(os.path.join(ROOT_PATH, "Prototype", "factory_mappings.yml"), 'r', encoding="UTF-8") as file:
             data = yaml.safe_load(file)
@@ -66,15 +70,14 @@ class EntityFactory:
             component_class = self._import_class(full_class_string)
             self._register_component(component_type, component_class)
 
-    def _create_entity(self, entity_data: dict) -> BaseEntity:
-        """Создает сущность на основе данных из конфигурации.
+    def _create_entity(self, entity_data: Dict[str, Any]) -> BaseEntity:
+        """Создание сущности по данным из словаря.
 
         Args:
-            entity_data (dict): Данные сущности из конфигурационного файла.
+            entity_data (Dict[str, Any]): Данные сущности.
 
         Raises:
-            ValueError: Если тип сущности неизвестен.
-            ValueError: Если идентификатор сущности уже существует.
+            ValueError: Если тип сущности неизвестен или найден дубликат ID.
 
         Returns:
             BaseEntity: Созданная сущность.
@@ -85,14 +88,10 @@ class EntityFactory:
             raise ValueError(f"Unknown entity type: {entity_type}")
 
         entity_id = entity_data['id']
-        
-        if entity_type not in self._existing_ids:
-            self._existing_ids[entity_type] = []
-        
-        if entity_id in self._existing_ids[entity_type]:
-            raise ValueError(f"Duplicate id {entity_id} for entity type {entity_type}")
+        key = f"{entity_type}_{entity_id}"
 
-        self._existing_ids[entity_type].append(entity_id)
+        if key in self._entities:
+            raise ValueError(f"Duplicate id {entity_id} for entity type {entity_type}")
 
         entity = entity_class()
         entity.id = entity_id
@@ -101,17 +100,18 @@ class EntityFactory:
             component = self._create_component(component_data)
             entity.add_component(component)
 
+        self._entities[key] = entity
         return entity
 
-    def _create_component(self, component_data: dict) -> BaseComponent:
-        """Создает компонент на основе данных из конфигурации.
+    def _create_component(self, component_data: Dict[str, Any]) -> BaseComponent:
+        """Создание компонента по данным из словаря.
 
         Args:
-            component_data (dict): Данные компонента из конфигурационного файла.
+            component_data (Dict[str, Any]): Данные компонента.
 
         Raises:
             ValueError: Если тип компонента неизвестен.
-            TypeError: Если данные компонента не соответствуют ожидаемому типу.
+            TypeError: Если тип данных не соответствует ожидаемому.
 
         Returns:
             BaseComponent: Созданный компонент.
@@ -134,7 +134,7 @@ class EntityFactory:
         return component_class(**component_data)
 
     def load_entities_from_yaml(self, file_path: str) -> List[BaseEntity]:
-        """Загружает сущности из YAML файла.
+        """Загрузка сущностей из YAML файла.
 
         Args:
             file_path (str): Путь к YAML файлу.
@@ -145,38 +145,57 @@ class EntityFactory:
         with open(file_path, 'r', encoding="UTF-8") as file:
             data = yaml.safe_load(file)
 
-        entities = []
-        for entity_data in data:
-            entity = self._create_entity(entity_data)
-            entities.append(entity)
-
-        return entities
+        return [self._create_entity(entity_data) for entity_data in data]
 
     def load_entities_from_directory(self, directory_path: str) -> None:
-        """Загружает сущности из всех YAML файлов в указанной директории.
+        """Загрузка сущностей из всех YAML файлов в директории.
 
         Args:
-            directory_path (str): Путь к директории с YAML файлами.
+            directory_path (str): Путь к директории.
         """
         self._entities.clear()
         for root, _, files in os.walk(directory_path):
             for file in files:
-                if file.endswith('.yaml') or file.endswith('.yml') and file != "factory_mappings.yml":
+                if file.endswith(('.yaml', '.yml')) and file != "factory_mappings.yml":
                     file_path = os.path.join(root, file)
-                    self._entities.extend(self.load_entities_from_yaml(file_path))
+                    self._entities.update({f"{entity.type}_{entity.id}": entity for entity in self.load_entities_from_yaml(file_path)})
+
+    def _generate_uid(self) -> int:
+        """Генерация уникального идентификатора (UID).
+
+        Returns:
+            int: Сгенерированный UID.
+        """
+        uid = self._next_uid
+        self._next_uid += 1
+        return uid
 
     def get_entity_by_id(self, entity_type: str, entity_id: str) -> Optional[BaseEntity]:
-        """Возвращает сущность по её типу и идентификатору.
+        """Получение сущности по типу и ID.
 
         Args:
             entity_type (str): Тип сущности.
-            entity_id (str): Идентификатор сущности.
+            entity_id (str): ID сущности.
 
         Returns:
-            Optional[BaseEntity]: Найденная сущность или None, если сущность не найдена.
+            Optional[BaseEntity]: Сущность, если найдена, иначе None.
         """
-        for entity in self._entities:
-            if entity.id == entity_id and entity.__class__.__name__ == entity_type:
-                return entity
+        key = f"{entity_type}_{entity_id}"
+        if key in self._entities:
+            copy_entity = deepcopy(self._entities[key])
+            copy_entity.uid = self._generate_uid()
+            self._uid_dict[copy_entity.uid] = copy_entity
+            return copy_entity
         
         return None
+
+    def get_entity_by_uid(self, uid: int) -> Optional[BaseEntity]:
+        """Получение сущности по UID.
+
+        Args:
+            uid (int): UID сущности.
+
+        Returns:
+            Optional[BaseEntity]: Сущность, если найдена, иначе None.
+        """
+        return self._uid_dict.get(uid, None)
