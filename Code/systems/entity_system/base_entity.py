@@ -5,12 +5,13 @@ from systems.entity_system.base_component import BaseComponent
 
 
 class BaseEntity(ABC):
-    __slots__ = ['enti_type', 'id', 'components']
+    __slots__ = ['enti_type', 'id', 'uid', 'components']
     
     def __init__(self) -> None:
         """Инициализирует базовую сущность с пустыми идентификатором, типом и словарем компонентов.
         """
         self.id: str = ""
+        self.uid: int = None
         self.enti_type: str = ""
         self.components: Dict[str, BaseComponent] = {}
     
