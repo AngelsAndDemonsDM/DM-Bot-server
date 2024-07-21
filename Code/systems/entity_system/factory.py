@@ -12,7 +12,7 @@ from systems.entity_system.base_entity import BaseEntity
 class EntityFactory:
     __slots__ = [
         '_entity_registry', '_component_registry', 
-        '_entities', '_uid_dict', '_next_uid', '_import_cache'
+        '_entities', '_uid_dict', '_next_uid'
     ]
 
     def __init__(self):
@@ -21,7 +21,6 @@ class EntityFactory:
         self._entities: Dict[str, BaseEntity] = {}
         self._uid_dict: Dict[int, BaseEntity] = {}
         self._next_uid: int = 1
-        self._import_cache: Dict[str, Any] = {}
         self._register_from_yaml()
         self.load_entities_from_directory(os.path.join(ROOT_PATH, "Prototype"))
 
@@ -52,13 +51,9 @@ class EntityFactory:
         Returns:
             Any: Импортированный класс.
         """
-        if full_class_string in self._import_cache:
-            return self._import_cache[full_class_string]
-
         module_path, class_name = full_class_string.rsplit('.', 1)
         module = importlib.import_module(module_path)
         cls = getattr(module, class_name)
-        self._import_cache[full_class_string] = cls
         return cls
 
     def _register_from_yaml(self) -> None:
