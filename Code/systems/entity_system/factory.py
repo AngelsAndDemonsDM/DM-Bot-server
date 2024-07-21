@@ -1,7 +1,7 @@
-from copy import deepcopy
 import importlib
 import os
-from typing import Dict, List, Optional, Type
+from copy import deepcopy
+from typing import Any, Dict, List, Optional, Type
 
 import yaml
 from root_path import ROOT_PATH
@@ -10,39 +10,61 @@ from systems.entity_system.base_entity import BaseEntity
 
 
 class EntityFactory:
-    __slots__ = ['_entity_registry', '_component_registry', '_existing_ids', '_entities', '_uid_dict', '_next_uid']
+    __slots__ = [
+        '_entity_registry', '_component_registry', 
+        '_entities', '_uid_dict', '_next_uid', '_import_cache'
+    ]
 
     def __init__(self):
-        """Инициализирует фабрику сущностей и регистрирует сущности и компоненты из конфигурационных файлов.
+        """_summary_
         """
         self._entity_registry: Dict[str, Type[BaseEntity]] = {}
         self._component_registry: Dict[str, Type[BaseComponent]] = {}
-        self._existing_ids: Dict[str, List[str]] = {}
-        self._entities: List[BaseEntity] = []
+        self._entities: Dict[str, BaseEntity] = {}
         self._uid_dict: Dict[int, BaseEntity] = {}
         self._next_uid: int = 1
+        self._import_cache: Dict[str, Any] = {}
         self._register_from_yaml()
         self.load_entities_from_directory(os.path.join(ROOT_PATH, "Prototype"))
 
     def _register_entity(self, entity_type: str, entity_class: Type[BaseEntity]):
-        """Регистрирует класс сущности по его типу.
+        """_summary_
+
+        Args:
+            entity_type (str): _description_
+            entity_class (Type[BaseEntity]): _description_
         """
         self._entity_registry[entity_type] = entity_class
 
     def _register_component(self, component_type: str, component_class: Type[BaseComponent]):
-        """Регистрирует класс компонента по его типу.
+        """_summary_
+
+        Args:
+            component_type (str): _description_
+            component_class (Type[BaseComponent]): _description_
         """
         self._component_registry[component_type] = component_class
 
     def _import_class(self, full_class_string: str):
-        """Импортирует класс по строке с его полным путем.
+        """_summary_
+
+        Args:
+            full_class_string (str): _description_
+
+        Returns:
+            _type_: _description_
         """
+        if full_class_string in self._import_cache:
+            return self._import_cache[full_class_string]
+
         module_path, class_name = full_class_string.rsplit('.', 1)
         module = importlib.import_module(module_path)
-        return getattr(module, class_name)
+        cls = getattr(module, class_name)
+        self._import_cache[full_class_string] = cls
+        return cls
 
     def _register_from_yaml(self):
-        """Регистрирует сущности и компоненты из YAML файла конфигурации.
+        """_summary_
         """
         with open(os.path.join(ROOT_PATH, "Prototype", "factory_mappings.yml"), 'r', encoding="UTF-8") as file:
             data = yaml.safe_load(file)
@@ -56,7 +78,17 @@ class EntityFactory:
             self._register_component(component_type, component_class)
 
     def _create_entity(self, entity_data: dict) -> BaseEntity:
-        """Создает сущность на основе данных из конфигурации.
+        """_summary_
+
+        Args:
+            entity_data (dict): _description_
+
+        Raises:
+            ValueError: _description_
+            ValueError: _description_
+
+        Returns:
+            BaseEntity: _description_
         """
         entity_type = entity_data['type']
         entity_class = self._entity_registry.get(entity_type)
@@ -64,14 +96,10 @@ class EntityFactory:
             raise ValueError(f"Unknown entity type: {entity_type}")
 
         entity_id = entity_data['id']
-        
-        if entity_type not in self._existing_ids:
-            self._existing_ids[entity_type] = []
-        
-        if entity_id in self._existing_ids[entity_type]:
-            raise ValueError(f"Duplicate id {entity_id} for entity type {entity_type}")
+        key = f"{entity_type}_{entity_id}"
 
-        self._existing_ids[entity_type].append(entity_id)
+        if key in self._entities:
+            raise ValueError(f"Duplicate id {entity_id} for entity type {entity_type}")
 
         entity = entity_class()
         entity.id = entity_id
@@ -80,10 +108,21 @@ class EntityFactory:
             component = self._create_component(component_data)
             entity.add_component(component)
 
+        self._entities[key] = entity
         return entity
 
     def _create_component(self, component_data: dict) -> BaseComponent:
-        """Создает компонент на основе данных из конфигурации.
+        """_summary_
+
+        Args:
+            component_data (dict): _description_
+
+        Raises:
+            ValueError: _description_
+            TypeError: _description_
+
+        Returns:
+            BaseComponent: _description_
         """
         from systems.map_system.coordinates import Coordinate
         
@@ -103,48 +142,68 @@ class EntityFactory:
         return component_class(**component_data)
 
     def load_entities_from_yaml(self, file_path: str) -> List[BaseEntity]:
-        """Загружает сущности из YAML файла.
+        """_summary_
+
+        Args:
+            file_path (str): _description_
+
+        Returns:
+            List[BaseEntity]: _description_
         """
         with open(file_path, 'r', encoding="UTF-8") as file:
             data = yaml.safe_load(file)
 
-        entities = []
-        for entity_data in data:
-            entity = self._create_entity(entity_data)
-            entities.append(entity)
-
-        return entities
+        return [self._create_entity(entity_data) for entity_data in data]
 
     def load_entities_from_directory(self, directory_path: str) -> None:
-        """Загружает сущности из всех YAML файлов в указанной директории.
+        """_summary_
+
+        Args:
+            directory_path (str): _description_
         """
         self._entities.clear()
         for root, _, files in os.walk(directory_path):
             for file in files:
-                if file.endswith('.yaml') or file.endswith('.yml') and file != "factory_mappings.yml":
+                if file.endswith(('.yaml', '.yml')) and file != "factory_mappings.yml":
                     file_path = os.path.join(root, file)
-                    self._entities.extend(self.load_entities_from_yaml(file_path))
+                    self._entities.update({f"{entity.type}_{entity.id}": entity for entity in self.load_entities_from_yaml(file_path)})
 
     def _generate_uid(self) -> int:
-        """Генерирует уникальный идентификатор.
+        """_summary_
+
+        Returns:
+            int: _description_
         """
         uid = self._next_uid
         self._next_uid += 1
         return uid
 
     def get_entity_by_id(self, entity_type: str, entity_id: str) -> Optional[BaseEntity]:
-        """Возвращает сущность по её типу и идентификатору.
+        """_summary_
+
+        Args:
+            entity_type (str): _description_
+            entity_id (str): _description_
+
+        Returns:
+            Optional[BaseEntity]: _description_
         """
-        for entity in self._entities:
-            if entity.id == entity_id and entity.__class__.__name__ == entity_type:
-                copy_entity = deepcopy(entity)  # Исходный прототип мы НЕ трогаем.
-                copy_entity.uid = self._generate_uid()  # Присваиваем уникальный UID
-                self._uid_dict[copy_entity.uid] = copy_entity  # Сохраняем копию в словаре по UID
-                return copy_entity
+        key = f"{entity_type}_{entity_id}"
+        if key in self._entities:
+            copy_entity = deepcopy(self._entities[key])
+            copy_entity.uid = self._generate_uid()
+            self._uid_dict[copy_entity.uid] = copy_entity
+            return copy_entity
         
         return None
 
     def get_entity_by_uid(self, uid: int) -> Optional[BaseEntity]:
-        """Возвращает сущность по её уникальному идентификатору (UID).
+        """_summary_
+
+        Args:
+            uid (int): _description_
+
+        Returns:
+            Optional[BaseEntity]: _description_
         """
         return self._uid_dict.get(uid, None)
