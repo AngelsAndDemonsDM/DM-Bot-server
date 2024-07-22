@@ -5,7 +5,7 @@ from quart import request, send_file
 from root_path import ROOT_PATH
 
 
-def get_latest_modification_time(directory_path: str) -> float:
+def _get_latest_modification_time(directory_path: str) -> float:
     """Получает время последней модификации файлов в директории.
 
     Args:
@@ -24,7 +24,7 @@ def get_latest_modification_time(directory_path: str) -> float:
     
     return latest_time
 
-def create_zip_archive() -> str:
+def _create_zip_archive() -> str:
     """Создает ZIP-архив из папки 'Sprites' и возвращает путь к архиву.
 
     Проверяет время последней модификации файлов перед пересозданием.
@@ -35,7 +35,7 @@ def create_zip_archive() -> str:
     folder_path = os.path.join(ROOT_PATH, "Sprites")
     archive_path = os.path.join(ROOT_PATH, "data", "sprites.zip")
 
-    directory_latest_time = get_latest_modification_time(folder_path)
+    directory_latest_time = _get_latest_modification_time(folder_path)
 
     if os.path.exists(archive_path):
         archive_time = os.path.getmtime(archive_path)
@@ -54,8 +54,8 @@ def create_zip_archive() -> str:
     return archive_path
 
 @server_bp.route('/download_server_content', methods=['POST'])
-async def api_download():
-    archive_path = create_zip_archive()
+async def api_download_server_content():
+    archive_path = _create_zip_archive()
 
     return await send_file(
         archive_path,
