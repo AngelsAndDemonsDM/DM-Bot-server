@@ -1,10 +1,11 @@
+import json
+import os
 import unittest
-from unittest.mock import MagicMock, patch
 
 from quart import Quart
-from quart.testing import QuartClient
 
-from Code.api.server import server_bp
+from Code.api.server import (api_check_status, api_download_server_content,
+                             server_bp)
 
 
 class ServerAPITestCase(unittest.IsolatedAsyncioTestCase):
@@ -13,23 +14,47 @@ class ServerAPITestCase(unittest.IsolatedAsyncioTestCase):
         self.app.register_blueprint(server_bp)
         self.client = self.app.test_client()
 
-    @patch('Code.api.server._create_zip_archive')
-    async def test_api_download_server_content(self, mock_create_zip):
-        mock_create_zip.return_value = 'path/to/mock/sprites.zip'
+        self.test_root_path = 'test_root'
+        self.sprites_folder = os.path.join(self.test_root_path, 'Sprites')
+        self.data_folder = os.path.join(self.test_root_path, 'data')
+        os.makedirs(self.sprites_folder, exist_ok=True)
+        os.makedirs(self.data_folder, exist_ok=True)
+        
+        self.test_file_path = os.path.join(self.sprites_folder, 'test.txt')
+        with open(self.test_file_path, 'w') as f:
+            f.write("Test content")
 
+        self.config_file_path = os.path.join(self.test_root_path, 'updater_config.json')
+        with open(self.config_file_path, 'w') as f:
+            config_data = {
+                "VERSION": "1.0.0",
+                "USER": "test_user",
+                "REPO": "test_repo"
+            }
+            json.dump(config_data, f)
+
+        global ROOT_PATH
+        self.original_root_path = ROOT_PATH
+        ROOT_PATH = self.test_root_path
+
+    async def asyncTearDown(self):
+        for root, dirs, files in os.walk(self.test_root_path, topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+        os.rmdir(self.test_root_path)
+        
+        global ROOT_PATH
+        ROOT_PATH = self.original_root_path
+
+    async def test_api_download_server_content(self):
         response = await self.client.get('/download_server_content')
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content_type, 'application/zip')
 
-    @patch('Code.api.server._load_config')
-    async def test_api_check_status_detailed(self, mock_load_config):
-        mock_load_config.return_value = {
-            "version": "1.0.0",
-            "git_user": "test_user",
-            "git_repo": "test_repo"
-        }
-
+    async def test_api_check_status_detailed(self):
         response = await self.client.get('/check_status?detailed=true')
         
         self.assertEqual(response.status_code, 200)
@@ -37,6 +62,8 @@ class ServerAPITestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(data['message'], "Server is online")
         self.assertIn('detailed', data)
         self.assertEqual(data['detailed']['version'], "1.0.0")
+        self.assertEqual(data['detailed']['git_user'], "test_user")
+        self.assertEqual(data['detailed']['git_repo'], "test_repo")
 
     async def test_api_check_status(self):
         response = await self.client.get('/check_status')
