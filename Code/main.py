@@ -6,6 +6,7 @@ import platform
 import subprocess
 import sys
 
+from api import api_check_status, api_download_server_content, server_bp
 from quart import Quart
 from systems.auto_updater import AutoUpdater
 from systems.db_systems import SettingsManager
@@ -13,7 +14,6 @@ from systems.db_systems import SettingsManager
 app = Quart(__name__)
 
 # Blueprint
-app.register_blueprint(account_bp, url_prefix='/account')
 app.register_blueprint(server_bp, url_prefix='/server')
 
 # Argument parsing

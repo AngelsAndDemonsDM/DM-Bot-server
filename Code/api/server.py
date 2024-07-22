@@ -1,10 +1,13 @@
+import json
 import os
 import zipfile
 
-from quart import request, send_file
+from quart import Blueprint, jsonify, request, send_file
 from root_path import ROOT_PATH
 
+server_bp = Blueprint('server', __name__)
 
+# --- Server content download start --- #
 def _get_latest_modification_time(directory_path: str) -> float:
     """Получает время последней модификации файлов в директории.
 
@@ -53,13 +56,42 @@ def _create_zip_archive() -> str:
 
     return archive_path
 
-@server_bp.route('/download_server_content', methods=['POST'])
+@server_bp.route('/download_server_content', methods=['GET'])
 async def api_download_server_content():
-    archive_path = _create_zip_archive()
+    try:
+        return await send_file(_create_zip_archive(), mimetype='application/zip', as_attachment=True, attachment_filename="sprites.zip")
+    
+    except Exception as err:
+        return jsonify({"Error": err}), 500
+# --- Server content download end --- #
 
-    return await send_file(
-        archive_path,
-        mimetype='application/zip',
-        as_attachment=True,
-        attachment_filename="sprites.zip"
-    )
+# --- Server check start --- #
+CACHED_CONFIG = None
+
+def _load_config():
+    global cached_config
+    if cached_config is None:
+        with open(os.path.join(ROOT_PATH, 'updater_config.json'), 'r') as file:
+            config_data = json.load(file)
+            cached_config = {
+                "version":  config_data.get("VERSION", "Unknown"),
+                "git_user": config_data.get("USER", "Unknown"),
+                "git_repo": config_data.get("REPO", "Unknown")
+            }
+            
+    return cached_config
+
+@server_bp.route('/check_status', methods=['GET'])
+async def api_check_status():
+    try:
+        detailed = request.args.get('detailed', default=False, type=bool)
+
+        if detailed:
+            response_data = _load_config()
+            return jsonify({"message": "Server is online", "detailed": response_data}), 200
+
+        return jsonify({"message": "Server is online"}), 200
+    
+    except Exception as err:
+        return jsonify({"Error": str(err)}), 500
+# --- Server check end --- #
