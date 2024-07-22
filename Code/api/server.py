@@ -59,7 +59,8 @@ def _create_zip_archive() -> str:
 @server_bp.route('/download_server_content', methods=['GET'])
 async def api_download_server_content():
     try:
-        return await send_file(_create_zip_archive(), mimetype='application/zip', as_attachment=True, attachment_filename="sprites.zip")
+        zip_path = _create_zip_archive()
+        return await send_file(zip_path, mimetype='application/zip', as_attachment=True, attachment_filename="sprites.zip")
     
     except Exception as err:
         return jsonify({"Error": err}), 500
