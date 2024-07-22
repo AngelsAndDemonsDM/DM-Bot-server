@@ -6,6 +6,7 @@ from quart import Quart
 
 from Code.api.server import (api_check_status, api_download_server_content,
                              server_bp)
+from Code.root_path import ROOT_PATH
 
 
 class ServerAPITestCase(unittest.IsolatedAsyncioTestCase):
