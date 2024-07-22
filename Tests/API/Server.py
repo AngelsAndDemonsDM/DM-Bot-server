@@ -8,11 +8,10 @@ from Code.api.server import server_bp
 
 
 class ServerAPITestCase(unittest.IsolatedAsyncioTestCase):
-    @classmethod
-    async def asyncSetUpClass(cls):
-        cls.app = Quart(__name__)
-        cls.app.register_blueprint(server_bp)
-        cls.client = cls.app.test_client()
+    async def asyncSetUp(self):
+        self.app = Quart(__name__)
+        self.app.register_blueprint(server_bp)
+        self.client = self.app.test_client()
 
     @patch('Code.api.server._create_zip_archive')
     async def test_api_download_server_content(self, mock_create_zip):
