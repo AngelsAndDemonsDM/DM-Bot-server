@@ -1,8 +1,6 @@
 import os
 import zipfile
 
-from api.api_tools import get_requester_info, handle_request_errors
-from api.server.bp_reg import server_bp
 from quart import request, send_file
 from root_path import ROOT_PATH
 
@@ -55,11 +53,8 @@ def create_zip_archive() -> str:
 
     return archive_path
 
-@handle_request_errors
-@server_bp.route('/download', methods=['POST'])
+@server_bp.route('/download_server_content', methods=['POST'])
 async def api_download():
-    await get_requester_info(request.headers)
-    
     archive_path = create_zip_archive()
 
     return await send_file(
