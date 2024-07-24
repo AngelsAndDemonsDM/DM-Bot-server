@@ -68,10 +68,12 @@ class MapItemsComponent(BaseComponent):
             'items': List[Item]
         }
 
-    def setup_objects(self, entity_factory: EntityFactory) -> None:
+    def setup_objects(self) -> None:
         if not self.items:
             return
 
+        entity_factory: EntityFactory = EntityFactory()
+        
         for item in self.items:
             obj = entity_factory.get_entity_by_id(item['entity_type'], item['entity_id'])
 

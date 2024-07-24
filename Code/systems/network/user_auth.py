@@ -4,7 +4,7 @@ from typing import Dict, Optional, Tuple
 import bcrypt
 import msgpack
 from systems.db_systems import AsyncDB
-from systems.singleton import singleton
+from systems.decorators import global_class
 
 
 # --- Access systems --- #
@@ -74,7 +74,7 @@ class AuthError(Exception):
     """Ошибка вызываемая в случае если пользователь отсутствует или пароль не верен"""
     pass
 
-@singleton
+@global_class
 class UserAuth:
     __slots__ = ['_db']
 

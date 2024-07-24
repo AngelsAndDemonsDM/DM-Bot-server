@@ -2,13 +2,13 @@ from typing import Any, Dict, Optional
 
 import msgpack
 from quart import Websocket
-from systems.singleton import singleton
+from systems.decorators import global_class
 
 
 class WebSoketUserAlreadyConnectError(Exception):
     pass
 
-@singleton
+@global_class
 class WebSocketConnectManager:
     __slots__ = ['_connects']
     
