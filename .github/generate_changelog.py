@@ -130,8 +130,6 @@ def process_pull_requests(start_pr, end_pr, token=None):
     
     if os.path.exists(CL_FILE):
         os.remove(CL_FILE)
-        with open(CL_FILE, 'r', encoding='utf-8') as file:
-            changelog = yaml.safe_load(file) or {'changelog': []}
     
     pr_numbers = range(start_pr, end_pr + 1)
     pr_list = fetch_pr_data(pr_numbers, repo, token)
