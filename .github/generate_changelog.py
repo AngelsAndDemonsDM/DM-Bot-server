@@ -24,13 +24,8 @@ def load_config(config_file):
         logging.error(f"Ошибка при загрузке конфигурационного файла: {e}")
         return None
 
-def get_pull_request_data(pull_number, repo, token=None):
-    url = f"https://api.github.com/repos/{repo}/pulls/{pull_number}"
-    headers = {}
-    if token:
-        headers['Authorization'] = f'token {token}'
-    
-    response = requests.get(url, headers=headers)
+def get_pull_request_data(pull_number, repo, session: requests.Session):
+    response = session.get(f"https://api.github.com/repos/{repo}/pulls/{pull_number}")
 
     if response.status_code != 200:
         logging.error(f"Не удалось получить данные для PR #{pull_number}. Статус код: {response.status_code}")
@@ -60,18 +55,18 @@ def parse_pr_description(description):
 
     for line in lines:
         stripped_line = line.strip()
-        strip_loser = stripped_line.lower()
+        strip_lower = stripped_line.lower()
  
-        if strip_loser.startswith("version_update:"):
+        if strip_lower.startswith("version_update:"):
             version_update = stripped_line.split(":", 1)[1].strip()
         
-        elif strip_loser.startswith("author:"):
+        elif strip_lower.startswith("author:"):
             author = stripped_line.split(":", 1)[1].strip()
         
-        elif "changes: not" in strip_loser:
+        elif "changes: not" in strip_lower:
             return None, None, None
 
-        elif "changes:" in strip_loser:
+        elif "changes:" in strip_lower:
             changes_section = True
         
         elif changes_section:
@@ -104,8 +99,13 @@ def update_config_version(version, config_file):
 
 def fetch_pr_data(pr_numbers, repo, token):
     pr_list = []
+    
+    requests_session = requests.Session()
+    if token:
+        requests_session.headers.update({'Authorization': f'token {token}'})
+        
     with ThreadPoolExecutor() as executor:
-        future_to_pr = {executor.submit(get_pull_request_data, pr_number, repo, token): pr_number for pr_number in pr_numbers}
+        future_to_pr = {executor.submit(get_pull_request_data, pr_number, repo, requests_session): pr_number for pr_number in pr_numbers}
         for future in as_completed(future_to_pr):
             pr_number = future_to_pr[future]
             try:
