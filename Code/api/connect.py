@@ -13,7 +13,6 @@ async def api_connect():
     event_manager = EventManager()
     
     try:
-        # Получаем токен из заголовка 'Authorization'
         token = websocket.headers.get('Authorization')
         if not token:
             await websocket.send("Missing token")
