@@ -2,6 +2,7 @@ import json
 import os
 import zipfile
 
+from api.decorators import server_exception_handler
 from quart import Blueprint, jsonify, request, send_file
 from root_path import ROOT_PATH
 
@@ -56,14 +57,11 @@ def _create_zip_archive() -> str:
 
     return archive_path
 
+@server_exception_handler
 @server_bp.route('/download_server_content', methods=['GET'])
 async def api_download_server_content():
-    try:
-        zip_path = _create_zip_archive()
-        return await send_file(zip_path, mimetype='application/zip', as_attachment=True, attachment_filename="content.zip")
-    
-    except Exception as err:
-        return jsonify({"Error": err}), 500
+    zip_path = _create_zip_archive()
+    return await send_file(zip_path, mimetype='application/zip', as_attachment=True, attachment_filename="content.zip")
 # --- Server content download end --- #
 
 # --- Server check start --- #
@@ -72,7 +70,7 @@ CACHED_CONFIG = None
 def _load_config():
     global cached_config
     if cached_config is None:
-        with open(os.path.join(ROOT_PATH, 'updater_config.json'), 'r') as file:
+        with open(os.path.join(ROOT_PATH, 'Content', 'updater_config.json'), 'r') as file:
             config_data = json.load(file)
             cached_config = {
                 "version":  config_data.get("VERSION", "Unknown"),
@@ -82,17 +80,14 @@ def _load_config():
             
     return cached_config
 
+@server_exception_handler
 @server_bp.route('/check_status', methods=['GET'])
 async def api_check_status():
-    try:
-        detailed = request.args.get('detailed', default=False, type=bool)
+    detailed = request.args.get('detailed', default=False, type=bool)
 
-        if detailed:
-            response_data = _load_config()
-            return jsonify({"message": "Server is online", "detailed": response_data}), 200
+    if detailed:
+        response_data = _load_config()
+        return jsonify({"message": "Server is online", "detailed": response_data}), 200
 
-        return jsonify({"message": "Server is online"}), 200
-    
-    except Exception as err:
-        return jsonify({"Error": str(err)}), 500
+    return jsonify({"message": "Server is online"}), 200
 # --- Server check end --- #
