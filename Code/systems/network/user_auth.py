@@ -8,6 +8,11 @@ from systems.decorators import global_class
 
 
 # --- Access systems --- #
+class AccessError(Exception):
+    """Ошибка вызываемая в случае недостаточного доступа
+    """
+    pass
+
 class UserAccess:
     __slots__ = ['_flags']
     DEFAULT_FLAGS: Dict[str, bool] = {
@@ -71,7 +76,8 @@ class UserAccess:
 
 # --- auth systems --- #
 class AuthError(Exception):
-    """Ошибка вызываемая в случае если пользователь отсутствует или пароль не верен"""
+    """Ошибка вызываемая в случае если проблем авторизации
+    """
     pass
 
 @global_class
