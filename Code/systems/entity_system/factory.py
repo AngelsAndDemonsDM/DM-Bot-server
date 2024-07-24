@@ -5,10 +5,12 @@ from typing import Any, Dict, List, Optional, Type
 
 import yaml
 from root_path import ROOT_PATH
+from systems.decorators import global_class
 from systems.entity_system.base_component import BaseComponent
 from systems.entity_system.base_entity import BaseEntity
 
 
+@global_class
 class EntityFactory:
     __slots__ = [
         '_entity_registry', '_component_registry', 

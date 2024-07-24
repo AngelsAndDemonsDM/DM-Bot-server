@@ -9,7 +9,9 @@ import yaml
 
 logging.basicConfig(level=logging.INFO)
 
-CONFIG_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "updater_config.json"))
+BASE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+CONFIG_FILE = os.path.join(BASE_ROOT, "Content", "updater_config.json")
+CL_FILE = os.path.join(BASE_ROOT, "Content", "changelog.yml")
 
 def load_config(config_file):
     try:
@@ -22,13 +24,8 @@ def load_config(config_file):
         logging.error(f"Ошибка при загрузке конфигурационного файла: {e}")
         return None
 
-def get_pull_request_data(pull_number, repo, token=None):
-    url = f"https://api.github.com/repos/{repo}/pulls/{pull_number}"
-    headers = {}
-    if token:
-        headers['Authorization'] = f'token {token}'
-    
-    response = requests.get(url, headers=headers)
+def get_pull_request_data(pull_number, repo, session: requests.Session):
+    response = session.get(f"https://api.github.com/repos/{repo}/pulls/{pull_number}")
 
     if response.status_code != 200:
         logging.error(f"Не удалось получить данные для PR #{pull_number}. Статус код: {response.status_code}")
@@ -58,18 +55,18 @@ def parse_pr_description(description):
 
     for line in lines:
         stripped_line = line.strip()
-        strip_loser = stripped_line.lower()
+        strip_lower = stripped_line.lower()
  
-        if strip_loser.startswith("version_update:"):
+        if strip_lower.startswith("version_update:"):
             version_update = stripped_line.split(":", 1)[1].strip()
         
-        elif strip_loser.startswith("author:"):
+        elif strip_lower.startswith("author:"):
             author = stripped_line.split(":", 1)[1].strip()
         
-        elif "changes: not" in strip_loser:
+        elif "changes: not" in strip_lower:
             return None, None, None
 
-        elif "changes:" in strip_loser:
+        elif "changes:" in strip_lower:
             changes_section = True
         
         elif changes_section:
@@ -102,8 +99,13 @@ def update_config_version(version, config_file):
 
 def fetch_pr_data(pr_numbers, repo, token):
     pr_list = []
+    
+    requests_session = requests.Session()
+    if token:
+        requests_session.headers.update({'Authorization': f'token {token}'})
+        
     with ThreadPoolExecutor() as executor:
-        future_to_pr = {executor.submit(get_pull_request_data, pr_number, repo, token): pr_number for pr_number in pr_numbers}
+        future_to_pr = {executor.submit(get_pull_request_data, pr_number, repo, requests_session): pr_number for pr_number in pr_numbers}
         for future in as_completed(future_to_pr):
             pr_number = future_to_pr[future]
             try:
@@ -116,7 +118,7 @@ def fetch_pr_data(pr_numbers, repo, token):
     
     return pr_list
 
-def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelog.yml'):
+def process_pull_requests(start_pr, end_pr, token=None):
     config = load_config(CONFIG_FILE)
     if not config:
         raise Exception("Не удалось загрузить конфигурационный файл.")
@@ -126,8 +128,9 @@ def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelo
     changelog = {'changelog': []}
     init_version = "0.0.0"
     
-    if os.path.exists(changelog_file):
-        with open(changelog_file, 'r', encoding='utf-8') as file:
+    if os.path.exists(CL_FILE):
+        os.remove(CL_FILE)
+        with open(CL_FILE, 'r', encoding='utf-8') as file:
             changelog = yaml.safe_load(file) or {'changelog': []}
     
     pr_numbers = range(start_pr, end_pr + 1)
@@ -155,14 +158,11 @@ def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelo
             
             changelog['changelog'].append(changelog_entry)
     
-    save_changelog(changelog, changelog_file)
+    save_changelog(changelog, CL_FILE)
     update_config_version(latest_version, CONFIG_FILE)
 
 if __name__ == "__main__":
     try:
-        if os.path.exists("changelog.yml"):
-            os.remove("changelog.yml")
-            
         start_pr = 0
         end_pr = int(input("end_pr: "))
         token = input("token: ")

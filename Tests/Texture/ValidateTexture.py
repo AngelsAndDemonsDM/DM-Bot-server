@@ -8,7 +8,7 @@ from Code.systems.texture_validator import (DMSValidator, InvalidSpriteError,
 
 class TestTextureFolders(unittest.TestCase):
     def setUp(self):
-        self.base_path = os.path.join(ROOT_PATH, 'Sprites')
+        self.base_path = os.path.join(ROOT_PATH, "Content", "Sprites")
 
     def test_validate_all_dms_folders(self):
         try:

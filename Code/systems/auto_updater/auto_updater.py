@@ -32,7 +32,7 @@ class AutoUpdater:
         """
         self._root_path = os.path.abspath(os.path.join(__file__, os.pardir, os.pardir, os.pardir, os.pardir))
         
-        with open(os.path.join(self._root_path, "updater_config.json"), 'r') as file:
+        with open(os.path.join(self._root_path, "Content", "updater_config.json"), 'r') as file:
             config = json.load(file)
         
         self._user = config["USER"]

@@ -1,11 +1,6 @@
-aiofiles
 aiosqlite
-beautifulsoup4
-imageio
-isort
-pyyaml
-pyzipper
+bcrypt
+msgpack
+PyYAML
 quart
 requests
-ruamel.yaml
-toml

@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 
-from systems.entity_system import BaseEntity, EntityFactory
+from systems.entity_system import BaseEntity
 from systems.map_system.components.map_coordinates_component import \
     MapCoordinateComponent
 from systems.map_system.components.map_items_component import MapItemsComponent
@@ -23,15 +23,14 @@ class MapEntity(BaseEntity):
         """Инициализирует сущность карты."""
         super().__init__()
     
-    def self_save(self, name: str, entity_factory: EntityFactory) -> None:
+    def self_save(self, name: str) -> None:
         """Сохраняет текущее состояние карты.
 
         Args:
             name (str): Имя файла, в который будет сохранена карта.
-            entity_factory (EntityFactory): Фабрика сущностей для создания объектов.
         """
         comp: MapItemsComponent = self.get_component("MapItemsComponent")
-        comp.setup_objects(entity_factory)
+        comp.setup_objects()
         MapManager.save_map(self, name)
     
     def self_load(self, name: str) -> None:
@@ -47,7 +46,6 @@ class MapEntity(BaseEntity):
         position: Coordinate, 
         detection_level: int, 
         visibility_range: int, 
-        entity_factory: EntityFactory
     ) -> List[Dict[str, Any]]:
         """Вычисляет область видимости с заданной позиции.
 
@@ -55,7 +53,6 @@ class MapEntity(BaseEntity):
             position (Coordinate): Позиция наблюдателя на карте.
             detection_level (int): Уровень обнаружения.
             visibility_range (int): Дальность видимости.
-            entity_factory (EntityFactory): Фабрика сущностей для создания объектов.
 
         Returns:
             List[Dict[str, Any]]: Список видимых предметов, включая их координаты и другие свойства.
@@ -64,7 +61,7 @@ class MapEntity(BaseEntity):
         if not map_items_component:
             return []
 
-        map_items_component.setup_objects(entity_factory)
+        map_items_component.setup_objects()
         
         visible_items: List[Dict[str, Any]] = []
         
