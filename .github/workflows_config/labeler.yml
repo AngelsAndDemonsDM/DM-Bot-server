@@ -18,8 +18,10 @@
       - all-globs-to-all-files: ['!Prototype/factory_mappings.yml']
 
 "Changes: Content":
-- changed-files:
-  - any-glob-to-any-file: ['Content/**']
+- all:
+  - changed-files:
+      - any-glob-to-any-file: ['Content/**']
+      - all-globs-to-all-files: ['!Content/changelog.yml', '!Content/updater_config.json']
 
 "Changes: Sprites":
 - changed-files:
