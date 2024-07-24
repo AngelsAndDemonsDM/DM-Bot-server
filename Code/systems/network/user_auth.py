@@ -16,7 +16,8 @@ class AccessError(Exception):
 class UserAccess:
     __slots__ = ['_flags']
     DEFAULT_FLAGS: Dict[str, bool] = {
-        "something": False,  # Тестовый флаг доступа.
+        "delete_user": False,    # Флаг доступа. Необходим для удаления любого пользователя.
+        "change_access": False,  # Флаг доступа. Необходим для смены доступа пользователя.
     }
 
     def __init__(self) -> None:
