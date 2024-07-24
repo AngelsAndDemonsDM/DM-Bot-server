@@ -1,6 +1,6 @@
 aiosqlite
-msgpack
 bcrypt
+msgpack
 PyYAML
 quart
 requests
