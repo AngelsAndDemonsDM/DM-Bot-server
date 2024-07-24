@@ -9,3 +9,4 @@ quart
 requests
 ruamel.yaml
 toml
+msgpack

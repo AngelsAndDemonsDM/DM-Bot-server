@@ -1,6 +1,6 @@
 import os
-import pickle
 
+import msgpack
 from root_path import ROOT_PATH
 
 
@@ -17,7 +17,7 @@ class MapManager:
         """
         save_path: str = os.path.join(ROOT_PATH, 'data', 'maps', f'{name}.dmbmap')
         with open(save_path, "wb") as file:
-            pickle.dump(map_entity, file)
+            file.write(msgpack.packb(map_entity, use_bin_type=True))
 
     @staticmethod
     def load_map(name: str) -> 'MapEntity':  # type: ignore
@@ -31,6 +31,6 @@ class MapManager:
         """
         load_path: str = os.path.join(ROOT_PATH, 'data', 'maps', f'{name}.dmbmap')
         with open(load_path, "rb") as file:
-            map_entity = pickle.load(file)
+            map_entity = msgpack.unpackb(file.read(), raw=False)
         
         return map_entity
