@@ -18,25 +18,25 @@ class UserAccess:
 
     # --- set/get flag --- #
     def get_flag(self, key: str) -> Optional[bool]:
-        """_summary_
+        """Возвращает значение флага доступа по его ключу.
 
         Args:
-            key (str): _description_
+            key (str): Ключ флага доступа.
 
         Returns:
-            Optional[bool]: _description_
+            Optional[bool]: Значение флага доступа или None, если ключ не найден.
         """
         return self._flags.get(key, None)
 
     def set_flag(self, key: str, value: bool) -> None:
-        """_summary_
+        """Устанавливает значение флага доступа по его ключу.
 
         Args:
-            key (str): _description_
-            value (bool): _description_
+            key (str): Ключ флага доступа.
+            value (bool): Значение флага доступа.
 
         Raises:
-            ValueError: _description_
+            ValueError: Если ключ не является флагом доступа.
         """
         if key not in UserAccess.DEFAULT_FLAGS:
             raise ValueError(f"key '{key}' is not an access flag")
@@ -46,13 +46,13 @@ class UserAccess:
     # --- bytes work --- #
     @staticmethod
     def restore(data: bytes) -> 'UserAccess':
-        """_summary_
+        """Восстанавливает объект UserAccess из байтовых данных.
 
         Args:
-            data (bytes): _description_
+            data (bytes): Байтовые данные.
 
         Returns:
-            UserAccess: _description_
+            UserAccess: Восстановленный объект UserAccess.
         """
         unpacked_data = msgpack.unpackb(data, raw=False)
         user_access = UserAccess()
@@ -60,10 +60,10 @@ class UserAccess:
         return user_access
 
     def dump(self) -> bytes:
-        """_summary_
+        """Сериализует объект UserAccess в байтовые данные.
 
         Returns:
-            bytes: _description_
+            bytes: Сериализованные байтовые данные.
         """
         return msgpack.packb({'_flags': self._flags})
 
@@ -78,7 +78,9 @@ class UserAuth:
     __slots__ = ['_db']
 
     def __init__(self) -> None:
-        """_summary_
+        """Инициализация UserAuth.
+
+        Создает экземпляр класса UserAuth и инициализирует базу данных _db с таблицами "users" и "session".
         """
         self._db = AsyncDB(
             file_name="user_auth",
@@ -98,45 +100,45 @@ class UserAuth:
     # --- Magic --- #
     @staticmethod
     def _hash_password(password: str) -> bytes:
-        """_summary_
+        """Хеширует пароль.
 
         Args:
-            password (str): _description_
+            password (str): Пароль пользователя.
 
         Returns:
-            bytes: _description_
+            bytes: Захешированный пароль.
         """
         return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     @staticmethod
     def _check_password(password: str, hashed: bytes) -> bool:
-        """_summary_
+        """Проверяет соответствие пароля и хеша.
 
         Args:
-            password (str): _description_
-            hashed (bytes): _description_
+            password (str): Пароль пользователя.
+            hashed (bytes): Захешированный пароль.
 
         Returns:
-            bool: _description_
+            bool: True, если пароль соответствует хешу, иначе False.
         """
         return bcrypt.checkpw(password.encode('utf-8'), hashed)
 
     @staticmethod
     def _create_token() -> str:
-        """_summary_
+        """Создает уникальный токен сессии.
 
         Returns:
-            str: _description_
+            str: Сгенерированный токен сессии.
         """
         return str(uuid.uuid4())
 
     # --- User control --- #
     async def register_user(self, login: str, password: str) -> None:
-        """_summary_
+        """Регистрирует нового пользователя.
 
         Args:
-            login (str): _description_
-            password (str): _description_
+            login (str): Логин пользователя.
+            password (str): Пароль пользователя.
         """
         hash_password = UserAuth._hash_password(password)
         access = UserAccess()
@@ -145,18 +147,18 @@ class UserAuth:
             await db.insert("users", {'login': login, 'password': hash_password, 'access': access.dump()})
 
     async def login_user(self, login: str, password: str) -> str:
-        """_summary_
+        """Авторизует пользователя и создает сессию.
 
         Args:
-            login (str): _description_
-            password (str): _description_
+            login (str): Логин пользователя.
+            password (str): Пароль пользователя.
 
         Raises:
-            AuthError: _description_
-            AuthError: _description_
+            AuthError: Если пользователь не найден.
+            AuthError: Если пароль неверный.
 
         Returns:
-            str: _description_
+            str: Токен сессии.
         """
         async with self._db as db:
             data = await db.select("users", ["password"], {"login": login})
@@ -174,47 +176,47 @@ class UserAuth:
         raise AuthError("Incorrect password")
 
     async def delete_user(self, login: str) -> None:
-        """_summary_
+        """Удаляет пользователя.
 
         Args:
-            login (str): _description_
+            login (str): Логин пользователя.
         """
         async with self._db as db:
             await db.delete("users", {"login": login})
 
     async def change_password(self, login: str, new_password: str) -> None:
-        """_summary_
+        """Изменяет пароль пользователя.
 
         Args:
-            login (str): _description_
-            new_password (str): _description_
+            login (str): Логин пользователя.
+            new_password (str): Новый пароль пользователя.
         """
         hash_password = UserAuth._hash_password(new_password)
         async with self._db as db:
             await db.update("users", {"password": hash_password}, {"login": login})
 
     async def change_access(self, login: str, new_access: UserAccess) -> None:
-        """_summary_
+        """Изменяет права доступа пользователя.
 
         Args:
-            login (str): _description_
-            new_access (UserAccess): _description_
+            login (str): Логин пользователя.
+            new_access (UserAccess): Новый уровень доступа пользователя.
         """
         async with self._db as db:
             await db.update("users", {"access": new_access.dump()}, {"login": login})
 
     # --- Get by token --- #
     async def get_login_by_token(self, token: str) -> str:
-        """_summary_
+        """Получает логин пользователя по токену сессии.
 
         Args:
-            token (str): _description_
+            token (str): Токен сессии.
 
         Raises:
-            AuthError: _description_
+            AuthError: Если токен не найден.
 
         Returns:
-            str: _description_
+            str: Логин пользователя.
         """
         async with self._db as db:
             data = await db.select("session", ["user"], {"token": token})
@@ -225,17 +227,17 @@ class UserAuth:
         return data[0]["user"]
 
     async def get_access_by_token(self, token: str) -> UserAccess:
-        """_summary_
+        """Получает права доступа пользователя по токену сессии.
 
         Args:
-            token (str): _description_
+            token (str): Токен сессии.
 
         Raises:
-            AuthError: _description_
-            AuthError: _description_
+            AuthError: Если токен не найден.
+            AuthError: Если пользователь не найден.
 
         Returns:
-            UserAccess: _description_
+            UserAccess: Права доступа пользователя.
         """
         async with self._db as db:
             data = await db.select("session", ["user"], {"token": token})
@@ -252,17 +254,17 @@ class UserAuth:
             return UserAccess.restore(user_data[0]["access"])
 
     async def get_login_access_by_token(self, token: str) -> Tuple[str, UserAccess]:
-        """_summary_
+        """Получает логин и права доступа пользователя по токену сессии.
 
         Args:
-            token (str): _description_
+            token (str): Токен сессии.
 
         Raises:
-            AuthError: _description_
-            AuthError: _description_
+            AuthError: Если токен не найден.
+            AuthError: Если пользователь не найден.
 
         Returns:
-            Tuple[str, UserAccess]: _description_
+            Tuple[str, UserAccess]: Логин и права доступа пользователя.
         """
         async with self._db as db:
             data = await db.select("session", ["user"], {"token": token})
@@ -279,16 +281,16 @@ class UserAuth:
 
     # --- Get by login --- #
     async def get_access_by_login(self, login: str) -> UserAccess:
-        """_summary_
+        """Получает права доступа пользователя по его логину.
 
         Args:
-            login (str): _description_
+            login (str): Логин пользователя.
 
         Raises:
-            AuthError: _description_
+            AuthError: Если пользователь не найден.
 
         Returns:
-            UserAccess: _description_
+            UserAccess: Права доступа пользователя.
         """
         async with self._db as db:
             data = await db.select("users", ["access"], {"login": login})
