@@ -9,7 +9,9 @@ import yaml
 
 logging.basicConfig(level=logging.INFO)
 
-CONFIG_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "updater_config.json"))
+BASE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+CONFIG_FILE = os.path.join(BASE_ROOT, "Content", "updater_config.json")
+CL_FILE = os.path.join(BASE_ROOT, "Content", "changelog.yml")
 
 def load_config(config_file):
     try:
@@ -116,7 +118,7 @@ def fetch_pr_data(pr_numbers, repo, token):
     
     return pr_list
 
-def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelog.yml'):
+def process_pull_requests(start_pr, end_pr, token=None):
     config = load_config(CONFIG_FILE)
     if not config:
         raise Exception("Не удалось загрузить конфигурационный файл.")
@@ -126,8 +128,9 @@ def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelo
     changelog = {'changelog': []}
     init_version = "0.0.0"
     
-    if os.path.exists(changelog_file):
-        with open(changelog_file, 'r', encoding='utf-8') as file:
+    if os.path.exists(CL_FILE):
+        os.remove(CL_FILE)
+        with open(CL_FILE, 'r', encoding='utf-8') as file:
             changelog = yaml.safe_load(file) or {'changelog': []}
     
     pr_numbers = range(start_pr, end_pr + 1)
@@ -155,14 +158,11 @@ def process_pull_requests(start_pr, end_pr, token=None, changelog_file='changelo
             
             changelog['changelog'].append(changelog_entry)
     
-    save_changelog(changelog, changelog_file)
+    save_changelog(changelog, CL_FILE)
     update_config_version(latest_version, CONFIG_FILE)
 
 if __name__ == "__main__":
     try:
-        if os.path.exists("changelog.yml"):
-            os.remove("changelog.yml")
-            
         start_pr = 0
         end_pr = int(input("end_pr: "))
         token = input("token: ")

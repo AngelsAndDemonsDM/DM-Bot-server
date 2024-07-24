@@ -28,15 +28,15 @@ def _get_latest_modification_time(directory_path: str) -> float:
     return latest_time
 
 def _create_zip_archive() -> str:
-    """Создает ZIP-архив из папки 'Sprites' и возвращает путь к архиву.
+    """Создает ZIP-архив из папки 'Content' и возвращает путь к архиву.
 
     Проверяет время последней модификации файлов перед пересозданием.
 
     Returns:
         str: Путь к созданному ZIP-архиву.
     """
-    folder_path = os.path.join(ROOT_PATH, "Sprites")
-    archive_path = os.path.join(ROOT_PATH, "data", "sprites.zip")
+    folder_path = os.path.join(ROOT_PATH, "Content")
+    archive_path = os.path.join(ROOT_PATH, "data", "content.zip")
 
     directory_latest_time = _get_latest_modification_time(folder_path)
 
@@ -60,7 +60,7 @@ def _create_zip_archive() -> str:
 async def api_download_server_content():
     try:
         zip_path = _create_zip_archive()
-        return await send_file(zip_path, mimetype='application/zip', as_attachment=True, attachment_filename="sprites.zip")
+        return await send_file(zip_path, mimetype='application/zip', as_attachment=True, attachment_filename="content.zip")
     
     except Exception as err:
         return jsonify({"Error": err}), 500
