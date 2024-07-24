@@ -7,8 +7,10 @@ import yaml
 from root_path import ROOT_PATH
 from systems.entity_system.base_component import BaseComponent
 from systems.entity_system.base_entity import BaseEntity
+from systems.singleton import singleton
 
 
+@singleton
 class EntityFactory:
     __slots__ = [
         '_entity_registry', '_component_registry', 

@@ -1,7 +1,10 @@
 import asyncio
 from typing import Any, Callable, Dict, List
 
+from systems.singleton import singleton
 
+
+@singleton
 class EventManager:
     __slots__ = ['_register_defs']
     
