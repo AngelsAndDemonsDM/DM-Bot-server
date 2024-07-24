@@ -1,12 +1,11 @@
 aiofiles
 aiosqlite
+bcrypt
 beautifulsoup4
 imageio
-isort
+msgpack
 pyyaml
 pyzipper
 quart
 requests
 ruamel.yaml
-toml
-msgpack
