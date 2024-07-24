@@ -1,4 +1,5 @@
 import asyncio
+from inspect import signature
 from typing import Any, Callable, Dict, List
 
 from systems.decorators import global_class
@@ -22,14 +23,12 @@ class EventManager:
     
     async def call_event(self, event_name: str, *args, **kwargs):
         handlers = self._register_defs.get(event_name, [])
-        results = []
         for handler in handlers:
+            handler_signature = signature(handler)
+            handler_kwargs = {k: v for k, v in kwargs.items() if k in handler_signature.parameters}
+            
             if asyncio.iscoroutinefunction(handler):
-                result = await handler(*args, **kwargs)
+                await handler(*args, **handler_kwargs)
             
             else:
-                result = handler(*args, **kwargs)
-            
-            results.append(result)
-        
-        return results
+                handler(*args, **handler_kwargs)
