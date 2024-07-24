@@ -9,10 +9,10 @@ auth_bp = Blueprint('auth', __name__)
 
 def _get_login_password(data: dict) -> Tuple[str, str]:
     if "login" not in data:
-        raise ValueError("Login is required")
+        raise ValueError("'login' is required")
     
     if "password" not in data:
-        raise ValueError("Password is required")
+        raise ValueError("'password' is required")
     
     return data["login"], data["password"]
 
