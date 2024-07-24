@@ -1,5 +1,6 @@
-from typing import Callable, List, Dict, Any
 import asyncio
+from typing import Any, Callable, Dict, List
+
 
 class EventManager:
     __slots__ = ['_register_defs']
