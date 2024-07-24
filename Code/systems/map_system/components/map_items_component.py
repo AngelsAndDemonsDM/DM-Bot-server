@@ -80,6 +80,6 @@ class MapItemsComponent(BaseComponent):
                 continue
 
             self.objects.append(obj)
-            obj.add_component(MapCoordinateComponent(self.owner, item['coordinates']))
+            obj.add_component(MapCoordinateComponent(self.owner.id, item['coordinates']))
 
         self.items.clear()
