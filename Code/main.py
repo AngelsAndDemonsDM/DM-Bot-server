@@ -18,8 +18,9 @@ app = Quart(__name__)
 # Blueprint
 app.register_blueprint(admin_bp, url_prefix='/admin')
 app.register_blueprint(auth_bp, url_prefix='/auth')
-app.register_blueprint(connect_bp, url_prefix='/connect')
 app.register_blueprint(server_bp, url_prefix='/server')
+
+app.register_blueprint(connect_bp)
 
 # Argument parsing
 def parse_arguments():
