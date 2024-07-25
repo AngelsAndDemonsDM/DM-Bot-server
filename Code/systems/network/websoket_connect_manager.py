@@ -16,8 +16,12 @@ class WebSocketConnectManager:
         self._connects: Dict[str, Websocket] = {}
     
     @staticmethod
-    def _dump_data(data: Any) -> bytes:
+    def pack_data(data: Any) -> bytes:
         return msgpack.packb(data)
+    
+    @staticmethod
+    def unpack_data(data: bytes) -> Any:
+        return msgpack.unpackb(data, raw=False)
     
     def add_user_connect(self, login: str, websocket: Websocket) -> None:
         if login in self._connects:
@@ -35,9 +39,9 @@ class WebSocketConnectManager:
     async def send_data(self, login: str, data: Any) -> None:
         websocket = self.get_user_connect(login)
         if websocket:
-            await websocket.send(WebSocketConnectManager._dump_data(data))
+            await websocket.send(WebSocketConnectManager.pack_data(data))
     
     async def broadcast_data(self, data: Any) -> None:
-        data = WebSocketConnectManager._dump_data(data)
+        data = WebSocketConnectManager.pack_data(data)
         for websocket in self._connects.values():
             await websocket.send(data)

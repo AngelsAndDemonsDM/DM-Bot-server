@@ -26,6 +26,7 @@ async def api_connect():
         
         while True:
             message_data = await websocket.receive_json()
+            message_data = WebSocketConnectManager.unpack_data(message_data)
             event_type = message_data.get("ev_type")
 
             await event_manager.call_event(event_type, websocket_user=user, websocket_access=access, **message_data)
