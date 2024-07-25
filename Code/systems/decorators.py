@@ -5,7 +5,7 @@ def global_class(cls):
         cls (type): Класс, к которому применяется декоратор.
 
     Returns:
-        function: Функция, которая возвращает единственный экземпляр класса.
+        type: Класс с добавленным методом для получения единственного экземпляра.
     """
     instances = {}
 
@@ -23,5 +23,6 @@ def global_class(cls):
             instances[cls] = cls(*args, **kwargs)
         
         return instances[cls]
-
-    return get_instance
+    
+    cls.get_instance = get_instance
+    return cls
