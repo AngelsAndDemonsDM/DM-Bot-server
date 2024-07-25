@@ -183,6 +183,15 @@ class UserAuth:
         
         raise AuthError("Incorrect password")
 
+    async def logout(self, login: str) -> None:
+        """Выход пользователя из системы.
+
+        Args:
+            login (str): Логин пользователя.
+        """
+        async with self._db as db:
+            await db.insert("session", {'user': login})
+    
     async def delete_user(self, login: str) -> None:
         """Удаляет пользователя.
 

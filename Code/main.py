@@ -7,8 +7,8 @@ import sys
 
 from api import (admin_bp, api_change_access, api_change_password,
                  api_check_status, api_connect, api_delete_user,
-                 api_download_server_content, api_login, api_register, auth_bp,
-                 connect_bp, server_bp)
+                 api_download_server_content, api_login, api_logout,
+                 api_register, auth_bp, connect_bp, server_bp)
 from quart import Quart
 from systems.auto_updater import AutoUpdater
 from systems.db_systems import SettingsManager

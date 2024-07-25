@@ -41,3 +41,15 @@ async def api_login():
     
     except AuthError:
         return jsonify({"message": "Invalid credentials"}), 401
+
+@server_exception_handler
+@auth_bp.route('/logout', methods=['POST'])
+async def api_logout():
+    user_auth = UserAuth()
+    auth_token: str = request.headers.get('Authorization', None)
+    if not auth_token:
+        raise AuthError()
+    
+    login = await user_auth.get_login_by_token(auth_token)
+    await user_auth.logout(login)
+    return jsonify({"message": "Logout successful"}), 200
