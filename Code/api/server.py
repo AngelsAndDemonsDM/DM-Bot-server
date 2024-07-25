@@ -54,13 +54,16 @@ def _create_zip_archive() -> str:
             for file in files:
                 file_path = os.path.join(root, file)
                 zipf.write(file_path, os.path.relpath(file_path, folder_path))
-
+    
     return archive_path
 
 @server_exception_handler
 @server_bp.route('/download_server_content', methods=['GET'])
 async def api_download_server_content():
     zip_path = _create_zip_archive()
+    if not zipfile.is_zipfile(zip_path):
+        return jsonify({"error": "Internal Server Error"}), 500
+
     return await send_file(zip_path, mimetype='application/zip', as_attachment=True, attachment_filename="content.zip")
 # --- Server content download end --- #
 
@@ -68,17 +71,17 @@ async def api_download_server_content():
 CACHED_CONFIG = None
 
 def _load_config():
-    global cached_config
-    if cached_config is None:
+    global CACHED_CONFIG
+    if CACHED_CONFIG is None:
         with open(os.path.join(ROOT_PATH, 'Content', 'updater_config.json'), 'r') as file:
             config_data = json.load(file)
-            cached_config = {
+            CACHED_CONFIG = {
                 "version":  config_data.get("VERSION", "Unknown"),
                 "git_user": config_data.get("USER", "Unknown"),
                 "git_repo": config_data.get("REPO", "Unknown")
             }
             
-    return cached_config
+    return CACHED_CONFIG
 
 @server_exception_handler
 @server_bp.route('/check_status', methods=['GET'])

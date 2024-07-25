@@ -4,22 +4,24 @@ import os
 import platform
 import subprocess
 import sys
+from logging.config import dictConfig
 
 from api import (admin_bp, api_change_access, api_change_password,
                  api_check_status, api_connect, api_delete_user,
                  api_download_server_content, api_login, api_logout,
                  api_register, auth_bp, connect_bp, server_bp)
 from quart import Quart
+from quart.logging import default_handler
 from systems.auto_updater import AutoUpdater
 from systems.db_systems import SettingsManager
 
 app = Quart(__name__)
+app.logger.removeHandler(default_handler)
 
 # Blueprint
 app.register_blueprint(admin_bp, url_prefix='/admin')
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(server_bp, url_prefix='/server')
-
 app.register_blueprint(connect_bp)
 
 # Argument parsing
@@ -47,13 +49,30 @@ if __name__ == "__main__":
     args = parse_arguments()
     debug = args.debug
 
-    logger = logging.getLogger()
-    if debug:
-        logger.setLevel(logging.DEBUG)
-    
-    else:
-        logger.setLevel(logging.INFO)
-    
+    # Настройка логирования
+    log_level = logging.DEBUG if debug else logging.INFO
+
+    # Базовая конфигурация логгера
+    dictConfig({
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'default': {
+                'format': '[%(asctime)s] [%(levelname)s] %(name)s: %(message)s',
+            },
+        },
+        'handlers': {
+            'default': {
+                'class': 'logging.StreamHandler',
+                'formatter': 'default',
+            },
+        },
+        'root': {
+            'level': log_level,
+            'handlers': ['default'],
+        },
+    })
+
     with SettingsManager() as config:
         if config.get_setting('app.auto_update'):
             updater = AutoUpdater()
