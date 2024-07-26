@@ -12,11 +12,12 @@ async def handle_client(reader: StreamReader, writer: StreamWriter):
     socket_manager: SocketConnectManager = SocketConnectManager.get_instance()
     event_manager: EventManager = EventManager.get_instance()
     user_auth: UserAuth = UserAuth.get_instance()
+    default_soket_buffer: int = 8192
     
     user = None
     try:
         # Получаем токен
-        token_data = await reader.read(1024)
+        token_data = await reader.read(default_soket_buffer)
         try:
             token = token_data.decode('utf-8')
         except UnicodeDecodeError as e:
@@ -42,7 +43,7 @@ async def handle_client(reader: StreamReader, writer: StreamWriter):
         await writer.drain()
         
         while True:
-            message_data = await reader.read(1024)
+            message_data = await reader.read(default_soket_buffer)
             if not message_data:
                 break
             

@@ -13,7 +13,7 @@ class SocketConnectManager:
     __slots__ = ['_connects']
     
     def __init__(self) -> None:
-        self._connects: Dict[str, socket.socket] = {}
+        self._connects: Dict[str, Any] = {}
     
     @staticmethod
     def pack_data(data: Any) -> bytes:
@@ -23,7 +23,7 @@ class SocketConnectManager:
     def unpack_data(data: bytes) -> Any:
         return msgpack.unpackb(data, raw=False)
     
-    def add_user_connect(self, login: str, client_socket: socket.socket) -> None:
+    def add_user_connect(self, login: str, client_socket: Any) -> None:
         if login in self._connects:
             raise SocketUserAlreadyConnectError(f"User '{login}' already connected.")
         
@@ -33,15 +33,18 @@ class SocketConnectManager:
         if login in self._connects:
             del self._connects[login]
     
-    def get_user_connect(self, login: str) -> Optional[socket.socket]:
+    def get_user_connect(self, login: str) -> Optional[Any]:
         return self._connects.get(login, None)
     
-    def send_data(self, login: str, data: Any) -> None:
+    async def send_data(self, login: str, data: Any) -> None:
         client_socket = self.get_user_connect(login)
         if client_socket:
-            client_socket.send(SocketConnectManager.pack_data(data))
+            packed_data = SocketConnectManager.pack_data(data)
+            client_socket.write(packed_data)
+            await client_socket.drain()
     
-    def broadcast_data(self, data: Any) -> None:
-        data = SocketConnectManager.pack_data(data)
+    async def broadcast_data(self, data: Any) -> None:
+        packed_data = SocketConnectManager.pack_data(data)
         for client_socket in self._connects.values():
-            client_socket.send(data)
+            client_socket.write(packed_data)
+            await client_socket.drain()
