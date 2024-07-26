@@ -1,59 +1,81 @@
+import asyncio
 import logging
-import socket
-import threading
+from asyncio import StreamReader, StreamWriter
 
-from systems.events import EventManager
+from systems.events_system import EventManager
 from systems.network import (AccessError, AuthError, SocketConnectManager,
                              UserAuth)
 
 logger = logging.getLogger("Socket Server")
 
-def handle_client(client_socket: socket.socket, address):
-    socket_manager = SocketConnectManager()
-    event_manager = EventManager()
+async def handle_client(reader: StreamReader, writer: StreamWriter):
+    socket_manager: SocketConnectManager = SocketConnectManager.get_instance()
+    event_manager: EventManager = EventManager.get_instance()
+    user_auth: UserAuth = UserAuth.get_instance()
     
+    user = None
     try:
-        token = client_socket.recv(1024).decode('utf-8')
-        if not token:
-            client_socket.send(b"Missing token")
-            client_socket.close()
+        # Получаем токен
+        token_data = await reader.read(1024)
+        try:
+            token = token_data.decode('utf-8')
+        except UnicodeDecodeError as e:
+            logger.error(f"Decoding error: {e}. Data received: {token_data}")
+            writer.write(b"Invalid token format")
+            await writer.drain()
+            writer.close()
+            await writer.wait_closed()
             return
         
-        user_auth = UserAuth()
-        user, access = user_auth.get_login_access_by_token(token)
-
-        socket_manager.add_user_connect(user, client_socket)
+        if not token:
+            writer.write(b"Missing token")
+            await writer.drain()
+            writer.close()
+            await writer.wait_closed()
+            return
+        
+        user, access = await user_auth.get_login_access_by_token(token)
+        
+        socket_manager.add_user_connect(user, writer)
+        
+        writer.write(b"Token accepted")
+        await writer.drain()
         
         while True:
-            message_data = client_socket.recv(1024)
+            message_data = await reader.read(1024)
             if not message_data:
                 break
             
-            message_data: dict = SocketConnectManager.unpack_data(message_data)
-            event_type = message_data.get("ev_type")
-
-            event_manager.call_event(event_type, socket_user=user, socket_access=access, **message_data)
+            try:
+                message_data = SocketConnectManager.unpack_data(message_data)
+                event_type = message_data.get("ev_type", None)
+                await event_manager.call_event(event_type, socket_user=user, socket_access=access, **message_data)
+            
+            except Exception as e:
+                logger.error(f"Error processing message: {e}")
     
     except AuthError:
-        client_socket.send(b"Unauthorized")
+        writer.write(b"Unauthorized")
+        await writer.drain()
     
     except AccessError:
-        client_socket.send(b"Forbidden")
+        writer.write(b"Forbidden")
+        await writer.drain()
         
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
     
     finally:
-        socket_manager.rm_user_connect(user)
-        client_socket.close()
+        if user:
+            socket_manager.rm_user_connect(user)
+        writer.close()
+        await writer.wait_closed()
 
 def start_socket_server(host='0.0.0.0', port=5001):
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind((host, port))
-    server.listen(5)
-    logger.info(f"Soket server start on {host}:{port}")
+    async def main():
+        server = await asyncio.start_server(handle_client, host, port)
+        logger.info(f"Socket server started on {host}:{port}")
+        async with server:
+            await server.serve_forever()
     
-    while True:
-        client_socket, addr = server.accept()
-        client_handler = threading.Thread(target=handle_client, args=(client_socket, addr))
-        client_handler.start()
+    asyncio.run(main())
