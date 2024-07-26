@@ -5,11 +5,9 @@ import platform
 import subprocess
 import sys
 from logging.config import dictConfig
+from threading import Thread
 
-from api import (admin_bp, api_change_access, api_change_password,
-                 api_check_status, api_connect, api_delete_user,
-                 api_download_server_content, api_login, api_logout,
-                 api_register, auth_bp, connect_bp, server_bp)
+from api import *
 from quart import Quart
 from quart.logging import default_handler
 from systems.auto_updater import AutoUpdater
@@ -22,7 +20,6 @@ app.logger.removeHandler(default_handler)
 app.register_blueprint(admin_bp, url_prefix='/admin')
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(server_bp, url_prefix='/server')
-app.register_blueprint(connect_bp)
 
 # Argument parsing
 def parse_arguments():
@@ -43,6 +40,10 @@ def run_file_in_new_console(file_path):
     
     else:
         subprocess.Popen(["x-terminal-emulator", "-e", f"python {absolute_path}"])
+
+def start_socket(ip: str, port: int):
+    server_thread = Thread(target=start_socket_server, args=(ip, port))
+    server_thread.start()
 
 # Start program
 if __name__ == "__main__":
@@ -73,11 +74,21 @@ if __name__ == "__main__":
         },
     })
 
+    ip = ""
+    port = ""
+    soket_port = ""
+    
     with SettingsManager() as config:
-        if config.get_setting('app.auto_update'):
+        if config.get_setting('app.auto_update', False):
             updater = AutoUpdater()
             if updater.is_needs_update():
                 run_file_in_new_console(os.path.join("Code", "auto_updater", "auto_updater.py"))
                 sys.exit(0)
+        
+        ip = config.get_setting('server.ip', "127.0.0.1") 
+        port = config.get_setting('server.port', 5000)
+        soket_port = config.get_setting('server.ip', 5001)
+    
+    start_socket(ip, int(soket_port))
 
-    app.run(debug=debug)
+    app.run(host= ip, port=int(port), debug=debug)

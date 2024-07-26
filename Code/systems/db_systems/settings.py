@@ -81,25 +81,26 @@ class SettingsManager:
 
         d[keys[-1]] = value
 
-    def get_setting(self, key: str) -> Optional[Any]:
+    def get_setting(self, key: str, default: Optional[Any] = None) -> Optional[Any]:
         """Получает значение настройки.
 
         Args:
             key (str): Ключ настройки, поддерживается вложенность через точку (например, "user.preferences.theme").
+            default (Optional[Any]): Значение по умолчанию, если ключ не найден.
 
         Returns:
-            Optional[Any]: Значение настройки или None, если ключ не найден.
+            Optional[Any]: Значение настройки или значение по умолчанию, если ключ не найден.
 
-        Example:
-        ```py
-        theme = settings_manager.get_setting("user.preferences.theme")
-        print(theme)  # "dark"
-        ```
+        Example::
+        
+            theme = settings_manager.get_setting("user.preferences.theme")
+            print(theme)  # "dark"
         """
         try:
             return reduce(lambda d, k: d[k], key.split('.'), self._settings)
+        
         except KeyError:
-            return None
+            return default
 
     def __enter__(self):
         """Контекстный менеджер вход."""
