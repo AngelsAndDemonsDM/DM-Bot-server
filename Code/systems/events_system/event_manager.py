@@ -12,14 +12,10 @@ class EventManager:
     def __init__(self) -> None:
         self._register_defs: Dict[str, List[Callable[..., Any]]] = {}
         
-    def register_event(self, event_name: str):
-        def decorator(func: Callable[..., Any]):
-            if event_name not in self._register_defs:
-                self._register_defs[event_name] = []
-            self._register_defs[event_name].append(func)
-            return func
-        
-        return decorator
+    def register_event(self, event_name: str, func: Callable[..., Any]):
+        if event_name not in self._register_defs:
+            self._register_defs[event_name] = []
+        self._register_defs[event_name].append(func)
     
     async def call_event(self, event_name: str, *args, **kwargs):
         handlers = self._register_defs.get(event_name, [])

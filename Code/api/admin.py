@@ -11,7 +11,7 @@ async def _get_reqester_data(headers: dict) -> Tuple[str, UserAccess]:
     if not auth_token:
         raise AuthError()
     
-    user_auth = UserAuth()
+    user_auth = UserAuth.get_instance()
     return await user_auth.get_login_access_by_token(auth_token)
 
 @server_exception_handler
@@ -26,7 +26,7 @@ async def api_delete_user():
         raise AccessError()
     
     # Логика для удаления пользователя
-    user_auth = UserAuth()
+    user_auth = UserAuth.get_instance()
     await user_auth.delete_user(data["login"])
     return jsonify({"message": "User deleted successfully"}), 200
 
@@ -47,7 +47,7 @@ async def api_change_access():
     if not requester_access.get_flag("change_access"):
         raise AccessError()
     
-    user_auth = UserAuth()
+    user_auth = UserAuth.get_instance()
     target_access = await user_auth.get_access_by_login(data["login"])
     
     
@@ -71,6 +71,6 @@ async def api_change_password():
     
     requester_login, _ = await _get_reqester_data(request.headers)
     
-    user_auth = UserAuth()
+    user_auth = UserAuth.get_instance()
     await user_auth.change_password(requester_login, data["new_password"])
     return jsonify({"message": "Password changed successfully"}), 200
