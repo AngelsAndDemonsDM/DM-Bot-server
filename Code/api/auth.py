@@ -19,7 +19,7 @@ def _get_login_password(data: dict) -> Tuple[str, str]:
 @server_exception_handler
 @auth_bp.route('/register', methods=['POST'])
 async def api_register():
-    user_auth = UserAuth()
+    user_auth = UserAuth.get_instance()
     data = await request.json
     login, password = _get_login_password(data)
     try:
@@ -34,7 +34,7 @@ async def api_register():
 async def api_login():
     data = await request.json
     login, password = _get_login_password(data)
-    user_auth = UserAuth()
+    user_auth = UserAuth.get_instance()
     try:
         token = await user_auth.login_user(login, password)
         return jsonify({"message": "Login successful", "token": token}), 200
@@ -45,7 +45,7 @@ async def api_login():
 @server_exception_handler
 @auth_bp.route('/logout', methods=['POST'])
 async def api_logout():
-    user_auth = UserAuth()
+    user_auth = UserAuth.get_instance()
     auth_token: str = request.headers.get('Authorization', None)
     if not auth_token:
         raise AuthError()

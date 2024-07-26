@@ -72,7 +72,7 @@ class MapItemsComponent(BaseComponent):
         if not self.items:
             return
 
-        entity_factory: EntityFactory = EntityFactory()
+        entity_factory: EntityFactory = EntityFactory.get_instance()
         
         for item in self.items:
             obj = entity_factory.get_entity_by_id(item['entity_type'], item['entity_id'])
