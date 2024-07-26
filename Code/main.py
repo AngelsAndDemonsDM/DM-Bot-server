@@ -12,6 +12,7 @@ from quart import Quart
 from quart.logging import default_handler
 from systems.auto_updater import AutoUpdater
 from systems.db_systems import SettingsManager
+from systems.events_system import register_ev
 
 app = Quart(__name__)
 app.logger.removeHandler(default_handler)
@@ -77,6 +78,8 @@ if __name__ == "__main__":
     ip = ""
     port = ""
     soket_port = ""
+    
+    register_ev()
     
     with SettingsManager() as config:
         if config.get_setting('app.auto_update', False):
