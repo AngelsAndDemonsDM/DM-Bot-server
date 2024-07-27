@@ -70,7 +70,6 @@ def load_config() -> Tuple[str, int, int, bool]:
     auto_update: bool = False
     
     with MainSettings.get_instance() as config:
-        config: MainSettings
         if not config.initialize_default_settings({
                 "app.auto_git_update": False,
                 "server.ip": "127.0.0.1",
@@ -78,10 +77,18 @@ def load_config() -> Tuple[str, int, int, bool]:
                 "server.socket_port": 5001,
             }):
             host = config.get_setting("server.ip")
+            logger.info(f"IP: {host}")
+            
             port = config.get_setting("server.http_port")
+            logger.info(f"HTTP port: {port}")
+            
             socket_port = config.get_setting("server.socket_port")
+            logger.info(f"Soket server port: {socket_port}")
+            
             auto_update = config.get_setting("app.auto_git_update")
-            logger.info(f"Config set. ip: {host}, port: {port}, soket port: {socket_port}, auto_update: {auto_update}")
+            logger.info(f"Auto update is enable: {auto_update}")
+            
+            logger.info(f"Config set.")
         
         else:
             logger.info(f"Base config set.")
