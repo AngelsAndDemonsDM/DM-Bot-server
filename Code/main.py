@@ -12,7 +12,7 @@ from api import *
 from quart import Quart
 from quart.logging import default_handler
 from systems.auto_updater import AutoUpdater
-from systems.db_systems import SettingsManager
+from systems.db_systems import MainSettings
 from systems.events_system import EventManager, events
 
 app = Quart(__name__)
@@ -69,8 +69,8 @@ def load_config() -> Tuple[str, int, int, bool]:
     socket_port: int = 5001
     auto_update: bool = False
     
-    with SettingsManager.get_instance() as config:
-        config: SettingsManager
+    with MainSettings.get_instance() as config:
+        config: MainSettings
         if not config.initialize_default_settings({
                 "app.auto_git_update": False,
                 "server.ip": "127.0.0.1",

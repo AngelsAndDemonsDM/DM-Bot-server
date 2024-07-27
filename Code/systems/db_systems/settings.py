@@ -1,25 +1,26 @@
 import atexit
 import json
 import os
-from functools import reduce
 from typing import Any, Optional
 
 from root_path import ROOT_PATH
 from systems.decorators import global_class
 
 
-@global_class
 class SettingsManager:
     __slots__ = ['_path', '_settings']
 
-    def __init__(self) -> None:
+    def __init__(self, file_name: str = "NotSet") -> None:
         """Инициализирует менеджер настроек.
 
+        Args:
+            file_name (str): Имя файла настроек.
+        
         Example::
         
             settings_manager = SettingsManager.get_instance()
         """
-        self._path: str = os.path.join(ROOT_PATH, 'data', f'settings.json')
+        self._path: str = os.path.join(ROOT_PATH, 'data', 'settings' f'{file_name}.json')
         self._settings: dict = self._load_settings()
         atexit.register(self._save_settings)
 
@@ -136,3 +137,8 @@ class SettingsManager:
     def __exit__(self, exc_type, exc_value, traceback):
         """Контекстный менеджер выход."""
         self._save_settings()
+
+@global_class
+class MainSettings(SettingsManager):
+    def __init__(self) -> None:
+        super().__init__("main_app")
