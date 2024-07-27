@@ -1,27 +1,26 @@
 import atexit
 import json
 import os
-from functools import reduce
 from typing import Any, Optional
 
 from root_path import ROOT_PATH
+from systems.decorators import global_class
 
 
 class SettingsManager:
     __slots__ = ['_path', '_settings']
 
-    def __init__(self, settings_name: str = "main_settings") -> None:
+    def __init__(self, file_name: str = "NotSet") -> None:
         """Инициализирует менеджер настроек.
 
         Args:
-            settings_name (str, optional): Имя файла настроек. Defaults to "main_settings".
-
-        Example:
-        ```py
-        settings_manager = SettingsManager("app_settings")
-        ```
+            file_name (str): Имя файла настроек.
+        
+        Example::
+        
+            settings_manager = SettingsManager.get_instance()
         """
-        self._path: str = os.path.join(ROOT_PATH, 'data', 'settings', f'{settings_name}.json')
+        self._path: str = os.path.join(ROOT_PATH, 'data', 'settings', f'{file_name}.json')
         self._settings: dict = self._load_settings()
         atexit.register(self._save_settings)
 
@@ -66,18 +65,15 @@ class SettingsManager:
             key (str): Ключ настройки, поддерживается вложенность через точку (например, "user.preferences.theme").
             value (Any): Значение настройки.
 
-        Example:
-        ```py
-        settings_manager.set_setting("user.preferences.theme", "dark")
-        ```
+        Example::
+        
+            settings_manager.set_setting("user.preferences.theme", "dark")
         """
         keys = key.split('.')
         d = self._settings
 
         for k in keys[:-1]:
-            if k not in d or not isinstance(d[k], dict):
-                d[k] = {}
-            d = d[k]
+            d = d.setdefault(k, {})
 
         d[keys[-1]] = value
 
@@ -96,16 +92,53 @@ class SettingsManager:
             theme = settings_manager.get_setting("user.preferences.theme")
             print(theme)  # "dark"
         """
-        try:
-            return reduce(lambda d, k: d[k], key.split('.'), self._settings)
+        d = self._settings
+        for k in key.split('.'):
+            if isinstance(d, dict) and k in d:
+                d = d[k]
+            else:
+                return default
+        return d
+
+    def initialize_default_settings(self, default_settings: dict) -> bool:
+        """Инициализирует базовые настройки и сохраняет их в файл, если они не установлены.
+
+        Args:
+            default_settings (dict): Словарь с базовыми настройками.
+
+        Returns:
+            bool: Возвращает True, если инициализация произошла, иначе False.
         
-        except KeyError:
-            return default
+        Example::
+        
+            default_settings = {
+                "user.preferences.theme": "light",
+                "app.language": "en",
+                "app.version": "1.0.0"
+            }
+            settings_manager.initialize_default_settings(default_settings)
+        """
+        initialized = False
+        for key, value in default_settings.items():
+            if self.get_setting(key) is None:
+                self.set_setting(key, value)
+                initialized = True
+        
+        if initialized:
+            self._save_settings()
+        
+        return initialized
 
     def __enter__(self):
         """Контекстный менеджер вход."""
+        self._settings = self._load_settings()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         """Контекстный менеджер выход."""
         self._save_settings()
+
+@global_class
+class MainSettings(SettingsManager):
+    def __init__(self) -> None:
+        super().__init__("main_app")

@@ -1,6 +1,7 @@
 import logging
 
-from systems.network import UserAccess, SocketConnectManager
+from systems.network import SocketConnectManager, UserAccess
+
 logger = logging.getLogger("Test ev")
 
 #TODO: Удалить после добавления первого нормального ивента
