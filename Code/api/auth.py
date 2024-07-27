@@ -16,8 +16,8 @@ def _get_login_password(data: dict) -> Tuple[str, str]:
     
     return data["login"], data["password"]
 
-@server_exception_handler
 @auth_bp.route('/register', methods=['POST'])
+@server_exception_handler
 async def api_register():
     user_auth = UserAuth.get_instance()
     data = await request.json
@@ -29,8 +29,8 @@ async def api_register():
     except UniqueConstraintError:
         return jsonify({"message": "Login already exists"}), 409
 
-@server_exception_handler
 @auth_bp.route('/login', methods=['POST'])
+@server_exception_handler
 async def api_login():
     data = await request.json
     login, password = _get_login_password(data)
@@ -42,8 +42,8 @@ async def api_login():
     except AuthError:
         return jsonify({"message": "Invalid credentials"}), 401
 
-@server_exception_handler
 @auth_bp.route('/logout', methods=['POST'])
+@server_exception_handler
 async def api_logout():
     user_auth = UserAuth.get_instance()
     auth_token: str = request.headers.get('Authorization', None)

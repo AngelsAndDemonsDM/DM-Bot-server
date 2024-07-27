@@ -14,8 +14,8 @@ async def _get_reqester_data(headers: dict) -> Tuple[str, UserAccess]:
     user_auth = UserAuth.get_instance()
     return await user_auth.get_login_access_by_token(auth_token)
 
-@server_exception_handler
 @admin_bp.route('/delete_user', methods=['POST'])
+@server_exception_handler
 async def api_delete_user():
     data = await request.json
     if "login" not in data:
@@ -30,8 +30,8 @@ async def api_delete_user():
     await user_auth.delete_user(data["login"])
     return jsonify({"message": "User deleted successfully"}), 200
 
-@server_exception_handler
 @admin_bp.route('/change_access', methods=['POST'])
+@server_exception_handler
 async def api_change_access():
     data = await request.json
     if "login" not in data:
@@ -62,8 +62,8 @@ async def api_change_access():
     await user_auth.change_access(data["login"], data["new_access"])
     return jsonify({"message": "Access changed successfully"}), 200
 
-@server_exception_handler
 @admin_bp.route('/change_password', methods=['POST'])
+@server_exception_handler
 async def api_change_password():
     data = await request.json
     if "new_password" not in data:

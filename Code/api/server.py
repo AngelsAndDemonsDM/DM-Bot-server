@@ -1,11 +1,10 @@
-import json
 import os
 import zipfile
 
 from api.decorators import server_exception_handler
-from quart import Blueprint, jsonify, request, send_file
+from quart import Blueprint, jsonify, send_file
 from root_path import ROOT_PATH
-
+from systems.db_systems import MainSettings
 server_bp = Blueprint('server', __name__)
 
 # --- Server content download start --- #
@@ -57,8 +56,8 @@ def _create_zip_archive() -> str:
     
     return archive_path
 
-@server_exception_handler
 @server_bp.route('/download_server_content', methods=['GET'])
+@server_exception_handler
 async def api_download_server_content():
     zip_path = _create_zip_archive()
     if not zipfile.is_zipfile(zip_path):
@@ -68,29 +67,22 @@ async def api_download_server_content():
 # --- Server content download end --- #
 
 # --- Server check start --- #
-CACHED_CONFIG = None
-
-def _load_config():
-    global CACHED_CONFIG
-    if CACHED_CONFIG is None:
-        with open(os.path.join(ROOT_PATH, 'Content', 'updater_config.json'), 'r') as file:
-            config_data = json.load(file)
-            CACHED_CONFIG = {
-                "version":  config_data.get("VERSION", "Unknown"),
-                "git_user": config_data.get("USER", "Unknown"),
-                "git_repo": config_data.get("REPO", "Unknown")
-            }
-            
-    return CACHED_CONFIG
-
-@server_exception_handler
 @server_bp.route('/check_status', methods=['GET'])
+@server_exception_handler
 async def api_check_status():
-    detailed = request.args.get('detailed', default=False, type=bool)
-
-    if detailed:
-        response_data = _load_config()
-        return jsonify({"message": "Server is online", "detailed": response_data}), 200
-
-    return jsonify({"message": "Server is online"}), 200
+    config: MainSettings = MainSettings.get_instance()
+    host = config.get_setting("server.ip")
+    port = config.get_setting("server.http_port")
+    socket_port = config.get_setting("server.socket_port")
+    
+    if not all([host, port, socket_port]):
+        return jsonify({"message": "Server configuration is incomplete"}), 500
+        
+    server_info = {
+        "host": host,
+        "http_port": port,
+        "socket_port": socket_port
+    }
+    
+    return jsonify({"message": "Server is online", "server_info": server_info}), 200
 # --- Server check end --- #
