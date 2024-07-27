@@ -20,7 +20,7 @@ class SettingsManager:
         
             settings_manager = SettingsManager.get_instance()
         """
-        self._path: str = os.path.join(ROOT_PATH, 'data', 'settings' f'{file_name}.json')
+        self._path: str = os.path.join(ROOT_PATH, 'data', 'settings', f'{file_name}.json')
         self._settings: dict = self._load_settings()
         atexit.register(self._save_settings)
 
