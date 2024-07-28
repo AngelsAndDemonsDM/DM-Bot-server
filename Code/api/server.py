@@ -71,6 +71,7 @@ async def api_download_server_content():
 @server_exception_handler
 async def api_check_status():
     config: MainSettings = MainSettings.get_instance()
+    server_name = config.get_setting("server.name")
     host = config.get_setting("server.ip")
     port = config.get_setting("server.http_port")
     socket_port = config.get_setting("server.socket_port")
@@ -79,6 +80,7 @@ async def api_check_status():
         return jsonify({"message": "Server configuration is incomplete"}), 500
         
     server_info = {
+        "server_name": server_name,
         "host": host,
         "http_port": port,
         "socket_port": socket_port
