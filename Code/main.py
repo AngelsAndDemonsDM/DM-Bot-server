@@ -72,10 +72,13 @@ def load_config() -> Tuple[str, int, int, bool]:
     with MainSettings.get_instance() as config:
         if not config.initialize_default_settings({
                 "app.auto_git_update": False,
+                "server.name": "dev_server",
                 "server.ip": "127.0.0.1",
                 "server.http_port": 5000,
                 "server.socket_port": 5001,
             }):
+            logger.info(f"Server name: {config.get_setting("server.name")}")
+            
             host = config.get_setting("server.ip")
             logger.info(f"IP: {host}")
             
