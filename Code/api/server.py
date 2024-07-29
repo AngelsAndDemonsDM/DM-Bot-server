@@ -5,6 +5,7 @@ from api.decorators import server_exception_handler
 from quart import Blueprint, jsonify, send_file
 from root_path import ROOT_PATH
 from systems.db_systems import MainSettings
+
 server_bp = Blueprint('server', __name__)
 
 # --- Server content download start --- #

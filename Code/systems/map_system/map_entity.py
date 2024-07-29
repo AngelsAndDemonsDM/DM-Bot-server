@@ -1,129 +1,85 @@
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from systems.entity_system import BaseEntity
-from systems.map_system.components.map_coordinates_component import \
-    MapCoordinateComponent
-from systems.map_system.components.map_items_component import MapItemsComponent
-from systems.map_system.components.map_physics_component import \
-    MapPhysicsComponent
-from systems.map_system.coordinates import Coordinate
-from systems.map_system.map_manager import MapManager
+from systems.map_system.coordinate import Coordinate
+from systems.map_system.shape import Shape
 
-"""
-- type: "MapEntity"
-  id: "SomeValue"
-  components:
-    ...
-"""
+
+class MapCoordConflictError(Exception):
+    def __init__(self, message: str, coordinates: List['Coordinate']):
+        super().__init__(message)
+        self.coordinates = coordinates
 
 class MapEntity(BaseEntity):
-    __slots__ = []
+    __slots__ = ['map_objects']
     
     def __init__(self) -> None:
-        """Инициализирует сущность карты."""
-        super().__init__()
+        super().__init__(0)
+        self.map_objects: Dict[Coordinate, BaseEntity] = {}
+
+    def add_object(self, obj: BaseEntity, coordinate: Coordinate) -> None:
+        shape = obj.get_component("ShapeComponent")
+        if not shape:
+            shape = Shape('x')
+        
+        for coord in shape.get_list_coordinates():
+            new_coord = coordinate + coord
+            self.map_objects[new_coord] = obj
     
-    def self_save(self, name: str) -> None:
-        """Сохраняет текущее состояние карты.
-
-        Args:
-            name (str): Имя файла, в который будет сохранена карта.
-        """
-        comp: MapItemsComponent = self.get_component("MapItemsComponent")
-        comp.setup_objects()
-        MapManager.save_map(self, name)
+    def find_coordinates(self, uid: int) -> List[Coordinate]:
+        return [coord for coord, entity in self.map_objects.items() if entity.uid == uid]
     
-    def self_load(self, name: str) -> None:
-        """Загружает состояние карты из файла.
+    def remove_object(self, uid: int) -> None:
+        coordinates_to_remove = self.find_coordinates(uid)
+        self._remove_coordinates(coordinates_to_remove)
+    
+    def _remove_coordinates(self, coordinates: List[Coordinate]) -> None:
+        for coord in coordinates:
+            del self.map_objects[coord]
 
-        Args:
-            name (str): Имя файла, из которого будет загружена карта.
-        """
-        self = MapManager.load_map(name)
-
-    def calculate_visibility_area(
-        self, 
-        position: Coordinate, 
-        detection_level: int, 
-        visibility_range: int, 
-    ) -> List[Dict[str, Any]]:
-        """Вычисляет область видимости с заданной позиции.
-
-        Args:
-            position (Coordinate): Позиция наблюдателя на карте.
-            detection_level (int): Уровень обнаружения.
-            visibility_range (int): Дальность видимости.
-
-        Returns:
-            List[Dict[str, Any]]: Список видимых предметов, включая их координаты и другие свойства.
-        """
-        map_items_component: MapItemsComponent = self.get_component("MapItemsComponent")
-        if not map_items_component:
-            return []
-
-        map_items_component.setup_objects()
+    def move_object(self, uid: int, delta: Coordinate, allow_replace: bool = True) -> None:
+        current_coords = self.find_coordinates(uid)
+        if not current_coords:
+            return
         
-        visible_items: List[Dict[str, Any]] = []
+        obj = self.map_objects[current_coords[0]]
+
+        conflict_coords = []
+        new_coords = []
+        for coord in current_coords:
+            new_coord = coord + delta
+            if new_coord in self.map_objects:
+                conflict_coords.append(new_coord)
+                if not allow_replace:
+                    raise MapCoordConflictError(f"Conflict at {new_coord}", conflict_coords)
+            new_coords.append(new_coord)
         
-        def is_visible(observer_pos: Coordinate, target_pos: Coordinate, blocking_objects: List[Dict[str, Any]]) -> bool:
-            # Проверка видимости с учетом блокировки непрозрачными объектами
-            x0, y0 = observer_pos.x, observer_pos.y
-            x1, y1 = target_pos.x, target_pos.y
-            dx, dy = x1 - x0, y1 - y0
-            distance = Coordinate.distance(observer_pos, target_pos)
-            steps = int(distance)
-            if steps == 0:
-                return True
+        self._remove_coordinates(current_coords)
+        for new_coord in new_coords:
+            self.map_objects[new_coord] = obj
 
-            x_increment = dx / steps
-            y_increment = dy / steps
-
-            x, y = x0, y0
-            for _ in range(steps):
-                x += x_increment
-                y += y_increment
-                current_pos = Coordinate(int(round(x)), int(round(y)))
-                for blocking_obj in blocking_objects:
-                    if current_pos in blocking_obj['coordinates']:
-                        return False
-            return True
-
-        # Сначала собираем все блокирующие объекты
-        blocking_objects = []
-        for obj in map_items_component.objects:
-            coordinates_component: MapCoordinateComponent = obj.get_component("MapCoordinateComponent")
-            if not coordinates_component:
-                continue
-
-            physics_component: MapPhysicsComponent = obj.get_component("MapPhysicsComponent")
-            if not physics_component:
-                physics_component = MapPhysicsComponent(0, True, True)
-            
-            if physics_component.opaque:
-                blocking_objects.append({'coordinates': coordinates_component.coordinates})
-
-        # Проверяем видимость всех объектов
-        for obj in map_items_component.objects:
-            item_visible = False
-            
-            coordinates_component: MapCoordinateComponent = obj.get_component("MapCoordinateComponent")
-            if not coordinates_component:
-                continue
-            
-            physics_component: MapPhysicsComponent = obj.get_component("MapPhysicsComponent")
-            if not physics_component:
-                physics_component = MapPhysicsComponent(0, True, True)
-            
-            if physics_component.invisibility_level > detection_level:
-                continue  # Пропускаем предмет, если уровень невидимости выше уровня обнаружения
-                
-            for coord in coordinates_component.coordinates:
-                if Coordinate.distance(position, coord) <= visibility_range:
-                    if is_visible(position, coord, blocking_objects):
-                        item_visible = True
-                        break
+    def teleport_object(self, uid: int, new_base_coordinate: Coordinate, allow_replace: bool = True) -> None:
+        current_coords = self.find_coordinates(uid)
+        if not current_coords:
+            return
         
-            if item_visible:
-                visible_items.append({'entity': obj, 'coordinates': coordinates_component.coordinates})
+        obj = self.map_objects[current_coords[0]]
 
-        return visible_items
+        shape = obj.get_component("ShapeComponent")
+        if not shape:
+            shape = Shape('x')
+        
+        conflict_coords = []
+        new_coords = []
+        for coord in shape.get_list_coordinates():
+            new_coord = new_base_coordinate + coord
+            if new_coord in self.map_objects:
+                conflict_coords.append(new_coord)
+                if not allow_replace:
+                    raise MapCoordConflictError(f"Conflict at {new_coord}", conflict_coords)
+            
+            new_coords.append(new_coord)
+        
+        self._remove_coordinates(current_coords)
+        for new_coord in new_coords:
+            self.map_objects[new_coord] = obj

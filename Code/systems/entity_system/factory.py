@@ -118,7 +118,7 @@ class EntityFactory:
         Returns:
             BaseComponent: Созданный компонент.
         """
-        from systems.map_system.coordinates import Coordinate
+        from systems.map_system.coordinate import Coordinate
         
         component_type = component_data.pop('type')
         component_class = self._component_registry.get(component_type)
