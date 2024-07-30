@@ -5,26 +5,27 @@ from typing import Any, Dict, List, Optional, Type
 
 import yaml
 from root_path import ROOT_PATH
-from systems.decorators import global_class
 from systems.entity_system.base_component import BaseComponent
 from systems.entity_system.base_entity import BaseEntity
+from systems.misc import GlobalClass
 
 
-@global_class
-class EntityFactory:
+class EntityFactory(GlobalClass):
     __slots__ = [
         '_entity_registry', '_component_registry', 
         '_entities', '_uid_dict', '_next_uid'
     ]
 
     def __init__(self):
-        self._entity_registry: Dict[str, Type[BaseEntity]] = {}
-        self._component_registry: Dict[str, Type[BaseComponent]] = {}
-        self._entities: Dict[str, BaseEntity] = {}
-        self._uid_dict: Dict[int, BaseEntity] = {}
-        self._next_uid: int = 1
-        self._register_from_yaml()
-        self.load_entities_from_directory(os.path.join(ROOT_PATH, "Prototype"))
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            self._entity_registry: Dict[str, Type[BaseEntity]] = {}
+            self._component_registry: Dict[str, Type[BaseComponent]] = {}
+            self._entities: Dict[str, BaseEntity] = {}
+            self._uid_dict: Dict[int, BaseEntity] = {}
+            self._next_uid: int = 1
+            self._register_from_yaml()
+            self.load_entities_from_directory(os.path.join(ROOT_PATH, "Prototype"))
 
     def _register_entity(self, entity_type: str, entity_class: Type[BaseEntity]) -> None:
         """Регистрация класса сущности.

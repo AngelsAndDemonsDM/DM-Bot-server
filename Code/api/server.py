@@ -5,6 +5,7 @@ from api.decorators import server_exception_handler
 from quart import Blueprint, jsonify, send_file
 from root_path import ROOT_PATH
 from systems.db_systems import MainSettings
+
 server_bp = Blueprint('server', __name__)
 
 # --- Server content download start --- #
@@ -70,7 +71,7 @@ async def api_download_server_content():
 @server_bp.route('/check_status', methods=['GET'])
 @server_exception_handler
 async def api_check_status():
-    config: MainSettings = MainSettings.get_instance()
+    config = MainSettings()
     server_name = config.get_setting("server.name")
     socket_port = config.get_setting("server.socket_port")
     

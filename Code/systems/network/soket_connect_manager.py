@@ -2,18 +2,19 @@ import socket
 from typing import Any, Dict, Optional
 
 import msgpack
-from systems.decorators import global_class
+from systems.misc import GlobalClass
 
 
 class SocketUserAlreadyConnectError(Exception):
     pass
 
-@global_class
-class SocketConnectManager:
+class SocketConnectManager(GlobalClass):
     __slots__ = ['_connects']
     
     def __init__(self) -> None:
-        self._connects: Dict[str, Any] = {}
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            self._connects: Dict[str, Any] = {}
     
     @staticmethod
     def pack_data(data: Any) -> bytes:
