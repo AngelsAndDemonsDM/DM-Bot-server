@@ -1,129 +1,228 @@
-from typing import Any, Dict, List
+import heapq
+from copy import deepcopy
+from typing import Dict, List
 
-from systems.entity_system import BaseEntity
-from systems.map_system.components.map_coordinates_component import \
-    MapCoordinateComponent
-from systems.map_system.components.map_items_component import MapItemsComponent
-from systems.map_system.components.map_physics_component import \
-    MapPhysicsComponent
-from systems.map_system.coordinates import Coordinate
-from systems.map_system.map_manager import MapManager
+from systems.entity_system import BaseEntity, EntityFactory
+from systems.map_system.components import *
+from systems.map_system.components.map_physics_component import (
+    MAP_PHYSICS_OBJ_TYPE, MapPhysicsObjType)
+from systems.map_system.coordinate import Coordinate
+from systems.map_system.shape import Shape
 
-"""
-- type: "MapEntity"
-  id: "SomeValue"
-  components:
-    ...
-"""
+
+class MapColisionError(Exception):
+    pass
 
 class MapEntity(BaseEntity):
-    __slots__ = []
+    __slots__ = ['basic_floor', 'map_floor_objects', 'map_main_objects', 'map_ceiling_objects', 'block_coodinates', 'move_queue']
     
     def __init__(self) -> None:
-        """Инициализирует сущность карты."""
         super().__init__()
-    
-    def self_save(self, name: str) -> None:
-        """Сохраняет текущее состояние карты.
-
-        Args:
-            name (str): Имя файла, в который будет сохранена карта.
-        """
-        comp: MapItemsComponent = self.get_component("MapItemsComponent")
-        comp.setup_objects()
-        MapManager.save_map(self, name)
-    
-    def self_load(self, name: str) -> None:
-        """Загружает состояние карты из файла.
-
-        Args:
-            name (str): Имя файла, из которого будет загружена карта.
-        """
-        self = MapManager.load_map(name)
-
-    def calculate_visibility_area(
-        self, 
-        position: Coordinate, 
-        detection_level: int, 
-        visibility_range: int, 
-    ) -> List[Dict[str, Any]]:
-        """Вычисляет область видимости с заданной позиции.
-
-        Args:
-            position (Coordinate): Позиция наблюдателя на карте.
-            detection_level (int): Уровень обнаружения.
-            visibility_range (int): Дальность видимости.
-
-        Returns:
-            List[Dict[str, Any]]: Список видимых предметов, включая их координаты и другие свойства.
-        """
-        map_items_component: MapItemsComponent = self.get_component("MapItemsComponent")
-        if not map_items_component:
-            return []
-
-        map_items_component.setup_objects()
+        self.basic_floor: BaseEntity = None # Базовый пол всей карты
         
-        visible_items: List[Dict[str, Any]] = []
+        self.map_floor_objects:   Dict[Coordinate, List[BaseEntity]] = {} # Пол и разные загрязнения
+        self.map_main_objects:    Dict[Coordinate, List[BaseEntity]] = {} # Основные объекты карты
+        self.map_ceiling_objects: Dict[Coordinate, List[BaseEntity]] = {} # Потолок. Для просчёта корретного закрытых помещений и для гермитизации
+
+        self.block_coodinates: List[Coordinate] # Лист координат которые заблокированы.
         
-        def is_visible(observer_pos: Coordinate, target_pos: Coordinate, blocking_objects: List[Dict[str, Any]]) -> bool:
-            # Проверка видимости с учетом блокировки непрозрачными объектами
-            x0, y0 = observer_pos.x, observer_pos.y
-            x1, y1 = target_pos.x, target_pos.y
-            dx, dy = x1 - x0, y1 - y0
-            distance = Coordinate.distance(observer_pos, target_pos)
-            steps = int(distance)
-            if steps == 0:
-                return True
+        self.move_queue: Dict[BaseEntity, List[Coordinate]] = {} # Очередь для движения. 
 
-            x_increment = dx / steps
-            y_increment = dy / steps
+    @staticmethod
+    def _get_shape_coordinates(obj: BaseEntity) -> List[Coordinate]:
+        comp = obj.get_component('ShapeComponent')
+        if comp:
+            shape = comp.shape
+        else:
+            shape = Shape('x')
+        
+        return shape.get_list_coordinates()
 
-            x, y = x0, y0
-            for _ in range(steps):
-                x += x_increment
-                y += y_increment
-                current_pos = Coordinate(int(round(x)), int(round(y)))
-                for blocking_obj in blocking_objects:
-                    if current_pos in blocking_obj['coordinates']:
-                        return False
-            return True
+    @staticmethod
+    def _get_map_physics_component(obj: BaseEntity):
+        comp = obj.get_component("MapPhysicsComponent")
+        if not comp:
+            comp = MapPhysicsComponent(False, MapPhysicsObjType.MAIN)
+        
+        return comp
 
-        # Сначала собираем все блокирующие объекты
-        blocking_objects = []
-        for obj in map_items_component.objects:
-            coordinates_component: MapCoordinateComponent = obj.get_component("MapCoordinateComponent")
-            if not coordinates_component:
+    @staticmethod
+    def _update_obj_coord(obj: BaseEntity, coordinates_to_update: List[Coordinate]):
+        coordinate_comp = obj.get_component("MapCoordinatesComponent")
+        if not coordinate_comp:
+            coordinate_comp = MapCoordinatesComponent(deepcopy(coordinates_to_update))
+            obj.add_component(coordinate_comp)
+        
+        else:
+            coordinate_comp.coord_list = deepcopy(coordinates_to_update)
+
+    def _remove_coodinates(self, obj: BaseEntity, obj_type: MAP_PHYSICS_OBJ_TYPE, list_to_remove: List[Coordinate], is_block: bool) -> None:
+        # Удаляем объект с карты
+        if obj_type == MapPhysicsObjType.CEILING:
+            for coord in list_to_remove:
+                if coord in self.map_ceiling_objects and self.map_ceiling_objects[coord] == obj:
+                    del self.map_ceiling_objects[coord]
+
+        elif obj_type == MapPhysicsObjType.MAIN:
+            for coord in list_to_remove:
+                if coord in self.map_main_objects and self.map_main_objects[coord] == obj:
+                    del self.map_main_objects[coord]
+
+        else:
+            for coord in list_to_remove:
+                if coord in self.map_floor_objects and self.map_floor_objects[coord] == obj:
+                    del self.map_floor_objects[coord]
+
+        # Разблокируем координаты
+        if is_block:
+            for coord in list_to_remove:
+                if coord in self.block_coodinates:
+                    self.block_coodinates.remove(coord)
+    
+    def add_object_by_uid(self, uid: int, source_coordinate: Coordinate) -> None:
+        ent_factory = EntityFactory()
+        obj = ent_factory.get_entity_by_uid(uid)
+        if not obj:
+            raise ValueError(f"Entity {uid} don't exist")
+        
+        self.add_object(obj, source_coordinate)
+    
+    def add_object(self, obj: BaseEntity, source_coordinate: Coordinate) -> None:
+        obj_shape_coodinates = MapEntity._get_shape_coordinates(obj)
+        obj_physics_comp = MapEntity._get_map_physics_component(obj)
+        obj_type = obj_physics_comp.obj_type
+        
+        # Создаём список куда пихать обьект
+        coordinates_to_add: List[Coordinate] = []
+        for coordinate in obj_shape_coodinates:
+            coordinates_to_add.append(source_coordinate + coordinate)
+        
+        # Проверяем что можем засунуть объект
+        for coordinate in coordinates_to_add:
+            if coordinate in self.block_coodinates:
+                raise MapColisionError()
+        
+        # Пихаем ~~чле~~ объект в массив
+        if obj_type == MapPhysicsObjType.CEILING:
+            for coord in coordinates_to_add:
+                self.map_ceiling_objects[coord] = obj
+        
+        elif obj_type == MapPhysicsObjType.MAIN:
+            for coord in coordinates_to_add:
+                self.map_main_objects[coord] = obj
+        
+        else:
+            for coord in coordinates_to_add:
+                self.map_floor_objects[coord] = obj
+        
+        # Блокируем координаты
+        if obj_physics_comp.block_coordinate:
+            self.block_coodinates.extend(coordinates_to_add)
+        
+        # Устанавливаем координаты в объект
+        self._update_obj_coord(obj, coordinates_to_add)
+    
+    def remove_object_uid(self, uid: int) -> None:
+        ent_factory = EntityFactory()
+        obj = ent_factory.get_entity_by_uid(uid)
+        if not obj:
+            return
+        
+        self.remove_object(obj)
+
+    def remove_object(self, obj: BaseEntity) -> None:
+        coordinates_to_remove = obj.get_component("MapCoordinatesComponent")
+        if not coordinates_to_remove:
+            return
+        
+        obj_physics_comp = MapEntity._get_map_physics_component(obj)
+
+        self._remove_coodinates(obj, obj_physics_comp.obj_type, coordinates_to_remove.coord_list, obj_physics_comp.block_coordinate)
+
+        obj.remove_component("MapCoordinatesComponent")
+    
+    def do_step(self) -> None:
+        for obj, path in list(self.move_queue.items()):
+            if path:
+                next_coordinate = path.pop(0)
+                self.teleport_object(obj, next_coordinate)
+                if not path:
+                    del self.move_queue[obj]
+    
+    def teleport_object_by_uid(self, uid: int, target_coordinate: Coordinate) -> None:
+        ent_factory = EntityFactory()
+        obj = ent_factory.get_entity_by_uid(uid)
+        if not obj:
+            return
+        
+        self.add_object(obj, target_coordinate)
+        self.remove_object(obj)
+    
+    def teleport_object(self, obj: BaseEntity, target_coordinate: Coordinate) -> None:
+        self.add_object(obj, target_coordinate)
+        self.remove_object(obj)
+        
+    def move_object_by_uid(self, uid: int, target_coordinate: Coordinate) -> None:
+        ent_factory = EntityFactory()
+        obj = ent_factory.get_entity_by_uid(uid)
+        if not obj:
+            return
+        
+        self.move_object(obj, target_coordinate)
+    
+    def move_object(self, obj: BaseEntity, target_coordinate: Coordinate) -> None:
+        current_coordinates = obj.get_component("MapCoordinatesComponent").coord_list
+        if not current_coordinates:
+            return
+        
+        start_coordinate = current_coordinates[0]
+        path = a_star_search(start_coordinate, target_coordinate, self.block_coodinates)
+        
+        if path:
+            self.move_queue[obj] = path
+
+def heuristic(a: Coordinate, b: Coordinate) -> float:
+    return ((a.x - b.x) ** 2 + (a.y - b.y) ** 2) ** 0.5
+
+def get_neighbors(coord: Coordinate) -> List[Coordinate]:
+    return [
+        Coordinate(coord.x + 1, coord.y),
+        Coordinate(coord.x - 1, coord.y),
+        Coordinate(coord.x, coord.y + 1),
+        Coordinate(coord.x, coord.y - 1),
+        Coordinate(coord.x + 1, coord.y + 1),
+        Coordinate(coord.x - 1, coord.y - 1),
+        Coordinate(coord.x + 1, coord.y - 1),
+        Coordinate(coord.x - 1, coord.y + 1),
+    ]
+
+def a_star_search(start: Coordinate, goal: Coordinate, blocked_coords: List[Coordinate]) -> List[Coordinate]:
+    open_set = []
+    heapq.heappush(open_set, (0, start))
+    came_from = {}
+    g_score = {start: 0}
+    f_score = {start: heuristic(start, goal)}
+
+    while open_set:
+        _, current = heapq.heappop(open_set)
+        
+        if current == goal:
+            path = []
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
+            path.reverse()
+            return path
+
+        for neighbor in get_neighbors(current):
+            if neighbor in blocked_coords:
                 continue
 
-            physics_component: MapPhysicsComponent = obj.get_component("MapPhysicsComponent")
-            if not physics_component:
-                physics_component = MapPhysicsComponent(0, True, True)
-            
-            if physics_component.opaque:
-                blocking_objects.append({'coordinates': coordinates_component.coordinates})
+            tentative_g_score = g_score[current] + 1
+            if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = tentative_g_score
+                f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
+                heapq.heappush(open_set, (f_score[neighbor], neighbor))
 
-        # Проверяем видимость всех объектов
-        for obj in map_items_component.objects:
-            item_visible = False
-            
-            coordinates_component: MapCoordinateComponent = obj.get_component("MapCoordinateComponent")
-            if not coordinates_component:
-                continue
-            
-            physics_component: MapPhysicsComponent = obj.get_component("MapPhysicsComponent")
-            if not physics_component:
-                physics_component = MapPhysicsComponent(0, True, True)
-            
-            if physics_component.invisibility_level > detection_level:
-                continue  # Пропускаем предмет, если уровень невидимости выше уровня обнаружения
-                
-            for coord in coordinates_component.coordinates:
-                if Coordinate.distance(position, coord) <= visibility_range:
-                    if is_visible(position, coord, blocking_objects):
-                        item_visible = True
-                        break
-        
-            if item_visible:
-                visible_items.append({'entity': obj, 'coordinates': coordinates_component.coordinates})
-
-        return visible_items
+    return []

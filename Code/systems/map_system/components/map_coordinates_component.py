@@ -1,43 +1,34 @@
 from typing import Any, Dict, List
 
 from systems.entity_system import BaseComponent
-from systems.map_system.coordinates import Coordinate
+from systems.map_system.coordinate import Coordinate
 
 """
-  ...
-  components:
-    - type: MapCoordinateComponent
-      map_id: SomeMapId
-      coordinates:
-        - {x: 1, y: 0}
-        - {x: 2, y: 0}
-        ...
+Не объявляется в обычных прототипах
 """
 
-class MapCoordinateComponent(BaseComponent):
-    __slots__ = ['map_id', 'coordinates']
+class MapCoordinatesComponent(BaseComponent):
+    __slots__ = ['coord_list']
     
-    def __init__(self, map_id: str, coordinates: List[Coordinate]) -> None:
-        super().__init__('MapCoordinateComponent')
-        self.map_id = map_id
-        self.coordinates = coordinates
-    
+    def __init__(self, coord_list: List[Coordinate] = None) -> None:
+        super().__init__("MapCoordinatesComponent")
+        self.coord_list: List[Coordinate] = coord_list
+
     def __repr__(self) -> str:
-        """Возвращает строковое представление компонента MapCoordinateComponent.
+        """Возвращает строковое представление компонента MapCoordinatesComponent.
 
         Returns:
             str: Строковое представление компонента.
         """
-        return f"MapCoordinateComponent(map_id={self.map_id}, coordinates={self.coordinates})"
+        return f"MapCoordinatesComponent(coord_list={self.coord_list})"
     
     @staticmethod
     def get_type_hints() -> Dict[str, Any]:
-        """Возвращает словарь с именами переменных и их типами для компонента MapCoordinateComponent.
+        """Возвращает словарь с именами переменных и их типами для компонента MapCoordinatesComponent.
 
         Returns:
             Dict[str, Any]: Словарь с именами переменных и их типами.
         """
         return {
-            'map_id': str,
-            'coordinates': List[Coordinate]
+            'coord_list': List[Coordinate]
         }
