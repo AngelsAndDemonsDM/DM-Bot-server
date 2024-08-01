@@ -4,7 +4,7 @@ from typing import Dict, Optional, Tuple
 import bcrypt
 import msgpack
 from systems.db_systems import AsyncDB
-from systems.decorators import global_class
+from systems.misc import GlobalClass
 
 
 # --- Access systems --- #
@@ -81,8 +81,7 @@ class AuthError(Exception):
     """
     pass
 
-@global_class
-class UserAuth:
+class UserAuth(GlobalClass):
     __slots__ = ['_db']
 
     def __init__(self) -> None:
@@ -90,20 +89,22 @@ class UserAuth:
 
         Создает экземпляр класса UserAuth и инициализирует базу данных _db с таблицами "users" и "session".
         """
-        self._db = AsyncDB(
-            file_name="user_auth",
-            file_path="",
-            config={
-                'users': [
-                    ('login', str, AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE, None),
-                    ('password', bytes, 0, None),
-                    ('access', bytes, AsyncDB.NOT_NULL, None)
-                ],
-                'session': [
-                    ('token', str, 0, None),
-                    ('user', str, AsyncDB.FOREIGN_KEY, 'forkey|users.login|')
-                ]}
-        )
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            self._db = AsyncDB(
+                file_name="user_auth",
+                file_path="",
+                config={
+                    'users': [
+                        ('login', str, AsyncDB.PRIMARY_KEY | AsyncDB.UNIQUE, None),
+                        ('password', bytes, 0, None),
+                        ('access', bytes, AsyncDB.NOT_NULL, None)
+                    ],
+                    'session': [
+                        ('token', str, 0, None),
+                        ('user', str, AsyncDB.FOREIGN_KEY, 'forkey|users.login|')
+                    ]}
+            )
 
     # --- Magic --- #
     @staticmethod

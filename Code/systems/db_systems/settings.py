@@ -4,7 +4,7 @@ import os
 from typing import Any, Optional
 
 from root_path import ROOT_PATH
-from systems.decorators import global_class
+from systems.misc import GlobalClass
 
 
 class SettingsManager:
@@ -18,7 +18,7 @@ class SettingsManager:
         
         Example::
         
-            settings_manager = SettingsManager.get_instance()
+            settings_manager = SettingsManager()
         """
         self._path: str = os.path.join(ROOT_PATH, 'data', 'settings', f'{file_name}.json')
         self._settings: dict = self._load_settings()
@@ -138,7 +138,8 @@ class SettingsManager:
         """Контекстный менеджер выход."""
         self._save_settings()
 
-@global_class
-class MainSettings(SettingsManager):
-    def __init__(self) -> None:
-        super().__init__("main_app")
+class MainSettings(GlobalClass, SettingsManager):
+    def __init__(self, file_name: str = "main_app") -> None:
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            SettingsManager.__init__(self, file_name)

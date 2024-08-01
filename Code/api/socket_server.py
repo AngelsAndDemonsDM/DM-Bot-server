@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import signal
 from asyncio import StreamReader, StreamWriter
 
 from systems.events_system import EventManager
@@ -69,11 +70,22 @@ async def send_response(writer: StreamWriter, message: bytes):
     writer.close()
     await writer.wait_closed()
 
-def start_socket_server(host='0.0.0.0', port=5001):
-    async def main():
-        server = await asyncio.start_server(handle_client, host, port)
-        logger.info(f"Socket server started on {host}:{port}")
-        async with server:
-            await server.serve_forever()
-    
-    asyncio.run(main())
+async def start_socket_server(host='0.0.0.0', port=5001):
+    server = await asyncio.start_server(handle_client, host, port)
+    logger.info(f"Server started on {host}:{port}")
+
+    loop = asyncio.get_running_loop()
+
+    # Функция для остановки сервера
+    async def shutdown():
+        logger.info("Shutting down server...")
+        server.close()
+        await server.wait_closed()
+        loop.stop()
+        logger.info("Server shutdown complete")
+
+    # Регистрация обработчика сигнала для корректного завершения работы
+    for signame in {'SIGINT', 'SIGTERM'}:
+        loop.add_signal_handler(getattr(signal, signame), lambda: asyncio.create_task(shutdown()))
+
+    await server.serve_forever()

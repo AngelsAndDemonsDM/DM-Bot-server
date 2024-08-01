@@ -1,27 +1,27 @@
 import argparse
+import asyncio
 import logging
 import os
 import platform
+import signal
 import subprocess
 import sys
 from logging.config import dictConfig
-from threading import Thread
-from typing import Tuple
 
 from api import *
 from quart import Quart
 from quart.logging import default_handler
 from systems.auto_updater import AutoUpdater
-from systems.db_systems import MainSettings
-from systems.events_system import EventManager, events
+from systems.db_systems import load_config
+from systems.events_system import register_events
 
-app = Quart(__name__)
-app.logger.removeHandler(default_handler)
+http_server = Quart(__name__)
+http_server.logger.removeHandler(default_handler)
 
 # Blueprint
-app.register_blueprint(admin_bp, url_prefix='/admin')
-app.register_blueprint(auth_bp, url_prefix='/auth')
-app.register_blueprint(server_bp, url_prefix='/server')
+http_server.register_blueprint(admin_bp, url_prefix='/admin')
+http_server.register_blueprint(auth_bp, url_prefix='/auth')
+http_server.register_blueprint(server_bp, url_prefix='/server')
 
 # Argument parsing
 def parse_arguments():
@@ -43,66 +43,36 @@ def run_file_in_new_console(file_path):
     else:
         subprocess.Popen(["x-terminal-emulator", "-e", f"python {absolute_path}"])
 
-def register_events() -> None:
-    logger = logging.getLogger("Event manager")
-    logger.info("Start register events")
+async def main():
+    register_events()
     
-    ev_manager: EventManager = EventManager.get_instance()
-    event_names = events.__all__
-    
-    for name in event_names:
-        handler = getattr(events, name)
-        
-        if callable(handler) and hasattr(handler, 'event_name'):
-            event_name = handler.event_name
-            ev_manager.register_event(event_name, handler)
-            logger.info(f"Registered event '{event_name}' with handler {handler.__name__}")
-    
-    logger.info("End register events")
+    host, port, socket_port, auto_update = load_config()
 
-def load_config() -> Tuple[str, int, int, bool]:
-    logger = logging.getLogger("Settings manager")
-    logger.info("Start load settings")
-    
-    host: str = "127.0.0.1"
-    port: int = 5000
-    socket_port: int = 5001
-    auto_update: bool = False
-    
-    with MainSettings.get_instance() as config:
-        if not config.initialize_default_settings({
-                "app.auto_git_update": False,
-                "server.name": "dev_server",
-                "server.ip": "127.0.0.1",
-                "server.http_port": 5000,
-                "server.socket_port": 5001,
-            }):
-            logger.info(f"Server name: {config.get_setting("server.name")}")
-            
-            host = config.get_setting("server.ip")
-            logger.info(f"IP: {host}")
-            
-            port = config.get_setting("server.http_port")
-            logger.info(f"HTTP port: {port}")
-            
-            socket_port = config.get_setting("server.socket_port")
-            logger.info(f"Soket server port: {socket_port}")
-            
-            auto_update = config.get_setting("app.auto_git_update")
-            logger.info(f"Auto update is enable: {auto_update}")
-            
-            logger.info(f"Config set.")
-        
+    if auto_update:
+        updater = AutoUpdater()
+        if updater.is_needs_update():
+            run_file_in_new_console(os.path.join("Code", "auto_updater", "auto_updater.py"))
+            sys.exit(0)
         else:
-            logger.info(f"Base config set.")
-        
-    return host, port, socket_port, auto_update
+            del updater
 
-def start_socket(ip: str, port: int):
-    server_thread = Thread(target=start_socket_server, args=(ip, port))
-    server_thread.start()
+    # Запуск сокет сервера
+    socket_task = asyncio.create_task(start_socket_server(host, int(socket_port)))
 
-# Start program
+    # Запуск http сервера
+    http_task = asyncio.create_task(http_server.run_task(host=host, port=int(port)))
+
+    async def shutdown():
+        await http_server.shutdown()
+        socket_task.cancel()
+        http_task.cancel()
+        await asyncio.gather(socket_task, http_task, return_exceptions=True)
+
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        asyncio.get_event_loop().add_signal_handler(sig, lambda: asyncio.create_task(shutdown()))
+
+    await asyncio.gather(socket_task, http_task)
+
 if __name__ == "__main__":
     args = parse_arguments()
     debug = args.debug
@@ -127,20 +97,9 @@ if __name__ == "__main__":
             'handlers': ['default'],
         },
     })
-
-    register_events()
     
-    host, port, socket_port, auto_update = load_config()
-
-    if auto_update:
-        updater = AutoUpdater()
-        if updater.is_needs_update():
-            run_file_in_new_console(os.path.join("Code", "auto_updater", "auto_updater.py"))
-            sys.exit(0)
-        
-        else:
-            del updater
+    try:
+        asyncio.run(main())
     
-    start_socket(host, int(socket_port))
-
-    app.run(host=host, port=int(port), debug=debug)
+    except KeyboardInterrupt:
+        logging.info("Server shutdown initiated by user.")
