@@ -1,11 +1,9 @@
-import asyncio
 import logging
-import signal
 from asyncio import StreamReader, StreamWriter
 
 from systems.events_system import EventManager
-from systems.network import (AccessError, AuthError, SocketConnectManager,
-                             UserAuth)
+from systems.network import (AccessError, AuthError, PackageDeliveryManager,
+                             SocketConnectManager, UserAuth)
 
 logger = logging.getLogger("Socket Server")
 
@@ -42,7 +40,7 @@ async def handle_client(reader: StreamReader, writer: StreamWriter):
                 break
             
             try:
-                message_data = SocketConnectManager.unpack_data(message_data)
+                message_data = PackageDeliveryManager.unpack_data(message_data)
                 event_type = message_data.get("ev_type")
                 await event_manager.call_event(event_type, socket_user=user, socket_access=access, **message_data)
             
@@ -69,23 +67,3 @@ async def send_response(writer: StreamWriter, message: bytes):
     await writer.drain()
     writer.close()
     await writer.wait_closed()
-
-async def start_socket_server(host='0.0.0.0', port=5001):
-    server = await asyncio.start_server(handle_client, host, port)
-    logger.info(f"Server started on {host}:{port}")
-
-    loop = asyncio.get_running_loop()
-
-    # Функция для остановки сервера
-    async def shutdown():
-        logger.info("Shutting down server...")
-        server.close()
-        await server.wait_closed()
-        loop.stop()
-        logger.info("Server shutdown complete")
-
-    # Регистрация обработчика сигнала для корректного завершения работы
-    for signame in {'SIGINT', 'SIGTERM'}:
-        loop.add_signal_handler(getattr(signal, signame), lambda: asyncio.create_task(shutdown()))
-
-    await server.serve_forever()

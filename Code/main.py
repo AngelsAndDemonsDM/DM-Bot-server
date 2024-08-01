@@ -3,25 +3,15 @@ import asyncio
 import logging
 import os
 import platform
-import signal
 import subprocess
 import sys
 from logging.config import dictConfig
 
-from api import *
-from quart import Quart
-from quart.logging import default_handler
+from api.socket_server import handle_client
 from systems.auto_updater import AutoUpdater
 from systems.db_systems import load_config
 from systems.events_system import register_events
 
-http_server = Quart(__name__)
-http_server.logger.removeHandler(default_handler)
-
-# Blueprint
-http_server.register_blueprint(admin_bp, url_prefix='/admin')
-http_server.register_blueprint(auth_bp, url_prefix='/auth')
-http_server.register_blueprint(server_bp, url_prefix='/server')
 
 # Argument parsing
 def parse_arguments():
@@ -46,7 +36,7 @@ def run_file_in_new_console(file_path):
 async def main():
     register_events()
     
-    host, port, socket_port, auto_update = load_config()
+    host, port, auto_update = load_config()
 
     if auto_update:
         updater = AutoUpdater()
@@ -56,22 +46,20 @@ async def main():
         else:
             del updater
 
-    # Запуск сокет сервера
-    socket_task = asyncio.create_task(start_socket_server(host, int(socket_port)))
-
-    # Запуск http сервера
-    http_task = asyncio.create_task(http_server.run_task(host=host, port=int(port)))
+    server = await asyncio.start_server(handle_client, host, int(port))
+    logging.info(f"Server started on {host}:{port}")
 
     async def shutdown():
-        await http_server.shutdown()
-        socket_task.cancel()
-        http_task.cancel()
-        await asyncio.gather(socket_task, http_task, return_exceptions=True)
+        logging.info("Shutting down server...")
+        server.close()
+        await server.wait_closed()
+        logging.info("Server shutdown complete")
 
-    for sig in (signal.SIGINT, signal.SIGTERM):
-        asyncio.get_event_loop().add_signal_handler(sig, lambda: asyncio.create_task(shutdown()))
-
-    await asyncio.gather(socket_task, http_task)
+    try:
+        await server.serve_forever()
+    
+    except asyncio.CancelledError:
+        await shutdown()
 
 if __name__ == "__main__":
     args = parse_arguments()
