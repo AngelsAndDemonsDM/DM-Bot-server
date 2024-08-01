@@ -142,7 +142,12 @@ class MapEntity(BaseEntity):
         obj.remove_component("MapCoordinatesComponent")
     
     def do_step(self) -> None:
-        pass
+        for obj, path in list(self.move_queue.items()):
+            if path:
+                next_coordinate = path.pop(0)
+                self.teleport_object(obj, next_coordinate)
+                if not path:
+                    del self.move_queue[obj]
     
     def teleport_object_by_uid(self, uid: int, target_coordinate: Coordinate) -> None:
         ent_factory = EntityFactory()
