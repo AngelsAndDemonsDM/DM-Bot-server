@@ -72,16 +72,76 @@ class Coordinate:
         if value == 0:
             raise ZeroDivisionError("Division by zero is not allowed.")
         
-        return Coordinate(self.x / value, self.y / value)
+        return Coordinate(self.x // value, self.y // value)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
+        """Возвращает хэш-значение для объекта Coordinate.
+
+        Returns:
+            int: Хэш-значение.
+        """
         return hash((self.x, self.y))
 
     def __eq__(self, other: Any) -> bool:
+        """Сравнивает текущий объект Coordinate с другим объектом.
+
+        Args:
+            other (Any): Объект для сравнения.
+
+        Returns:
+            bool: True, если объекты равны, иначе False.
+        """
         if isinstance(other, Coordinate):
             return self.x == other.x and self.y == other.y
         
         return False
+
+    def __lt__(self, other: 'Coordinate') -> bool:
+        """Определяет порядок сравнения координат (по умолчанию по оси X, затем по оси Y).
+
+        Args:
+            other (Coordinate): Другой объект Coordinate для сравнения.
+
+        Returns:
+            bool: True, если текущий объект меньше, чем другой, иначе False.
+        """
+        if self.x == other.x:
+            return self.y < other.y
+        
+        return self.x < other.x
+
+    def __le__(self, other: 'Coordinate') -> bool:
+        """Определяет порядок сравнения координат (по умолчанию по оси X, затем по оси Y).
+
+        Args:
+            other (Coordinate): Другой объект Coordinate для сравнения.
+
+        Returns:
+            bool: True, если текущий объект меньше или равен другому, иначе False.
+        """
+        return self == other or self < other
+
+    def __ge__(self, other: 'Coordinate') -> bool:
+        """Определяет порядок сравнения координат (по умолчанию по оси X, затем по оси Y).
+
+        Args:
+            other (Coordinate): Другой объект Coordinate для сравнения.
+
+        Returns:
+            bool: True, если текущий объект больше или равен другому, иначе False.
+        """
+        return self == other or not self < other
+
+    def __gt__(self, other: 'Coordinate') -> bool:
+        """Определяет порядок сравнения координат (по умолчанию по оси X, затем по оси Y).
+
+        Args:
+            other (Coordinate): Другой объект Coordinate для сравнения.
+
+        Returns:
+            bool: True, если текущий объект больше другого, иначе False.
+        """
+        return not self <= other
 
     def __repr__(self) -> str:
         """Возвращает строковое представление объекта Coordinate.
