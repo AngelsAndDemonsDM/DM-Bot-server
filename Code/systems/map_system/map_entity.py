@@ -1,6 +1,6 @@
 from copy import deepcopy
 from typing import Dict, List
-
+import heapq
 from systems.entity_system import BaseEntity, EntityFactory
 from systems.map_system.components import *
 from systems.map_system.components.map_physics_component import \
@@ -55,7 +55,7 @@ class MapEntity(BaseEntity):
         else:
             coordinate_comp.coord_list = deepcopy(coordinates_to_update)
 
-    def remove_coodinates(self, obj: BaseEntity, obj_type: MAP_PHYSICS_OBJ_TYPE, list_to_remove: List[Coordinate], is_block: bool) -> None:
+    def _remove_coodinates(self, obj: BaseEntity, obj_type: MAP_PHYSICS_OBJ_TYPE, list_to_remove: List[Coordinate], is_block: bool) -> None:
         # Удаляем объект с карты
         if obj_type == MapPhysicsObjType.CEILING:
             for coord in list_to_remove:
@@ -136,7 +136,7 @@ class MapEntity(BaseEntity):
         
         obj_physics_comp = MapEntity._get_map_physics_component(obj)
 
-        self.remove_coodinates(obj, obj_physics_comp.obj_type, coordinates_to_remove.coord_list, obj_physics_comp.block_coordinate)
+        self._remove_coodinates(obj, obj_physics_comp.obj_type, coordinates_to_remove.coord_list, obj_physics_comp.block_coordinate)
 
         obj.remove_component("MapCoordinatesComponent")
     
@@ -156,6 +156,67 @@ class MapEntity(BaseEntity):
         self.add_object(obj, target_coordinate)
         self.remove_object(obj)
         
+    def move_object_by_uid(self, uid: int, target_coordinate: Coordinate) -> None:
+        ent_factory = EntityFactory()
+        obj = ent_factory.get_entity_by_uid(uid)
+        if not obj:
+            return
+        
+        self.move_object(obj, target_coordinate)
     
-    def move_object(self, uid: int, target_coordinate: Coordinate) -> None:
-        pass
+    def move_object(self, obj: BaseEntity, target_coordinate: Coordinate) -> None:
+        current_coordinates = obj.get_component("MapCoordinatesComponent").coord_list
+        if not current_coordinates:
+            return
+        
+        start_coordinate = current_coordinates[0]
+        path = a_star_search(start_coordinate, target_coordinate, self.block_coodinates)
+        
+        if path:
+            self.move_queue[obj] = path
+
+def heuristic(a: Coordinate, b: Coordinate) -> float:
+    return ((a.x - b.x) ** 2 + (a.y - b.y) ** 2) ** 0.5
+
+def get_neighbors(coord: Coordinate) -> List[Coordinate]:
+    return [
+        Coordinate(coord.x + 1, coord.y),
+        Coordinate(coord.x - 1, coord.y),
+        Coordinate(coord.x, coord.y + 1),
+        Coordinate(coord.x, coord.y - 1),
+        Coordinate(coord.x + 1, coord.y + 1),
+        Coordinate(coord.x - 1, coord.y - 1),
+        Coordinate(coord.x + 1, coord.y - 1),
+        Coordinate(coord.x - 1, coord.y + 1),
+    ]
+
+def a_star_search(start: Coordinate, goal: Coordinate, blocked_coords: List[Coordinate]) -> List[Coordinate]:
+    open_set = []
+    heapq.heappush(open_set, (0, start))
+    came_from = {}
+    g_score = {start: 0}
+    f_score = {start: heuristic(start, goal)}
+
+    while open_set:
+        _, current = heapq.heappop(open_set)
+        
+        if current == goal:
+            path = []
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
+            path.reverse()
+            return path
+
+        for neighbor in get_neighbors(current):
+            if neighbor in blocked_coords:
+                continue
+
+            tentative_g_score = g_score[current] + 1
+            if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = tentative_g_score
+                f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
+                heapq.heappush(open_set, (f_score[neighbor], neighbor))
+
+    return []
