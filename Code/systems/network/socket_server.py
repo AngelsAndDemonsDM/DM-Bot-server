@@ -8,8 +8,8 @@ from root_path import ROOT_PATH
 from systems.db_systems import UniqueConstraintError
 from systems.events_system import EventManager
 from systems.misc import GlobalClass
-from systems.network import (AccessError, AuthError, PackageDeliveryManager,
-                             UserAuth)
+from systems.network.pakage_deliver_manager import PackageDeliveryManager
+from systems.network.user_auth import AccessError, AuthError, UserAuth
 
 logger = logging.getLogger("Socket Server")
 
