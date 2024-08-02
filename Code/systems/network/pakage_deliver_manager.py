@@ -9,7 +9,7 @@ class PackageDeliveryManager:
     @staticmethod
     def pack_data(data: Any) -> bytes:
         try:
-            return msgpack.packb(data, use_bin_type=True)
+            return msgpack.packb(data)
 
         except Exception as e:
             raise ValueError(f"Error packing data: {e}")
@@ -17,7 +17,7 @@ class PackageDeliveryManager:
     @staticmethod
     def unpack_data(data: bytes) -> Any:
         try:
-            return msgpack.unpackb(data, raw=False)
+            return msgpack.unpackb(data)
 
         except Exception as e:
             raise ValueError(f"Error unpacking data: {e}")
