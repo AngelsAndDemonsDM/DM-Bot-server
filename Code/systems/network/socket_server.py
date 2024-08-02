@@ -71,6 +71,7 @@ class SoketServerSystem(GlobalClass):
     # Обработка клиента
     async def handle_client(self, reader: StreamReader, writer: StreamWriter):
         user_auth = UserAuth()
+        event_manager = EventManager()
         user = None
         try:
             user_data = await reader.read(self.DEFAULT_BUFFER)
@@ -91,8 +92,33 @@ class SoketServerSystem(GlobalClass):
                     await self.auth(user_data, writer)
                 
                 case "token":
-                    pass
-                
+                    token = user_data.split()[1]
+                    if not token:
+                        await self._send_response_viva_writer(writer, "Missing token")
+                        return
+
+                    user, access = await user_auth.get_login_access_by_token(token)
+
+                    self._add_connect(user, writer)
+
+                    await self._send_data_viva_writer(writer, "Token accepted")
+
+                    while True:
+                        message_data = await reader.read(SoketServerSystem.DEFAULT_BUFFER)
+                        if not message_data:
+                            break
+
+                        try:
+                            message_data = PackageDeliveryManager.unpack_data(message_data)
+                            if not isinstance(message_data, dict):
+                                await self._send_data_viva_writer(writer, "Invalid data")
+                            
+                            event_type = message_data.get("ev_type")
+                            await event_manager.call_event(event_type, socket_user=user, socket_access=access, **message_data)
+
+                        except Exception as e:
+                            logger.error(f"Error processing message: {e}")
+                            
                 case _:
                     await self._send_response_viva_writer(writer, "Forbidden. Unknown command")
         
@@ -170,9 +196,6 @@ class SoketServerSystem(GlobalClass):
         else:
             await self._send_response_viva_writer(writer, "Forbidden. Unknown command")
     
-    async def admin(self, user_data: str, writer: StreamWriter) -> None:
-        pass
-
 def _get_mod_time() -> float:
     root_path = Path(ROOT_PATH)
     return _get_latest_modification_time(root_path / "Content")
