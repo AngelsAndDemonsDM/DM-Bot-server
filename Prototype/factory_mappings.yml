@@ -6,9 +6,9 @@ entities:
 
 # Раздел для регистрации классов компонентов
 components:
-  MapCoordinateComponent: "systems.map_system.components.map_coordinates_component.MapCoordinateComponent"
-  MapItemsComponent: "systems.map_system.components.map_items_component.MapItemsComponent"
   MapPhysicsComponent: "systems.map_system.components.map_physics_component.MapPhysicsComponent"
+  MapCoordinatesComponent: "systems.map_system.components.map_coordinates_component.MapCoordinatesComponent"
+  ShapeComponent: "systems.map_system.components.shape_component.ShapeComponent"
 
 # Пример определения экземпляров сущностей В ДРУГИХ YML ФАЙЛАХ:
 # - type: "PlayerEntity"  # Указываем тип сущности, который соответствует зарегистрированному имени класса
