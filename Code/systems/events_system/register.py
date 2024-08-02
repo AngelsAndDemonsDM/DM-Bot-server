@@ -24,6 +24,9 @@ def register_events() -> None:
     events_directory = events_directory / "Code" / "systems" / "events_system" / "events"
     for file_path in events_directory.rglob("*.py"):
         module_name = file_path.stem  # Имя модуля без расширения .py
+        if module_name == "__init__":
+            continue # Иначе будет регестрация по 15 раз одного и того же
+        
         module = import_module_from_file(module_name, file_path)
 
         for name in dir(module):
