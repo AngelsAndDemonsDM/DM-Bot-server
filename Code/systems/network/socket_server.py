@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from root_path import ROOT_PATH
-from systems.db_systems import UniqueConstraintError
+from systems.db_systems import MainSettings, UniqueConstraintError
 from systems.events_system import EventManager
 from systems.misc import GlobalClass
 from systems.network.pakage_deliver_manager import PackageDeliveryManager
@@ -83,7 +83,8 @@ class SocketServerSystem(GlobalClass):
             command = user_data.split()[0]
             match command:
                 case "status":
-                    await self._send_response_viva_writer(writer, "OK")
+                    with MainSettings() as config:
+                        await self._send_response_viva_writer(writer, f"OK {config.get_setting("server.name")}")
                 
                 case "download":           
                     await self.download(user_data, writer)
