@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from root_path import ROOT_PATH
+from systems.db_systems import UniqueConstraintError
 from systems.events_system import EventManager
 from systems.misc import GlobalClass
 from systems.network import (AccessError, AuthError, PackageDeliveryManager,
@@ -27,20 +28,16 @@ class SoketServerSystem(GlobalClass):
 
     # Менеджмент коннектов
     def _add_connect(self, login: str, client_socket: StreamWriter) -> None:
-        if login in self._connects:
-            del self._connects[login]
-            
-        self._connects[login] = client_socket # На похуях перезаписываем
+        self._connects[login] = client_socket
 
     def _remove_connect(self, login: str) -> None:
-        if login in self._connects:
-            del self._connects[login]
+        self._connects.pop(login, None)
     
     # Отправка данных через StreamWriter
     @staticmethod
     async def _send_data_viva_writer(writer: StreamWriter, data: Any) -> None:
         if not data:
-            raise ValueError(f"Send empty data")    
+            raise ValueError("Send empty data")
         
         writer.write(PackageDeliveryManager.pack_data(data))
         await writer.drain()
@@ -48,7 +45,7 @@ class SoketServerSystem(GlobalClass):
     @staticmethod
     async def _send_response_viva_writer(writer: StreamWriter, data: Any) -> None:
         if not data:
-            raise ValueError(f"Send empty response data")    
+            raise ValueError("Send empty response data")
         
         writer.write(PackageDeliveryManager.pack_data(data))
         await writer.drain()
@@ -56,9 +53,9 @@ class SoketServerSystem(GlobalClass):
         writer.close()
         await writer.wait_closed()
 
-    # Публичное api
+    # Публичное API
     def get_user(self, login: str) -> Optional[StreamWriter]:
-        return self._connects.get(login, None)
+        return self._connects.get(login)
     
     async def send_data(self, login: str, data: Any) -> None:
         writer = self.get_user(login)
@@ -71,18 +68,21 @@ class SoketServerSystem(GlobalClass):
             writer.write(packed_data)
             await writer.drain()
 
-    # Используете вне main.py - кастрирую
+    # Обработка клиента
     async def handle_client(self, reader: StreamReader, writer: StreamWriter):
+        user_auth = UserAuth()
         user = None
         try:
-            user_data = reader.read(self.DEFAULT_BUFFER)
+            user_data = await reader.read(self.DEFAULT_BUFFER)
             user_data = PackageDeliveryManager.unpack_data(user_data)
             if not isinstance(user_data, str):
-                await SoketServerSystem._send_response_viva_writer(writer, b"Forbidden. Only str commands")
+                await self._send_response_viva_writer(writer, "Forbidden. Only str commands")
+                return
             
-            match user_data.split()[0]:
+            command = user_data.split()[0]
+            match command:
                 case "status":
-                    await SoketServerSystem._send_response_viva_writer(writer, b"OK")
+                    await self._send_response_viva_writer(writer, "OK")
                 
                 case "download":           
                     await self.download(user_data, writer)
@@ -90,59 +90,85 @@ class SoketServerSystem(GlobalClass):
                 case "auth":
                     await self.auth(user_data, writer)
                 
-                case "admin":
-                    pass
-                
                 case "token":
                     pass
                 
                 case _:
-                    await SoketServerSystem._send_response_viva_writer(writer, b"Forbidden. Unknown command")
-                
-
+                    await self._send_response_viva_writer(writer, "Forbidden. Unknown command")
+        
         except AuthError:
-            await SoketServerSystem._send_response_viva_writer(writer, b"Unauthorized")
+            await self._send_response_viva_writer(writer, "Unauthorized")
         
         except AccessError:
-            await SoketServerSystem._send_response_viva_writer(writer, b"Forbidden")
+            await self._send_response_viva_writer(writer, "Forbidden")
             
         except Exception as e:
             logger.error(f"Unexpected error: {e}")
         
         finally:
             if user:
+                await user_auth.logout(user)
                 self._remove_connect(user)
             
-            writer.write()
+            writer.write_eof()
             await writer.drain()
 
     async def download(self, user_data: str, writer: StreamWriter) -> None:
         args = user_data.split()
-        if args and args[1] == "get_data":
+        if args and args[1] == "gd":
             await self._send_response_viva_writer(writer, _get_mod_time())
+            return
         
-        else:
-            zip_path = _create_zip_archive()
-            if not zipfile.is_zipfile(zip_path):
-                await SoketServerSystem._send_response_viva_writer(writer, b"Internal Server Error")
-                return
-            
-            # Чтение и отправка файла через сокет
-            with open(zip_path, 'rb') as zip_file:
-                while True:
-                    data = zip_file.read(SoketServerSystem.DEFAULT_BUFFER)
-                    if not data:
-                        break
-                    writer.write(data)
-                    await writer.drain()
-            
-            writer.write_eof()
-            await writer.drain()
-            writer.close()
-            await writer.wait_closed()
+        zip_path = _create_zip_archive()
+        if not zipfile.is_zipfile(zip_path):
+            await self._send_response_viva_writer(writer, "Internal Server Error")
+            return
+        
+        # Чтение и отправка файла через сокет
+        with open(zip_path, 'rb') as zip_file:
+            while data := zip_file.read(self.DEFAULT_BUFFER):
+                writer.write(data)
+                await writer.drain()
+        
+        writer.write_eof()
+        await writer.drain()
+        writer.close()
+        await writer.wait_closed()
     
     async def auth(self, user_data: str, writer: StreamWriter) -> None:
-        pass
+        args = user_data.split()
+        if len(args) < 4:
+            await self._send_response_viva_writer(writer, "Forbidden. Unknown command")
+            return
+        
+        command, login, password = args[1:4]
+        user_auth = UserAuth()
+        
+        if command == "lin":
+            if not login or not password:
+                await self._send_response_viva_writer(writer, "Login and password are required")
+                return
+        
+            try:
+                token = await user_auth.login_user(login, password)
+                await self._send_response_viva_writer(writer, token)
+            
+            except AuthError:
+                await self._send_response_viva_writer(writer, "Invalid credentials")
+        
+        elif command == "reg":
+            if not login or not password:
+                await self._send_response_viva_writer(writer, "Login and password are required")
+                return
+                
+            try:
+                await user_auth.register_user(login, password)
+                await self._send_response_viva_writer(writer, "User registered successfully")
+            except UniqueConstraintError:
+                await self._send_response_viva_writer(writer, "Login already exists")
+        
+        else:
+            await self._send_response_viva_writer(writer, "Forbidden. Unknown command")
     
     async def admin(self, user_data: str, writer: StreamWriter) -> None:
         pass
@@ -161,13 +187,7 @@ def _get_latest_modification_time(directory_path: str) -> float:
         float: Время последней модификации в формате timestamp.
     """
     directory = Path(directory_path)
-    latest_time = 0
-    for file in directory.rglob('*'):
-        if file.is_file():
-            file_time = file.stat().st_mtime
-            if file_time > latest_time:
-                latest_time = file_time
-    
+    latest_time = max((file.stat().st_mtime for file in directory.rglob('*') if file.is_file()), default=0)
     return latest_time
 
 def _create_zip_archive() -> str:
@@ -184,13 +204,10 @@ def _create_zip_archive() -> str:
 
     directory_latest_time = _get_latest_modification_time(folder_path)
 
-    if archive_path.exists():
-        archive_time = archive_path.stat().st_mtime
-        if archive_time >= directory_latest_time:
-            return str(archive_path)
-        
-        else:
-            archive_path.unlink()
+    if archive_path.exists() and archive_path.stat().st_mtime >= directory_latest_time:
+        return str(archive_path)
+    
+    archive_path.unlink(missing_ok=True)
     
     with zipfile.ZipFile(archive_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for file in folder_path.rglob('*'):
