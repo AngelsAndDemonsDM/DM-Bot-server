@@ -104,7 +104,7 @@ class SoketServerSystem(GlobalClass):
                     await self._send_data_viva_writer(writer, "Token accepted")
 
                     while True:
-                        message_data = await reader.read(SoketServerSystem.DEFAULT_BUFFER)
+                        message_data = await reader.read(self.DEFAULT_BUFFER)
                         if not message_data:
                             break
 
