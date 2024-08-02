@@ -16,7 +16,7 @@ logger = logging.getLogger("Socket Server")
 class SocketUserAlreadyConnectError(Exception):
     pass
 
-class SoketServerSystem(GlobalClass):
+class SocketServerSystem(GlobalClass):
     __slots__ = ['_connects']
     
     DEFAULT_BUFFER: int = 8192
@@ -114,7 +114,7 @@ class SoketServerSystem(GlobalClass):
                                 await self._send_data_viva_writer(writer, "Invalid data")
                             
                             event_type = message_data.get("ev_type")
-                            await event_manager.call_event(event_type, socket_user=user, socket_access=access, **message_data)
+                            await event_manager.call_open_event(event_type, user_login=user, user_access=access, **message_data)
 
                         except Exception as e:
                             logger.error(f"Error processing message: {e}")

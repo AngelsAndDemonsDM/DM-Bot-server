@@ -10,7 +10,7 @@ from logging.config import dictConfig
 from systems.auto_updater import AutoUpdater
 from systems.db_systems import load_config
 from systems.events_system import register_events
-from systems.network import SoketServerSystem
+from systems.network import SocketServerSystem
 
 
 # Argument parsing
@@ -46,7 +46,7 @@ async def main():
         else:
             del updater
             
-    server_system = SoketServerSystem()
+    server_system = SocketServerSystem()
     server = await asyncio.start_server(server_system.handle_client, host, int(port))
     logging.info(f"Server started on {host}:{port}")
 
