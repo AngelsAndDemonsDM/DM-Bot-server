@@ -3,10 +3,6 @@
   - changed-files:
       - any-glob-to-any-file: ['Code/**', 'Prototype/factory_mappings.yml']
 
-"Changes: API":
-- changed-files:
-  - any-glob-to-any-file: ['Code/api/**']
-
 "Changes: Systems":
 - changed-files:
   - any-glob-to-any-file: ['Code/systems/**']
@@ -16,12 +12,6 @@
   - changed-files:
       - any-glob-to-any-file: ['Prototype/**']
       - all-globs-to-all-files: ['!Prototype/factory_mappings.yml']
-
-"Changes: Content":
-- all:
-  - changed-files:
-      - any-glob-to-any-file: ['Content/**']
-      - all-globs-to-all-files: ['!Content/changelog.yml', '!Content/updater_config.json']
 
 "Changes: Sprites":
 - changed-files:
