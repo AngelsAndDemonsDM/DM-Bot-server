@@ -17,6 +17,8 @@ from systems.events_system import register_events
 
 http_server = Quart(__name__)
 http_server.logger.removeHandler(default_handler)
+logging.getLogger("websockets").addHandler(logging.NullHandler())
+logging.getLogger("websockets").propagate = False
 
 # Blueprint
 http_server.register_blueprint(admin_bp, url_prefix='/admin')
@@ -56,10 +58,10 @@ async def main():
         else:
             del updater
 
-    # Запуск сокет сервера
-    socket_task = asyncio.create_task(start_socket_server(host, int(socket_port)))
+    # Запуск WebSocket сервера
+    socket_task = asyncio.create_task(start_websocket_server(host=host, port=int(socket_port)))
 
-    # Запуск http сервера
+    # Запуск HTTP сервера
     http_task = asyncio.create_task(http_server.run_task(host=host, port=int(port)))
 
     async def shutdown():
@@ -83,13 +85,14 @@ if __name__ == "__main__":
         'disable_existing_loggers': False,
         'formatters': {
             'default': {
-                'format': '[%(asctime)s] [%(levelname)s] %(name)s: %(message)s',
+                'format': '[%(asctime)s]-[%(levelname)s] \"%(name)s\": %(message)s',
             },
         },
         'handlers': {
             'default': {
                 'class': 'logging.StreamHandler',
                 'formatter': 'default',
+                'stream': 'ext://sys.stdout',
             },
         },
         'root': {

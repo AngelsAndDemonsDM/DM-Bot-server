@@ -1,78 +1,65 @@
 import asyncio
 import logging
 import signal
-from asyncio import StreamReader, StreamWriter
 
+import websockets
 from systems.events_system import EventManager
-from systems.network import (AccessError, AuthError, SocketConnectManager,
-                             UserAuth)
+from systems.network import AccessError, AuthError, ConnectManager, UserAuth
+from websockets import WebSocketServerProtocol
 
 logger = logging.getLogger("Socket Server")
 
-async def handle_client(reader: StreamReader, writer: StreamWriter):
-    socket_manager: SocketConnectManager = SocketConnectManager.get_instance()
-    event_manager: EventManager = EventManager.get_instance()
-    user_auth: UserAuth = UserAuth.get_instance()
-    default_socket_buffer: int = 8192
-    
+connect_manager: ConnectManager = ConnectManager()
+event_manager: EventManager = EventManager()
+user_auth: UserAuth = UserAuth()
+
+async def handle_client(websocket: WebSocketServerProtocol, path: str):
     user = None
     try:
-        # Получаем токен
-        token_data = await reader.read(default_socket_buffer)
+        token_data = await websocket.recv()
         try:
-            token = token_data.decode('utf-8').strip()
-        except UnicodeDecodeError as e:
-            logger.error(f"Decoding error: {e}. Data received: {token_data}")
-            await send_response(writer, b"Invalid token format")
+            token = token_data.strip()
+        except Exception as e:
+            logger.error(f"Error decoding token: {e}. Data received: {token_data}")
+            await websocket.send("Invalid token format")
             return
         
         if not token:
-            await send_response(writer, b"Missing token")
+            await websocket.send("Missing token")
             return
         
         user, access = await user_auth.get_login_access_by_token(token)
         
-        socket_manager.add_user_connect(user, writer)
+        connect_manager.add_user_connect(user, websocket)
         
-        await send_response(writer, b"Token accepted")
+        await websocket.send("Token accepted")
         
-        while True:
-            message_data = await reader.read(default_socket_buffer)
-            if not message_data:
-                break
-            
+        async for message_data in websocket:
             try:
-                message_data = SocketConnectManager.unpack_data(message_data)
+                message_data = ConnectManager.unpack_data(message_data)
                 event_type = message_data.get("ev_type")
-                await event_manager.call_event(event_type, socket_user=user, socket_access=access, **message_data)
+                await event_manager.call_open_event(event_type, socket_user=user, socket_access=access, **message_data)
             
             except Exception as e:
                 logger.error(f"Error processing message: {e}")
     
     except AuthError:
-        await send_response(writer, b"Unauthorized")
+        await websocket.send("Unauthorized")
     
     except AccessError:
-        await send_response(writer, b"Forbidden")
+        await websocket.send("Forbidden")
         
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
     
     finally:
         if user:
-            socket_manager.rm_user_connect(user)
-        writer.close()
-        await writer.wait_closed()
+            connect_manager.rm_user_connect(user)
+        await websocket.close()
 
-async def send_response(writer: StreamWriter, message: bytes):
-    writer.write(message)
-    await writer.drain()
-    writer.close()
-    await writer.wait_closed()
-
-async def start_socket_server(host='0.0.0.0', port=5001):
-    server = await asyncio.start_server(handle_client, host, port)
-    logger.info(f"Server started on {host}:{port}")
+async def start_websocket_server(host='0.0.0.0', port=5001):
+    server = await websockets.serve(handle_client, host, port)
+    logger.info(f"WebSocket server started on ws://{host}:{port}")
 
     loop = asyncio.get_running_loop()
 
@@ -87,5 +74,3 @@ async def start_socket_server(host='0.0.0.0', port=5001):
     # Регистрация обработчика сигнала для корректного завершения работы
     for signame in {'SIGINT', 'SIGTERM'}:
         loop.add_signal_handler(getattr(signal, signame), lambda: asyncio.create_task(shutdown()))
-
-    await server.serve_forever()
