@@ -4,3 +4,4 @@ msgpack
 PyYAML
 quart
 requests
+websockets
