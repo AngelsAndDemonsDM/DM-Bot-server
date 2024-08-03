@@ -44,7 +44,7 @@ async def handle_client(reader: StreamReader, writer: StreamWriter):
             try:
                 message_data = SocketConnectManager.unpack_data(message_data)
                 event_type = message_data.get("ev_type")
-                await event_manager.call_event(event_type, socket_user=user, socket_access=access, **message_data)
+                await event_manager.call_open_event(event_type, socket_user=user, socket_access=access, **message_data)
             
             except Exception as e:
                 logger.error(f"Error processing message: {e}")
