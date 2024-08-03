@@ -10,9 +10,9 @@ from systems.network import (AccessError, AuthError, SocketConnectManager,
 logger = logging.getLogger("Socket Server")
 
 async def handle_client(reader: StreamReader, writer: StreamWriter):
-    socket_manager: SocketConnectManager = SocketConnectManager.get_instance()
-    event_manager: EventManager = EventManager.get_instance()
-    user_auth: UserAuth = UserAuth.get_instance()
+    socket_manager: SocketConnectManager = SocketConnectManager()
+    event_manager: EventManager = EventManager()
+    user_auth: UserAuth = UserAuth()
     default_socket_buffer: int = 8192
     
     user = None
