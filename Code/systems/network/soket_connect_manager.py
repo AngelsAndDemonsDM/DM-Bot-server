@@ -22,7 +22,7 @@ class SocketConnectManager(GlobalClass):
     
     @staticmethod
     def unpack_data(data: bytes) -> Any:
-        return msgpack.unpackb(data, raw=False)
+        return msgpack.unpackb(data)
     
     def add_user_connect(self, login: str, client_socket: Any) -> None:
         if login in self._connects:
