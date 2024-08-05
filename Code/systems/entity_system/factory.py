@@ -28,8 +28,8 @@ class EntityFactory(GlobalClass):
 
     def register_classes(self) -> None:
         """Регистрация классов сущностей и компонентов из файлов в директориях."""
-        self._auto_register_from_directory(Path(ROOT_PATH) / 'Code' / 'registration' / 'entitys', 'Entity')
-        self._auto_register_from_directory(Path(ROOT_PATH) / 'Code' / 'registration' / 'components', 'Component')
+        self._auto_register_from_directory(Path(ROOT_PATH) / "Code" / "systems" / "registration" / 'entitys', 'Entity')
+        self._auto_register_from_directory(Path(ROOT_PATH) / "Code" / "systems" / "registration" / 'components', 'Component')
 
     def _auto_register_from_directory(self, directory: Path, suffix: str) -> None:
         """Автоматическая регистрация классов из указанной директории.
