@@ -1,5 +1,5 @@
 import importlib
-import os
+from pathlib import Path
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Type
 
@@ -25,7 +25,7 @@ class EntityFactory(GlobalClass):
             self._uid_dict: Dict[int, BaseEntity] = {}
             self._next_uid: int = 1
             self._register_from_yaml()
-            self.load_entities_from_directory(os.path.join(ROOT_PATH, "Prototype"))
+            self.load_entities_from_directory(Path(ROOT_PATH) / "Prototype")
 
     def _register_entity(self, entity_type: str, entity_class: Type[BaseEntity]) -> None:
         """Регистрация класса сущности.
@@ -62,7 +62,7 @@ class EntityFactory(GlobalClass):
     def _register_from_yaml(self) -> None:
         """Регистрация сущностей и компонентов из YAML файла.
         """
-        with open(os.path.join(ROOT_PATH, "Prototype", "factory_mappings.yml"), 'r', encoding="UTF-8") as file:
+        with (Path(ROOT_PATH) / "Prototype" / "factory_mappings.yml").open('r', encoding="UTF-8") as file:
             data = yaml.safe_load(file)
 
         for entity_type, full_class_string in data.get('entities', {}).items():
@@ -136,32 +136,30 @@ class EntityFactory(GlobalClass):
 
         return component_class(**component_data)
 
-    def load_entities_from_yaml(self, file_path: str) -> List[BaseEntity]:
+    def load_entities_from_yaml(self, file_path: Path) -> List[BaseEntity]:
         """Загрузка сущностей из YAML файла.
 
         Args:
-            file_path (str): Путь к YAML файлу.
+            file_path (Path): Путь к YAML файлу.
 
         Returns:
             List[BaseEntity]: Список загруженных сущностей.
         """
-        with open(file_path, 'r', encoding="UTF-8") as file:
+        with file_path.open('r', encoding="UTF-8") as file:
             data = yaml.safe_load(file)
 
         return [self._create_entity(entity_data) for entity_data in data]
 
-    def load_entities_from_directory(self, directory_path: str) -> None:
+    def load_entities_from_directory(self, directory_path: Path) -> None:
         """Загрузка сущностей из всех YAML файлов в директории.
 
         Args:
-            directory_path (str): Путь к директории.
+            directory_path (Path): Путь к директории.
         """
         self._entities.clear()
-        for root, _, files in os.walk(directory_path):
-            for file in files:
-                if file.endswith(('.yaml', '.yml')) and file != "factory_mappings.yml":
-                    file_path = os.path.join(root, file)
-                    self._entities.update({f"{entity.type}_{entity.id}": entity for entity in self.load_entities_from_yaml(file_path)})
+        for file_path in directory_path.rglob("*.yaml"):
+            if file_path.name != "factory_mappings.yml":
+                self._entities.update({f"{entity.type}_{entity.id}": entity for entity in self.load_entities_from_yaml(file_path)})
 
     def _generate_uid(self) -> int:
         """Генерация уникального идентификатора (UID).
