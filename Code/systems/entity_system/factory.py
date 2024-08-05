@@ -24,9 +24,11 @@ class EntityFactory(GlobalClass):
             self._entities: Dict[str, BaseEntity] = {}
             self._uid_dict: Dict[int, BaseEntity] = {}
             self._next_uid: int = 1
+            
+            self._register_classes()
             self.load_entities_from_directory(Path(ROOT_PATH) / "Prototype")
 
-    def register_classes(self) -> None:
+    def _register_classes(self) -> None:
         """Регистрация классов сущностей и компонентов из файлов в директориях."""
         self._auto_register_from_directory(Path(ROOT_PATH) / "Code" / "systems", 'Entity')
         self._auto_register_from_directory(Path(ROOT_PATH) / "Code" / "systems", 'Component')

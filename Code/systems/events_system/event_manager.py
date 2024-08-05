@@ -20,6 +20,8 @@ class EventManager(GlobalClass):
             self._initialized = True
             self._open_events: Dict[str, List[Callable[..., Any]]] = {}
             self._protected_events: Dict[str, List[Callable[..., Any]]] = {}
+            
+            self._register_events()
 
     @staticmethod
     def _import_module_from_file(module_name, file_path):
@@ -34,7 +36,7 @@ class EventManager(GlobalClass):
         
         event_dict[event_name].append(func)
 
-    def register_events(self) -> None:
+    def _register_events(self) -> None:
         event_name_pattern = re.compile(r"^(?:o_|p_)?(.+?)_event$") 
 
         events_directory = Path(ROOT_PATH) / "Code" / "systems"

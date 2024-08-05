@@ -49,12 +49,10 @@ def run_file_in_new_console(file_path) -> None:
 def register_all() -> None:
     logging.info("EntityFactory starting work")
     ent_factory = EntityFactory()
-    ent_factory.register_classes()
     logging.info("EntityFactory finished work")
     
     logging.info("EventManager starting work")
     ev_manager = EventManager()
-    ev_manager.register_events()
     logging.info("EventManager finished work")
 
 async def main() -> None:
