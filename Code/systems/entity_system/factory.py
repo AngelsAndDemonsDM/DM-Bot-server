@@ -207,3 +207,16 @@ class EntityFactory(GlobalClass):
             Optional[BaseEntity]: Сущность, если найдена, иначе None.
         """
         return self._uid_dict.get(uid, None)
+
+    def update_object_uid(self, obj: BaseEntity) -> None:
+        """Метод для перерегестрации объекта.
+        Необходимо для корректной загрузки карты, чтобы не было мёртвых душ
+
+        Args:
+            obj (BaseEntity): Объект для перерегестрации
+        """
+        if self._uid_dict.get(obj.uid) is obj:
+            return
+        
+        obj.uid = self._generate_uid()
+        self._uid_dict[obj.uid] = obj
