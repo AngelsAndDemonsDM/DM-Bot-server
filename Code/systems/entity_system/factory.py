@@ -1,6 +1,8 @@
 import importlib
-from pathlib import Path
+import importlib.util
+import logging
 from copy import deepcopy
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Type
 
 import yaml
@@ -9,12 +11,10 @@ from systems.entity_system.base_component import BaseComponent
 from systems.entity_system.base_entity import BaseEntity
 from systems.misc import GlobalClass
 
+logger = logging.getLogger("Entity Factory")
 
 class EntityFactory(GlobalClass):
-    __slots__ = [
-        '_entity_registry', '_component_registry', 
-        '_entities', '_uid_dict', '_next_uid'
-    ]
+    __slots__ = [ '_initialized', '_entity_registry', '_component_registry', '_entities', '_uid_dict', '_next_uid' ]
 
     def __init__(self):
         if not hasattr(self, '_initialized'):
@@ -24,54 +24,42 @@ class EntityFactory(GlobalClass):
             self._entities: Dict[str, BaseEntity] = {}
             self._uid_dict: Dict[int, BaseEntity] = {}
             self._next_uid: int = 1
-            self._register_from_yaml()
             self.load_entities_from_directory(Path(ROOT_PATH) / "Prototype")
 
-    def _register_entity(self, entity_type: str, entity_class: Type[BaseEntity]) -> None:
-        """Регистрация класса сущности.
+    def register_classes(self) -> None:
+        """Регистрация классов сущностей и компонентов из файлов в директориях."""
+        self._auto_register_from_directory(Path(ROOT_PATH) / 'Code' / 'registration' / 'entitys', 'Entity')
+        self._auto_register_from_directory(Path(ROOT_PATH) / 'Code' / 'registration' / 'components', 'Component')
+
+    def _auto_register_from_directory(self, directory: Path, suffix: str) -> None:
+        """Автоматическая регистрация классов из указанной директории.
 
         Args:
-            entity_type (str): Тип сущности.
-            entity_class (Type[BaseEntity]): Класс сущности.
+            directory (Path): Директория для сканирования.
+            suffix (str): Суффикс для фильтрации классов.
         """
-        self._entity_registry[entity_type] = entity_class
+        for file_path in directory.rglob("*.py"):
+            module_name = file_path.stem
+            if module_name == "__init__":
+                continue
 
-    def _register_component(self, component_type: str, component_class: Type[BaseComponent]) -> None:
-        """Регистрация класса компонента.
+            module = self._import_module_from_file(module_name, file_path)
+            for name in dir(module):
+                cls = getattr(module, name)
+                if isinstance(cls, type) and name.endswith(suffix):
+                    if suffix == 'Entity' and issubclass(cls, BaseEntity):
+                        logger.info(f"Registration entity class '{cls.__name__}'")
+                        self._entity_registry[name] = cls
+                    
+                    elif suffix == 'Component' and issubclass(cls, BaseComponent):
+                        logger.info(f"Registration component class '{cls.__name__}'")
+                        self._component_registry[name] = cls
 
-        Args:
-            component_type (str): Тип компонента.
-            component_class (Type[BaseComponent]): Класс компонента.
-        """
-        self._component_registry[component_type] = component_class
-
-    def _import_class(self, full_class_string: str) -> Any:
-        """Импорт класса по строковому представлению.
-
-        Args:
-            full_class_string (str): Полное строковое представление класса.
-
-        Returns:
-            Any: Импортированный класс.
-        """
-        module_path, class_name = full_class_string.rsplit('.', 1)
-        module = importlib.import_module(module_path)
-        cls = getattr(module, class_name)
-        return cls
-
-    def _register_from_yaml(self) -> None:
-        """Регистрация сущностей и компонентов из YAML файла.
-        """
-        with (Path(ROOT_PATH) / "Prototype" / "factory_mappings.yml").open('r', encoding="UTF-8") as file:
-            data = yaml.safe_load(file)
-
-        for entity_type, full_class_string in data.get('entities', {}).items():
-            entity_class = self._import_class(full_class_string)
-            self._register_entity(entity_type, entity_class)
-
-        for component_type, full_class_string in data.get('components', {}).items():
-            component_class = self._import_class(full_class_string)
-            self._register_component(component_type, component_class)
+    def _import_module_from_file(self, module_name, file_path):
+        spec = importlib.util.spec_from_file_location(module_name, file_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
 
     def _create_entity(self, entity_data: Dict[str, Any]) -> BaseEntity:
         """Создание сущности по данным из словаря.
@@ -120,7 +108,7 @@ class EntityFactory(GlobalClass):
             BaseComponent: Созданный компонент.
         """
         from systems.map_system.coordinate import Coordinate
-        
+
         component_type = component_data.pop('type')
         component_class = self._component_registry.get(component_type)
         if not component_class:
@@ -130,7 +118,7 @@ class EntityFactory(GlobalClass):
         for key, expected_type in type_hints.items():
             if key == 'coordinates':
                 component_data[key] = [Coordinate.from_dict(coord) for coord in component_data[key]]
-            
+
             if key in component_data and not isinstance(component_data[key], expected_type):
                 raise TypeError(f"Expected {key} to be {expected_type} but got {type(component_data[key])}")
 
