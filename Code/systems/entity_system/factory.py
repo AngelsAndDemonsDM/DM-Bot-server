@@ -165,9 +165,8 @@ class EntityFactory(GlobalClass):
             directory_path (Path): Путь к директории.
         """
         self._entities.clear()
-        for file_path in directory_path.rglob("*.yaml"):
-            if file_path.name != "factory_mappings.yml":
-                self._entities.update({f"{entity.type}_{entity.id}": entity for entity in self.load_entities_from_yaml(file_path)})
+        for file_path in directory_path.rglob("*.yml"):
+            self._entities.update({f"{entity.type}_{entity.id}": entity for entity in self.load_entities_from_yaml(file_path)})
 
     def _generate_uid(self) -> int:
         """Генерация уникального идентификатора (UID).
