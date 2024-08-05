@@ -37,7 +37,7 @@ class EventManager(GlobalClass):
     def register_events(self) -> None:
         event_name_pattern = re.compile(r"^(?:o_|p_)?(.+?)_event$") 
 
-        events_directory = Path(ROOT_PATH) / "Code" / "systems" / "registration" / "events"
+        events_directory = Path(ROOT_PATH) / "Code" / "systems"
         for file_path in events_directory.rglob("*.py"):
             module_name = file_path.stem  # Имя модуля без расширения .py
             if module_name == "__init__":
