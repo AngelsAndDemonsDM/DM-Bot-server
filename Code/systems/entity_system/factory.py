@@ -46,14 +46,32 @@ class EntityFactory(GlobalClass):
             module = self._import_module_from_file(module_name, file_path)
             for name in dir(module):
                 cls = getattr(module, name)
-                if isinstance(cls, type) and name.endswith(suffix):
+                if isinstance(cls, type) and name.endswith(suffix) and not self._is_base_class(cls, suffix):
                     if suffix == 'Entity' and issubclass(cls, BaseEntity):
-                        logger.info(f"Registration entity class '{cls.__name__}'")
-                        self._entity_registry[name] = cls
+                        if name not in self._entity_registry:
+                            logger.info(f"Registering entity class '{cls.__name__}'")
+                            self._entity_registry[name] = cls
                     
                     elif suffix == 'Component' and issubclass(cls, BaseComponent):
-                        logger.info(f"Registration component class '{cls.__name__}'")
-                        self._component_registry[name] = cls
+                        if name not in self._component_registry:
+                            logger.info(f"Registering component class '{cls.__name__}'")
+                            self._component_registry[name] = cls
+
+    def _is_base_class(self, cls, suffix: str) -> bool:
+        """Проверка, является ли класс базовым.
+
+        Args:
+            cls: Класс для проверки.
+            suffix (str): Суффикс для фильтрации классов.
+
+        Returns:
+            bool: True, если класс является базовым, иначе False.
+        """
+        if suffix == 'Entity':
+            return cls is BaseEntity
+        elif suffix == 'Component':
+            return cls is BaseComponent
+        return False
 
     def _import_module_from_file(self, module_name, file_path):
         spec = importlib.util.spec_from_file_location(module_name, file_path)
