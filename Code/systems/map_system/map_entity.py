@@ -180,9 +180,33 @@ class MapEntity(BaseEntity):
         
         if path:
             self.move_queue[obj] = path
+    
+    @staticmethod
+    def _get_coordinates_in_radius(origin: Coordinate, radius: int) -> List[Coordinate]:
+        coordinates_in_radius = []
+        for x in range(origin.x - radius, origin.x + radius + 1):
+            for y in range(origin.y - radius, origin.y + radius + 1):
+                candidate = Coordinate(x, y)
+                if Coordinate.distance(origin, candidate) <= radius:
+                    coordinates_in_radius.append(candidate)
+        
+        return coordinates_in_radius
 
-def heuristic(a: Coordinate, b: Coordinate) -> float:
-    return ((a.x - b.x) ** 2 + (a.y - b.y) ** 2) ** 0.5
+    def get_entitys_in_range(self, origin: Coordinate, radius: int) -> List[BaseEntity]:
+        entities_in_range = []
+        coordinates_in_radius = self._get_coordinates_in_radius(origin, radius)
+
+        for coord in coordinates_in_radius:
+            if coord in self.map_floor_objects:
+                entities_in_range.extend(self.map_floor_objects[coord])
+        
+            if coord in self.map_main_objects:
+                entities_in_range.extend(self.map_main_objects[coord])
+        
+            if coord in self.map_ceiling_objects:
+                entities_in_range.extend(self.map_ceiling_objects[coord])
+        
+        return entities_in_range
 
 def get_neighbors(coord: Coordinate) -> List[Coordinate]:
     return [
