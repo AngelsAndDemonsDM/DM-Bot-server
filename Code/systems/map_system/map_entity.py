@@ -201,7 +201,7 @@ def a_star_search(start: Coordinate, goal: Coordinate, blocked_coords: List[Coor
     heapq.heappush(open_set, (0, start))
     came_from = {}
     g_score = {start: 0}
-    f_score = {start: heuristic(start, goal)}
+    f_score = {start: Coordinate.distance(start, goal)}
 
     while open_set:
         _, current = heapq.heappop(open_set)
@@ -222,7 +222,7 @@ def a_star_search(start: Coordinate, goal: Coordinate, blocked_coords: List[Coor
             if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
                 came_from[neighbor] = current
                 g_score[neighbor] = tentative_g_score
-                f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
+                f_score[neighbor] = tentative_g_score + Coordinate.distance(neighbor, goal)
                 heapq.heappush(open_set, (f_score[neighbor], neighbor))
 
     return []
