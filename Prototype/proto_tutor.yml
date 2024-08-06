@@ -1,18 +1,6 @@
-# Этот файл используется для регистрации классов сущностей и компонентов,
-
-# Раздел для регистрации классов сущностей
-entities:
-  MapEntity: "systems.map_system.map_entity.MapEntity"
-
-# Раздел для регистрации классов компонентов
-components:
-  MapPhysicsComponent: "systems.map_system.components.map_physics_component.MapPhysicsComponent"
-  MapCoordinatesComponent: "systems.map_system.components.map_coordinates_component.MapCoordinatesComponent"
-  ShapeComponent: "systems.map_system.components.shape_component.ShapeComponent"
-
 # Пример определения экземпляров сущностей В ДРУГИХ YML ФАЙЛАХ:
 # - type: "PlayerEntity"  # Указываем тип сущности, который соответствует зарегистрированному имени класса
-#   id: "1"  # Уникальный идентификатор сущности, обязательное поле
+#   id: "1"  # Уникальный идентификатор прототипа, обязательное поле
 #   additional_field: "value"  # Дополнительные поля из класса сущности
 #   components:  # Список компонентов, принадлежащих этой сущности
 #     - type: "HealthComponent"  # Указываем тип компонента, который соответствует зарегистрированному имени класса
@@ -21,3 +9,18 @@ components:
 #     - type: "PositionComponent"  # Другой компонент, принадлежащий той же сущности
 #       x: 10
 #       y: 20
+
+# Вы можете всегда посмотреть как писать тот или иной компонент в исходном коде компонента / энтити
+# К примеру Code/systems/map_system/components/shape_component.py
+# """
+#   ...
+#   components:
+#     - type: ShapeComponent
+#       shape: "x" # Считайте как изображение на плоскости. \n - новая строка плоскости. Пробле - пропуск.
+#       # Пример бублика - "xxx\nx x\nxxx".
+#       # Если развернуть строку то будет такое на карте:
+#       # xxx
+#       # x x
+#       # xxx
+#       # Бублик?
+# """
