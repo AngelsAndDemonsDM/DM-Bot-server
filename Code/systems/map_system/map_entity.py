@@ -180,9 +180,33 @@ class MapEntity(BaseEntity):
         
         if path:
             self.move_queue[obj] = path
+    
+    @staticmethod
+    def _get_coordinates_in_radius(origin: Coordinate, radius: int) -> List[Coordinate]:
+        coordinates_in_radius = []
+        for x in range(origin.x - radius, origin.x + radius + 1):
+            for y in range(origin.y - radius, origin.y + radius + 1):
+                candidate = Coordinate(x, y)
+                if Coordinate.distance(origin, candidate) <= radius:
+                    coordinates_in_radius.append(candidate)
+        
+        return coordinates_in_radius
 
-def heuristic(a: Coordinate, b: Coordinate) -> float:
-    return ((a.x - b.x) ** 2 + (a.y - b.y) ** 2) ** 0.5
+    def get_entitys_in_range(self, origin: Coordinate, radius: int) -> List[BaseEntity]:
+        entities_in_range = []
+        coordinates_in_radius = self._get_coordinates_in_radius(origin, radius)
+
+        for coord in coordinates_in_radius:
+            if coord in self.map_floor_objects:
+                entities_in_range.extend(self.map_floor_objects[coord])
+        
+            if coord in self.map_main_objects:
+                entities_in_range.extend(self.map_main_objects[coord])
+        
+            if coord in self.map_ceiling_objects:
+                entities_in_range.extend(self.map_ceiling_objects[coord])
+        
+        return entities_in_range
 
 def get_neighbors(coord: Coordinate) -> List[Coordinate]:
     return [
@@ -201,7 +225,7 @@ def a_star_search(start: Coordinate, goal: Coordinate, blocked_coords: List[Coor
     heapq.heappush(open_set, (0, start))
     came_from = {}
     g_score = {start: 0}
-    f_score = {start: heuristic(start, goal)}
+    f_score = {start: Coordinate.distance(start, goal)}
 
     while open_set:
         _, current = heapq.heappop(open_set)
@@ -222,7 +246,7 @@ def a_star_search(start: Coordinate, goal: Coordinate, blocked_coords: List[Coor
             if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
                 came_from[neighbor] = current
                 g_score[neighbor] = tentative_g_score
-                f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
+                f_score[neighbor] = tentative_g_score + Coordinate.distance(neighbor, goal)
                 heapq.heappush(open_set, (f_score[neighbor], neighbor))
 
     return []

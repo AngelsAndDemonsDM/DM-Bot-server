@@ -158,6 +158,45 @@ class Coordinate:
             Dict[str, int]: Словарь с координатами.
         """
         return {'x': self.x, 'y': self.y}
+        
+    def __iter__(self):
+        """Позволяет итерировать по координатам объекта.
+
+        Returns:
+            iterator: Итератор, проходящий по координатам (x, y).
+        """
+        return iter((self.x, self.y))
+
+    def __getitem__(self, index):
+        """Возвращает значение координаты по заданному индексу.
+
+        Args:
+            index (int): Индекс координаты (0 для x, 1 для y).
+
+        Returns:
+            int: Значение координаты x или y.
+
+        Raises:
+            IndexError: Если индекс не равен 0 или 1.
+        """
+        return (self.x, self.y)[index]
+    
+    def __setitem__(self, index, value):
+        """Устанавливает значение координаты по заданному индексу.
+
+        Args:
+            index (int): Индекс координаты (0 для x, 1 для y).
+            value (int): Новое значение координаты.
+
+        Raises:
+            IndexError: Если индекс не равен 0 или 1.
+        """
+        if index == 0:
+            self.x = value
+        elif index == 1:
+            self.y = value
+        else:
+            raise IndexError("Index out of range")
 
     @staticmethod
     def from_dict(data: Dict[str, int]) -> 'Coordinate':
@@ -170,14 +209,6 @@ class Coordinate:
             Coordinate: Новый объект Coordinate.
         """
         return Coordinate(x=data['x'], y=data['y'])
-
-    def to_tuple(self) -> Tuple[int, int]:
-        """Преобразует объект Coordinate в кортеж.
-
-        Returns:
-            Tuple[int, int]: Кортеж с координатами (x, y).
-        """
-        return (self.x, self.y)
 
     @staticmethod
     def from_tuple(data: Tuple[int, int]) -> 'Coordinate':
