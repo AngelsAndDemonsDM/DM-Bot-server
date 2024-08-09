@@ -1,6 +1,6 @@
 # DM-Bot
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://github.com/AngelsAndDemonsDM/DM-Bot-server/blob/master/LICENSE.md)
-![Static Badge](https://img.shields.io/badge/Age_restrict-18%2B-red)
+![Age restrict: 18+](https://img.shields.io/badge/Age_restrict-18%2B-red)
 
 [![Tests](https://github.com/AngelsAndDemonsDM/DM-Bot/actions/workflows/unittest.yml/badge.svg?branch=master)](https://github.com/AngelsAndDemonsDM/DM-Bot/actions/workflows/unittest.yml)
 [![Deploy static content to Pages](https://github.com/AngelsAndDemonsDM/DM-Bot-server/actions/workflows/static.yml/badge.svg)](https://github.com/AngelsAndDemonsDM/DM-Bot-server/actions/workflows/static.yml)
