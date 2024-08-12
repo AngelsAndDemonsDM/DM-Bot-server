@@ -7,6 +7,7 @@ import sys
 from logging.config import dictConfig
 from pathlib import Path
 
+from api import *
 from DMBotNetwork import Server
 from root_path import ROOT_PATH
 from systems.auto_updater import AutoUpdater
@@ -36,7 +37,9 @@ def run_file_in_new_console(file_path: Path) -> None:
 def init_all() -> None:
     logging.info("Initialize base server access...")
     Server.BASE_ACCESS = {
-        "create_new_users": False,
+        "create_users": False,
+        "delete_users": False,
+        "change_access": False,
         "change_password": True
     }
     logging.info("Done")
@@ -57,7 +60,7 @@ async def main() -> None:
 
     db_path = ROOT_PATH / 'data'
     server = Server(host="localhost", port=5000, db_path=db_path)
-    
+
     await server.start()
 
 if __name__ == "__main__":
