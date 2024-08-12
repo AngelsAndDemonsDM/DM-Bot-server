@@ -1,7 +1,4 @@
-aiosqlite
-bcrypt
+DMBotNetwork == 0.0.3
 msgpack
 PyYAML
-quart
 requests
-websockets
