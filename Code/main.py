@@ -12,6 +12,7 @@ from DMBotNetwork import Server
 from root_path import ROOT_PATH
 from systems.auto_updater import AutoUpdater
 from systems.entity_system import EntityFactory
+from systems.file_work import MainAppSettings
 
 
 # Argument parsing
@@ -44,12 +45,26 @@ def init_all() -> None:
     }
     logging.info("Done")
     
+    logging.info("Initialize main_app_settings.json...")
+    main_settings = MainAppSettings()
+    main_settings.init_base_settings({
+        "app": {
+            "host": "localhost",
+            "port": 5000,
+            "auto_update": False,
+            "db_path": "data"
+        }
+    })
+    logging.info("Done")
+    
     logging.info("Initialize EntityFactory...")
     EntityFactory() # Singleton moment. Создаём объект для всего проекта
     logging.info("Done")
     
 async def main() -> None:
-    if False: # TODO: Не забыть добавить переменную на автоапдейт после починки всего
+    main_settings = MainAppSettings()
+    
+    if main_settings.get_s("app.auto_update"):
         updater = AutoUpdater()
         if updater.is_needs_update():
             run_file_in_new_console(ROOT_PATH / "Code" / "auto_updater" / "auto_updater.py")
@@ -58,8 +73,11 @@ async def main() -> None:
         else:
             del updater
 
-    db_path = ROOT_PATH / 'data'
-    server = Server(host="localhost", port=5000, db_path=db_path)
+    db_path = ROOT_PATH / Path(main_settings.get_s("app.db_path"))
+    host = main_settings.get_s("app.host")
+    port = main_settings.get_s("app.port")
+    
+    server = Server(host=host, port=port, db_path=db_path)
 
     await server.start()
 
