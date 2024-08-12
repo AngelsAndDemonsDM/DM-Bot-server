@@ -1,1 +1,1 @@
-from systems.auto_updater.auto_updater import AutoUpdater
+from .auto_updater import AutoUpdater
