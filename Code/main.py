@@ -49,6 +49,7 @@ def init_all() -> None:
     main_settings = MainAppSettings()
     main_settings.init_base_settings({
         "app": {
+            "server_name": "dev_server",
             "host": "localhost",
             "port": 5000,
             "auto_update": False,
@@ -76,8 +77,9 @@ async def main() -> None:
     db_path = ROOT_PATH / Path(main_settings.get_s("app.db_path"))
     host = main_settings.get_s("app.host")
     port = main_settings.get_s("app.port")
+    server_name = main_settings.get_s("server_name")
     
-    server = Server(host=host, port=port, db_path=db_path)
+    server = Server(host=host, port=port, db_path=db_path, server_name=server_name)
 
     await server.start()
 
