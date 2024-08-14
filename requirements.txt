@@ -1,4 +1,5 @@
 DMBotNetwork == 0.0.4
+DMBotTools
 msgpack
 PyYAML
 requests

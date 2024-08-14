@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
+from DMBotTools import Shape
 from systems.entity_system import BaseComponent
-from systems.map_system.shape import Shape
 
 """
   ...

@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Union
 
-from misc import GlobalClass
+from DMBotTools import GlobalClass
 from root_path import ROOT_PATH
 
 

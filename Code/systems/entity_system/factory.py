@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Type
 
 import yaml
-from misc import GlobalClass
+from DMBotTools import Coordinate, GlobalClass
 from root_path import ROOT_PATH
 from systems.entity_system.base_component import BaseComponent
 from systems.entity_system.base_entity import BaseEntity
@@ -125,8 +125,6 @@ class EntityFactory(GlobalClass):
         Returns:
             BaseComponent: Созданный компонент.
         """
-        from systems.map_system.coordinate import Coordinate
-
         component_type = component_data.pop('type')
         component_class = self._component_registry.get(component_type)
         if not component_class:

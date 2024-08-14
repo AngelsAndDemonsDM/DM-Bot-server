@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 
+from DMBotTools import Coordinate
 from systems.entity_system import BaseComponent
-from systems.map_system.coordinate import Coordinate
 
 """
 Не объявляется в обычных прототипах
