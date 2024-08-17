@@ -1,4 +1,4 @@
-DMBotNetwork == 0.0.4
+DMBotNetwork
 DMBotTools
 msgpack
 PyYAML
