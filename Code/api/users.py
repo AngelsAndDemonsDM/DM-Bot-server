@@ -3,7 +3,7 @@ from typing import Dict
 from DMBotNetwork import Server
 
 
-class UserServerModule(Server):
+class UserModule(Server):
     async def net_delete_user(self, user_login: str, login: str):
         if not isinstance(login, str):
             return {"action": "log", "log_type": "error", "msg": "Invalid login type, expected string."}
