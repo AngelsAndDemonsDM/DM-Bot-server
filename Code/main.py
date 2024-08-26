@@ -62,6 +62,10 @@ def init_all() -> None:
     EntityFactory() # Singleton moment. Создаём объект для всего проекта
     logging.info("Done")
     
+    logging.info("Initialize Server modules...")
+    Server()
+    logging.info("Done")
+    
 async def main() -> None:
     main_settings = MainAppSettings()
     
@@ -74,14 +78,12 @@ async def main() -> None:
         else:
             del updater
 
-    db_path = ROOT_PATH / Path(main_settings.get_s("app.db_path"))
-    host = main_settings.get_s("app.host")
-    port = main_settings.get_s("app.port")
-    server_name = main_settings.get_s("server_name")
-    
-    server = Server(host=host, port=port, db_path=db_path, server_name=server_name)
+    Server.set_db_path(ROOT_PATH / Path(main_settings.get_s("app.db_path")))
+    Server.set_host(main_settings.get_s("app.host"))
+    Server.set_port(main_settings.get_s("app.port"))
+    Server.set_server_name(main_settings.get_s("server_name"))
 
-    await server.start()
+    await Server.start()
 
 if __name__ == "__main__":
     args = parse_arguments()
