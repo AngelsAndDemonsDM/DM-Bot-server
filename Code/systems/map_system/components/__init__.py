@@ -1,7 +1,5 @@
-from systems.map_system.components.map_coordinates_component import \
-    MapCoordinatesComponent
-from systems.map_system.components.map_physics_component import \
-    MapPhysicsComponent
-from systems.map_system.components.shape_component import Shape
+from .map_coordinates_component import MapCoordinatesComponent
+from .map_physics_component import MapPhysicsComponent
+from .shape_component import ShapeComponent
 
-__all__ = ['MapCoordinatesComponent', 'MapPhysicsComponent', 'Shape']
+__all__ = ['MapCoordinatesComponent', 'MapPhysicsComponent', 'ShapeComponent']

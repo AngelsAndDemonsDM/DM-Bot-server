@@ -6,10 +6,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Type
 
 import yaml
+from DMBotTools import Coordinate, GlobalClass
 from root_path import ROOT_PATH
 from systems.entity_system.base_component import BaseComponent
 from systems.entity_system.base_entity import BaseEntity
-from systems.misc import GlobalClass
 
 logger = logging.getLogger("Entity Factory")
 
@@ -17,8 +17,7 @@ class EntityFactory(GlobalClass):
     __slots__ = ['_initialized', '_entity_registry', '_component_registry', '_entities', '_uid_dict', '_next_uid']
 
     def __init__(self):
-        if not hasattr(self, '_initialized'):
-            self._initialized = True
+        if self._is_not_initialized():
             self._entity_registry: Dict[str, Type[BaseEntity]] = {}
             self._component_registry: Dict[str, Type[BaseComponent]] = {}
             self._entities: Dict[str, BaseEntity] = {}
@@ -26,12 +25,12 @@ class EntityFactory(GlobalClass):
             self._next_uid: int = 1
 
             self._register_classes()
-            self.load_entities_from_directory(Path(ROOT_PATH) / "Prototype")
+            self.load_entities_from_directory(ROOT_PATH / "Prototype")
 
     def _register_classes(self) -> None:
         """Регистрация классов сущностей и компонентов из файлов в директориях."""
-        self._auto_register_from_directory(Path(ROOT_PATH) / "Code" / "systems", 'Entity')
-        self._auto_register_from_directory(Path(ROOT_PATH) / "Code" / "systems", 'Component')
+        self._auto_register_from_directory(ROOT_PATH / "Code" / "systems", 'Entity')
+        self._auto_register_from_directory(ROOT_PATH / "Code" / "systems", 'Component')
 
     def _auto_register_from_directory(self, directory: Path, suffix: str) -> None:
         """Автоматическая регистрация классов из указанной директории.
@@ -126,8 +125,6 @@ class EntityFactory(GlobalClass):
         Returns:
             BaseComponent: Созданный компонент.
         """
-        from systems.map_system.coordinate import Coordinate
-
         component_type = component_data.pop('type')
         component_class = self._component_registry.get(component_type)
         if not component_class:

@@ -1,17 +1,17 @@
 import json
 import logging
-import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
+from pathlib import Path
 
 import requests
 import yaml
 
 logging.basicConfig(level=logging.INFO)
 
-BASE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-CONFIG_FILE = os.path.join(BASE_ROOT, "Content", "updater_config.json")
-CL_FILE = os.path.join(BASE_ROOT, "Content", "changelog.yml")
+BASE_ROOT = Path(__file__).resolve().parent.parent
+CONFIG_FILE = BASE_ROOT / "Content" / "updater_config.json"
+CL_FILE = BASE_ROOT / "Content" / "changelog.yml"
 
 def load_config(config_file):
     try:
@@ -128,8 +128,8 @@ def process_pull_requests(start_pr, end_pr, token=None):
     changelog = {'changelog': []}
     init_version = "0.0.0"
     
-    if os.path.exists(CL_FILE):
-        os.remove(CL_FILE)
+    if CL_FILE.exists():
+        CL_FILE.unlink()
     
     pr_numbers = range(start_pr, end_pr + 1)
     pr_list = fetch_pr_data(pr_numbers, repo, token)

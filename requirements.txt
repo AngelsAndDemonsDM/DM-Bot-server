@@ -1,7 +1,5 @@
-aiosqlite
-bcrypt
+DMBotNetwork
+DMBotTools
 msgpack
 PyYAML
-quart
 requests
-websockets

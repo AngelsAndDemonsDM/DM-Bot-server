@@ -2,12 +2,11 @@ import heapq
 from copy import deepcopy
 from typing import Dict, List
 
+from DMBotTools import Coordinate, Shape
 from systems.entity_system import BaseEntity, EntityFactory
 from systems.map_system.components import *
 from systems.map_system.components.map_physics_component import (
     MAP_PHYSICS_OBJ_TYPE, MapPhysicsObjType)
-from systems.map_system.coordinate import Coordinate
-from systems.map_system.shape import Shape
 
 
 class MapColisionError(Exception):

@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Start server",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "Code/main.py",
+            "console": "integratedTerminal"
+        }
+    ]
+}
