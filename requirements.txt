@@ -1,6 +1,6 @@
 DMBotNetwork==0.1.3
 DMBotTools
 msgpack
+python-dotenv
 PyYAML
 requests
-python-dotenv
