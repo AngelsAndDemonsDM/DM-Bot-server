@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from api import *  # noqa: F403
+from api import DownloadServerModule, UserServerModule
 from DMBotNetwork import Server
 from dotenv import load_dotenv
 from root_path import ROOT_PATH
@@ -62,7 +62,7 @@ def init_all() -> None:
 
     logging.info("Initialize Server modules...")
     Server()
-    Server.register_methods_from_class([api.DownloadServerModule, api.UserServerModule])
+    Server.register_methods_from_class([DownloadServerModule, UserServerModule])
     logging.info("Done")
 
 
