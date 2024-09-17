@@ -1,16 +1,18 @@
 import zipfile
 from pathlib import Path
 
-from DMBotNetwork import ClientUnit, Server
+from DMBotNetwork import ClUnit
 from root_path import ROOT_PATH
 
 
-class DownloadServerModule(Server):
-    async def download_server_conent(self, cl_unit: ClientUnit):
-        zip_path = self._create_zip_archive()
+class DownloadServerModule:
+    @staticmethod
+    async def net_download_server_conent(cl_unit: ClUnit):
+        zip_path = DownloadServerModule._create_zip_archive()
         await cl_unit.send_file(zip_path, "server_contet.zip")
 
-    def _get_latest_modification_time(self, directory_path: Path) -> float:
+    @staticmethod
+    def _get_latest_modification_time(directory_path: Path) -> float:
         """Получает время последней модификации файлов в директории.
 
         Args:
@@ -28,7 +30,8 @@ class DownloadServerModule(Server):
 
         return latest_time
 
-    def _create_zip_archive(self) -> Path:
+    @staticmethod
+    def _create_zip_archive() -> Path:
         """Создает ZIP-архив из папки 'Content' и возвращает путь к архиву.
         Проверяет время последней модификации файлов перед пересозданием.
 
@@ -39,8 +42,9 @@ class DownloadServerModule(Server):
         archive_path = Path(ROOT_PATH) / "data" / "content.zip"
 
         if archive_path.exists():
-            if archive_path.stat().st_mtime >= self._get_latest_modification_time(
-                folder_path
+            if (
+                archive_path.stat().st_mtime
+                >= DownloadServerModule._get_latest_modification_time(folder_path)
             ):
                 return archive_path
 

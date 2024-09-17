@@ -2,7 +2,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Start server",
+            "name": "Start server debug",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "Code/main.py --debug",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Start server release",
             "type": "debugpy",
             "request": "launch",
             "program": "Code/main.py",

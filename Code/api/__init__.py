@@ -1,3 +1,4 @@
-from .chat import ChatModule
+from .download import DownloadServerModule
+from .user import UserServerModule
 
-__all__ = ["ChatModule"]
+__all__ = ["DownloadServerModule", "UserServerModule"]

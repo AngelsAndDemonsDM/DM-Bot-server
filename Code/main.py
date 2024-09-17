@@ -5,7 +5,6 @@ import os
 import platform
 import subprocess
 import sys
-from logging.config import dictConfig
 from pathlib import Path
 
 from api import *  # noqa: F403
@@ -16,12 +15,13 @@ from systems.auto_updater import AutoUpdater
 from systems.entity_system import EntityFactory
 from systems.file_work import MainAppSettings
 
+load_dotenv()
 
-# Argument parsing
-def parse_arguments():
-    parser = argparse.ArgumentParser(description="DM-Bot")
-    parser.add_argument("--debug", action="store_true", help="Включить режим отладки")
-    return parser.parse_args()
+
+class FixedWidthFormatter(logging.Formatter):
+    def format(self, record):
+        record.levelname = f"{record.levelname:<7}"
+        return super().format(record)
 
 
 # Function to run a file in a new console
@@ -40,8 +40,6 @@ def run_file_in_new_console(file_path: Path) -> None:
 
 
 def init_all() -> None:
-    load_dotenv()
-
     logging.info("Initialize main_app_settings.json...")
     main_settings = MainAppSettings()
     main_settings.init_base_settings(
@@ -52,6 +50,7 @@ def init_all() -> None:
                 "timeout": 30.0,
                 "allow_registration": True,
                 "server_name": "dev",
+                "max_players": 25,
             }
         }
     )
@@ -63,6 +62,7 @@ def init_all() -> None:
 
     logging.info("Initialize Server modules...")
     Server()
+    Server.register_methods_from_class([api.DownloadServerModule, api.UserServerModule])
     logging.info("Done")
 
 
@@ -91,44 +91,39 @@ async def main() -> None:
     env_password = os.getenv("OWNER_PASSWORD")
     base_owener_password = env_password if env_password else "owner_password"
 
-    await Server.start(
-        host=main_settings.get_s("app.host"),
-        main_port=main_settings.get_s("app.port"),
-        db_file_path=ROOT_PATH / "data",
-        base_owner_password=base_owener_password,
-        timeout=main_settings.get_s("app.timeout"),
-        allow_registration=main_settings.get_s("app.allow_registration"),
-        base_access_flags=base_access_flags,
+    await Server.setup_server(
         server_name=main_settings.get_s("app.server_name"),
+        host=main_settings.get_s("app.host"),
+        port=main_settings.get_s("app.port"),
+        db_path=Path(ROOT_PATH / "data"),
+        init_owner_password=base_owener_password,
+        base_access=base_access_flags,
+        allow_registration=main_settings.get_s("app.allow_registration"),
+        timeout=main_settings.get_s("app.timeout"),
+        max_player=main_settings.get_s("app.max_players"),
     )
+
+    await Server.start()
 
 
 if __name__ == "__main__":
-    args = parse_arguments()
-    debug = args.debug
+    parser = argparse.ArgumentParser(description="Запуск сервера DMBot")
+    parser.add_argument("--debug", action="store_true", help="Включение режима отладки")
 
-    # Базовая конфигурация логгера
-    dictConfig(
-        {
-            "version": 1,
-            "disable_existing_loggers": False,
-            "formatters": {
-                "default": {
-                    "format": '[%(asctime)s]-[%(levelname)s] "%(name)s": %(message)s',
-                },
-            },
-            "handlers": {
-                "default": {
-                    "class": "logging.StreamHandler",
-                    "formatter": "default",
-                    "stream": "ext://sys.stdout",
-                },
-            },
-            "root": {
-                "level": logging.DEBUG if debug else logging.INFO,
-                "handlers": ["default"],
-            },
-        }
+    args = parser.parse_args()
+
+    log_level = logging.DEBUG if args.debug else logging.INFO
+
+    handler = logging.StreamHandler()
+    formatter = FixedWidthFormatter(
+        "[%(asctime)s][%(levelname)s] %(name)s: %(message)s"
+    )
+
+    handler.setFormatter(formatter)
+
+    logging.basicConfig(
+        level=log_level,
+        handlers=[handler],
     )
 
     init_all()
