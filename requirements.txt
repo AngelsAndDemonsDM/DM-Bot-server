@@ -1,4 +1,4 @@
-DMBotNetwork==0.2.2
+DMBotNetwork==0.2.3
 DMBotTools
 msgpack
 python-dotenv

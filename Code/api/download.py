@@ -8,8 +8,13 @@ from root_path import ROOT_PATH
 class DownloadServerModule:
     @staticmethod
     async def net_download_server_conent(cl_unit: ClUnit):
-        zip_path = DownloadServerModule._create_zip_archive()
-        await cl_unit.send_file(zip_path, "server_contet.zip")
+        try:
+            zip_path = DownloadServerModule._create_zip_archive()
+            await cl_unit.send_file(zip_path, "server_contet.zip")
+            return "done"
+        
+        except Exception as err:
+            return str(err)
 
     @staticmethod
     def _get_latest_modification_time(directory_path: Path) -> float:

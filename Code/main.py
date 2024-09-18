@@ -57,11 +57,12 @@ def init_all() -> None:
     logging.info("Done")
 
     logging.info("Initialize EntityFactory...")
-    EntityFactory()  # Singleton moment. Создаём объект для всего проекта
+    EntityFactory()
     logging.info("Done")
 
     logging.info("Initialize Server modules...")
     Server()
+    
     Server.register_methods_from_class([DownloadServerModule, UserServerModule])
     logging.info("Done")
 

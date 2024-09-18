@@ -5,8 +5,11 @@
             "name": "Start server debug",
             "type": "debugpy",
             "request": "launch",
-            "program": "Code/main.py --debug",
-            "console": "integratedTerminal"
+            "program": "Code/main.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--debug"
+            ]
         },
         {
             "name": "Start server release",
