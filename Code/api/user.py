@@ -1,4 +1,4 @@
-from DMBotNetwork import ClUnit, ServerDB, require_access
+from DMBotNetwork import ClUnit, ServerDB, require_access, Server
 
 
 class UserServerModule:
@@ -26,3 +26,68 @@ class UserServerModule:
             return "Sucess"
 
         return "Insufficient access"
+
+    @require_access("change_server_settings")
+    @staticmethod
+    async def net_get_server_settings(cl_unit: ClUnit):
+        return {
+            "timeout": Server._timeout,
+            "max_players": Server._max_players,
+            "allow_registration": Server._allow_registration,
+        }  # TODO: Добавить для этого дерьма гетеры
+
+    @require_access("change_server_settings")
+    @staticmethod
+    async def net_change_server_settings(
+        cl_unit: ClUnit, type: str, value: bool | float | int
+    ):
+        if type == "timeout":
+            if isinstance(value, float):
+                Server.set_timeout(value)
+
+            else:
+                return "Timeout value must be of type float."
+
+        elif type == "max_players":
+            if isinstance(value, int) and value >= -1:
+                Server.set_max_players(value)
+
+            else:
+                return (
+                    "Max players value must be an integer greater than or equal to -1."
+                )
+
+        elif type == "allow_registration":
+            if isinstance(value, bool):
+                Server.set_allow_registration(value)
+
+            else:
+                return "Allow registration value must be of type bool."
+
+        else:
+            return f"Unknown setting type: {type}"
+
+    @require_access("delete_users")
+    @staticmethod
+    async def net_delete_user(cl_unit: ClUnit, login: str):
+        if login == "owner":
+            return "Insufficient access"
+
+        try:
+            await ServerDB.delete_user(login)
+            # При удалении юзера должно происходить разрыв соединения, но пока сосём лапу
+        except Exception as err:
+            return str(err)
+        
+        return "Sucess"
+
+    @require_access("create_users")
+    @staticmethod
+    async def net_create_user(cl_unit: ClUnit, login: str, password: str):
+        try:
+            await ServerDB.add_user(login, password)
+
+        except Exception as err:
+            return str(err)
+
+        return "Sucess"

@@ -82,7 +82,7 @@ async def main() -> None:
             del updater
 
     base_access_flags = {
-        "change_allow_registration": False,
+        "change_server_settings": False,
         "create_users": False,
         "delete_users": False,
         "change_access": False,
