@@ -1,120 +1,136 @@
 import argparse
 import asyncio
 import logging
+import os
 import platform
 import subprocess
 import sys
-from logging.config import dictConfig
 from pathlib import Path
 
-from api import *
+from api import DownloadServerModule, UserServerModule
 from DMBotNetwork import Server
+from dotenv import load_dotenv
 from root_path import ROOT_PATH
 from systems.auto_updater import AutoUpdater
 from systems.entity_system import EntityFactory
 from systems.file_work import MainAppSettings
 
+load_dotenv()
 
-# Argument parsing
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='DM-Bot')
-    parser.add_argument('--debug', action='store_true', help='Включить режим отладки')
-    return parser.parse_args()
+
+class FixedWidthFormatter(logging.Formatter):
+    def format(self, record):
+        record.levelname = f"{record.levelname:<7}"
+        return super().format(record)
+
 
 # Function to run a file in a new console
 def run_file_in_new_console(file_path: Path) -> None:
     absolute_path = file_path.resolve()
     system = platform.system()
-    
+
     if system == "Windows":
         subprocess.Popen(["start", "cmd", "/c", f"python {absolute_path}"], shell=True)
-    
+
     elif system == "Darwin":
         subprocess.Popen(["open", "-a", "Terminal", str(absolute_path)])
-    
+
     else:
         subprocess.Popen(["x-terminal-emulator", "-e", f"python {absolute_path}"])
 
+
 def init_all() -> None:
-    logging.info("Initialize base server access...")
-    Server.BASE_ACCESS = {
-        "create_users": False,
-        "delete_users": False,
-        "change_access": False,
-        "change_password": True
-    }
-    logging.info("Done")
-    
     logging.info("Initialize main_app_settings.json...")
     main_settings = MainAppSettings()
-    main_settings.init_base_settings({
-        "app": {
-            "server_name": "dev_server",
-            "host": "localhost",
-            "port": 5000,
-            "auto_update": False,
-            "db_path": "data"
+    main_settings.init_base_settings(
+        {
+            "app": {
+                "host": "localhost",
+                "port": 5000,
+                "timeout": 30.0,
+                "allow_registration": True,
+                "server_name": "dev",
+                "max_players": 25,
+            }
         }
-    })
+    )
     logging.info("Done")
-    
+
     logging.info("Initialize EntityFactory...")
-    EntityFactory() # Singleton moment. Создаём объект для всего проекта
+    EntityFactory()
     logging.info("Done")
-    
+
     logging.info("Initialize Server modules...")
     Server()
-    logging.info("Done")
     
+    Server.register_methods_from_class([DownloadServerModule, UserServerModule])
+    logging.info("Done")
+
+
 async def main() -> None:
     main_settings = MainAppSettings()
-    
+
     if main_settings.get_s("app.auto_update"):
         updater = AutoUpdater()
         if updater.is_needs_update():
-            run_file_in_new_console(ROOT_PATH / "Code" / "auto_updater" / "auto_updater.py")
+            run_file_in_new_console(
+                ROOT_PATH / "Code" / "auto_updater" / "auto_updater.py"
+            )
             sys.exit(0)
-        
+
         else:
             del updater
 
-    Server.set_db_path(ROOT_PATH / Path(main_settings.get_s("app.db_path")))
-    Server.set_host(main_settings.get_s("app.host"))
-    Server.set_port(main_settings.get_s("app.port"))
-    Server.set_server_name(main_settings.get_s("server_name"))
+    base_access_flags = {
+        "change_server_settings": False,
+        "create_users": False,
+        "delete_users": False,
+        "change_access": False,
+        "change_password": True,
+    }
+
+    env_password = os.getenv("OWNER_PASSWORD")
+    base_owener_password = env_password if env_password else "owner_password"
+
+    await Server.setup_server(
+        server_name=main_settings.get_s("app.server_name"),
+        host=main_settings.get_s("app.host"),
+        port=main_settings.get_s("app.port"),
+        db_path=Path(ROOT_PATH / "data"),
+        init_owner_password=base_owener_password,
+        base_access=base_access_flags,
+        allow_registration=main_settings.get_s("app.allow_registration"),
+        timeout=main_settings.get_s("app.timeout"),
+        max_player=main_settings.get_s("app.max_players"),
+    )
 
     await Server.start()
 
-if __name__ == "__main__":
-    args = parse_arguments()
-    debug = args.debug
 
-    # Базовая конфигурация логгера
-    dictConfig({
-        'version': 1,
-        'disable_existing_loggers': False,
-        'formatters': {
-            'default': {
-                'format': '[%(asctime)s]-[%(levelname)s] \"%(name)s\": %(message)s',
-            },
-        },
-        'handlers': {
-            'default': {
-                'class': 'logging.StreamHandler',
-                'formatter': 'default',
-                'stream': 'ext://sys.stdout',
-            },
-        },
-        'root': {
-            'level': logging.DEBUG if debug else logging.INFO,
-            'handlers': ['default'],
-        },
-    })
-    
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Запуск сервера DMBot")
+    parser.add_argument("--debug", action="store_true", help="Включение режима отладки")
+
+    args = parser.parse_args()
+
+    log_level = logging.DEBUG if args.debug else logging.INFO
+
+    handler = logging.StreamHandler()
+    formatter = FixedWidthFormatter(
+        "[%(asctime)s][%(levelname)s] %(name)s: %(message)s"
+    )
+
+    handler.setFormatter(formatter)
+
+    logging.basicConfig(
+        level=log_level,
+        handlers=[handler],
+    )
+
     init_all()
-    
+
     try:
         asyncio.run(main())
-    
+
     except KeyboardInterrupt:
         logging.info("Server shutdown initiated by user.")
