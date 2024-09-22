@@ -1,3 +1,4 @@
+import hashlib
 import zipfile
 from pathlib import Path
 
@@ -7,12 +8,21 @@ from root_path import ROOT_PATH
 
 class DownloadServerModule:
     @staticmethod
-    async def net_download_server_conent(cl_unit: ClUnit):
+    async def net_get_server_content_hash(cl_unit: ClUnit):
         try:
             zip_path = DownloadServerModule._create_zip_archive()
-            await cl_unit.send_file(zip_path, "server_contet.zip")
-            return "done"
+            return DownloadServerModule._calculate_file_hash(zip_path)
         
+        except Exception as err:
+            return str(err)
+
+    @staticmethod
+    async def net_download_server_content(cl_unit: ClUnit):
+        try:
+            zip_path = DownloadServerModule._create_zip_archive()
+            await cl_unit.send_file(zip_path, "server_content.zip")
+            return "done"
+
         except Exception as err:
             return str(err)
 
@@ -62,3 +72,21 @@ class DownloadServerModule:
                     zipf.write(file_path, file_path.relative_to(folder_path))
 
         return archive_path
+
+    @staticmethod
+    def _calculate_file_hash(file_path: Path, hash_algo="sha256") -> str:
+        """Вычисляет хеш для переданного файла.
+
+        Args:
+            file_path (Path): Путь к файлу.
+            hash_algo (str): Алгоритм хеширования (по умолчанию 'sha256').
+
+        Returns:
+            str: Хеш файла в виде шестнадцатеричной строки.
+        """
+        hash_function = hashlib.new(hash_algo)
+        with file_path.open("rb") as f:
+            while chunk := f.read(8192):
+                hash_function.update(chunk)
+
+        return hash_function.hexdigest()
