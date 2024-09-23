@@ -24,21 +24,18 @@ class Factory:
             raise ValueError(f"Entity type {entity_type} not found in registry")
 
         entity = entity_class.restore(data)
-
-        if entity.uid == 0 or entity.uid in Factory._entity_registry_by_uid:
-            entity.set_uid(Factory._generate_unique_id())
-
+        entity.set_uid(Factory._generate_unique_id())
         Factory._entity_registry_by_uid[entity.uid] = entity
 
         return entity
 
     @staticmethod
     def get_entity_by_uid(uid: int) -> Optional["BaseEntity"]:
-        return Factory._entity_registry_by_uid.get(uid)
+        return Factory._entity_registry_by_uid.get(uid, None)
 
     @staticmethod
     def assign_new_uid_if_needed(entity: "BaseEntity") -> None:
-        if entity.uid == 0 or entity.uid in Factory._entity_registry_by_uid:
+        if entity.uid == 0 or Factory._entity_registry_by_uid[entity.uid] is not entity:
             entity.set_uid(Factory._generate_unique_id())
 
         Factory._entity_registry_by_uid[entity.uid] = entity

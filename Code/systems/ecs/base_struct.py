@@ -5,10 +5,9 @@ from .class_roster import COMPONENT_REGISTRY
 
 
 class BaseEntity(ABC):
-    def __init__(self, id: str = "", uid: int = 0, type: str = "") -> None:
+    def __init__(self, id: str = "") -> None:
         self._id: str = id
-        self._uid: int = uid
-        self._type: str = type
+        self._uid: int = 0
         self._components: Dict[str, "BaseComponent"] = {}
 
     @property
@@ -27,10 +26,7 @@ class BaseEntity(ABC):
 
     @property
     def type(self) -> str:
-        return self._type
-
-    def set_type(self, value: str) -> None:
-        self._type = value
+        return self.__class__.__name__
 
     def add_component(self, comp: "BaseComponent") -> None:
         comp_type = comp.__class__.__name__
@@ -51,10 +47,10 @@ class BaseEntity(ABC):
     @abstractmethod
     def dump(self) -> Dict[str, Any]:
         pass  # Подклассы должны переопределить этот метод
-        
+
         # return {
         #     "id": self._id,
-        #     "type": self._type,
+        #     "type": self.type,
         #     "components": {
         #         name: comp.dump() for name, comp in self._components.items()
         #     },
@@ -64,8 +60,8 @@ class BaseEntity(ABC):
     @abstractmethod
     def restore(cls, data: Dict[str, Any]) -> "BaseEntity":
         pass  # Подклассы должны переопределить этот метод
-        
-        # entity = cls(id=data["id"], uid=0, type=data["type"])
+
+        # entity = cls(id=data["id"])
         # BaseEntity._restore_components(entity, data)
         # return entity
 
@@ -94,13 +90,16 @@ class BaseComponent(ABC):
     def owner(self):
         return self._owner
 
+    @property
+    def type(self) -> str:
+        return self.__class__.__name__
+
     def set_owner(self, value: Optional["BaseEntity"]) -> None:
         self._owner = value
 
     @abstractmethod
     def dump(self) -> Dict[str, Any]:
         pass  # Подклассы должны переопределить этот метод
-    
 
     @classmethod
     @abstractmethod
