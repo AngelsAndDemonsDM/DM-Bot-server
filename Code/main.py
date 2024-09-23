@@ -12,7 +12,6 @@ from DMBotNetwork import Server
 from dotenv import load_dotenv
 from root_path import ROOT_PATH
 from systems.auto_updater import AutoUpdater
-from systems.entity_system import EntityFactory
 from systems.file_work import MainAppSettings
 
 load_dotenv()
@@ -54,10 +53,6 @@ def init_all() -> None:
             }
         }
     )
-    logging.info("Done")
-
-    logging.info("Initialize EntityFactory...")
-    EntityFactory()
     logging.info("Done")
 
     logging.info("Initialize Server modules...")
