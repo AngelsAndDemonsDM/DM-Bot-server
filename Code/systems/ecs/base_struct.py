@@ -62,7 +62,7 @@ class BaseEntity(ABC):
         pass  # Подклассы должны переопределить этот метод
 
         # entity = cls(id=data["id"])
-        # BaseEntity._restore_components(entity, data)
+        # cls._restore_components(entity, data)
         # return entity
 
     @staticmethod

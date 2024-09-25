@@ -1,4 +1,5 @@
 from typing import Any, Dict
+
 from systems.ecs import BaseComponent, register_component
 
 
