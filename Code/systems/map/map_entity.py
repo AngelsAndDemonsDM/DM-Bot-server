@@ -1,10 +1,11 @@
 from typing import Any, Dict, List, Optional
 
-from systems.ecs import BaseEntity, Factory
+from systems.ecs import BaseEntity, Factory, register_entity
 
 from .coordinates import Coordinates
 
 
+@register_entity
 class MapEntity(BaseEntity):
     def __init__(self, id: str) -> None:
         super().__init__(id)
