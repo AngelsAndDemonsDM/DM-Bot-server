@@ -1,7 +1,7 @@
 import math
 
 
-class Coordinates:
+class Coordinate:
     def __init__(self, x: int, y: int):
         self.x = x
         self.y = y
@@ -10,7 +10,7 @@ class Coordinates:
         return hash((self.x, self.y))
 
     def __eq__(self, other):
-        if isinstance(other, Coordinates):
+        if isinstance(other, Coordinate):
             return self.x == other.x and self.y == other.y
 
         elif isinstance(other, tuple):
@@ -18,7 +18,13 @@ class Coordinates:
 
         return False
 
-    def distance_to(self, other: "Coordinates") -> float:
+    def __lt__(self, other):
+        if self.x == other.x:
+            return self.y < other.y
+        
+        return self.x < other.x
+
+    def distance_to(self, other: "Coordinate") -> float:
         return math.sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2)
 
     def __repr__(self):
@@ -28,6 +34,6 @@ class Coordinates:
         return f"{self.x} {self.y}"
 
     @classmethod
-    def from_str(cls, coord_str: str) -> "Coordinates":
+    def from_str(cls, coord_str: str) -> "Coordinate":
         x, y = map(int, coord_str.split())
         return cls(x, y)
