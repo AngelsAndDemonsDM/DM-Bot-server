@@ -1,4 +1,4 @@
-from DMBotNetwork import ClUnit, ServerDB, require_access, Server
+from DMBotNetwork import ClUnit, Server, ServerDB, require_access
 
 
 class UserServerModule:
@@ -31,10 +31,10 @@ class UserServerModule:
     @staticmethod
     async def net_get_server_settings(cl_unit: ClUnit):
         return {
-            "timeout": Server._timeout,
-            "max_players": Server._max_players,
-            "allow_registration": Server._allow_registration,
-        }  # TODO: Добавить для этого дерьма гетеры
+            "timeout": Server.get_timeout(),
+            "max_players": Server.get_max_players(),
+            "allow_registration": Server.get_allow_registration(),
+        }
 
     @require_access("change_server_settings")
     @staticmethod
@@ -73,12 +73,7 @@ class UserServerModule:
         if login == "owner":
             return "Insufficient access"
 
-        try:
-            await ServerDB.delete_user(login)
-            # При удалении юзера должно происходить разрыв соединения, но пока сосём лапу
-        except Exception as err:
-            return str(err)
-        
+        await Server.remove_user(login)
         return "Sucess"
 
     @require_access("create_users")
