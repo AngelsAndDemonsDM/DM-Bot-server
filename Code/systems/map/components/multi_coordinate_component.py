@@ -6,8 +6,10 @@ from systems.map.coordinate import Coordinate
 
 @register_component
 class MultiCoordinateComponent(BaseComponent):
-    def __init__(self, coordinates: Optional[Coordinate | List[Coordinate]] = None) -> None:
+    def __init__(self, coordinates: Optional[Coordinate | List[Coordinate]] = None, mapuid: int = 0) -> None:
         super().__init__()
+        
+        self.mapuid: int = 0
 
         if coordinates is None:
             coordinates = []

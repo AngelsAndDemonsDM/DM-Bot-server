@@ -6,8 +6,9 @@ from systems.map.coordinate import Coordinate
 
 @register_component
 class CoordinateComponent(BaseComponent):
-    def __init__(self, coordinate: Coordinate) -> None:
+    def __init__(self, coordinate: Coordinate, mapuid: int = 0) -> None:
         super().__init__()
+        self.mapuid: int = 0
         self.coord: Coordinate = coordinate
 
     def dump(self) -> Dict[str, Any]:

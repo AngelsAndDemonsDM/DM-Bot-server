@@ -36,6 +36,9 @@ class BaseEntity(ABC):
         comp.set_owner(self)
         self._components[comp_type] = comp
 
+    def has_component(self, comp_type: str) -> bool:
+        return comp_type in self._components
+
     def remove_component(self, comp_type: str) -> None:
         comp = self._components.pop(comp_type, None)
         if comp is not None:
@@ -93,6 +96,10 @@ class BaseComponent(ABC):
     @property
     def type(self) -> str:
         return self.__class__.__name__
+
+    @classmethod
+    def get_type(cls) -> str:
+        return cls.__name__
 
     def set_owner(self, value: Optional["BaseEntity"]) -> None:
         self._owner = value
