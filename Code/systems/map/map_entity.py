@@ -2,8 +2,8 @@ from typing import Any, Dict, List, Optional
 
 from systems.ecs import BaseEntity, Factory, register_entity
 
+from .components import CoordinateComponent, MultiCoordinateComponent
 from .coordinate import Coordinate
-from .components import MultiCoordinateComponent, CoordinateComponent
 
 
 @register_entity
