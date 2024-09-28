@@ -10,6 +10,9 @@ class ChatServerModule:
     ) -> None:
         cl_to_send: Optional[Dict[str, ClUnit]] = None
 
+        if message_type != "admin" and message_type != "ooc":
+            return
+
         if message_type == "admin":
             if not await ServerDB.check_access_login(
                 cl_unit.login, ["access_admin_chat"]
