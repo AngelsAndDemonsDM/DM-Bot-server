@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from api import DownloadServerModule, UserServerModule
+from api import ChatServerModule, DownloadServerModule, UserServerModule
 from DMBotNetwork import Server
 from dotenv import load_dotenv
 from root_path import ROOT_PATH
@@ -57,8 +57,10 @@ def init_all() -> None:
 
     logging.info("Initialize Server modules...")
     Server()
-    
-    Server.register_methods_from_class([DownloadServerModule, UserServerModule])
+
+    Server.register_methods_from_class(
+        [DownloadServerModule, UserServerModule, ChatServerModule]
+    )
     logging.info("Done")
 
 
@@ -77,11 +79,12 @@ async def main() -> None:
             del updater
 
     base_access_flags = {
+        "access_admin_chat": False,
+        "change_access": False,
+        "change_password": True,
         "change_server_settings": False,
         "create_users": False,
         "delete_users": False,
-        "change_access": False,
-        "change_password": True,
     }
 
     env_password = os.getenv("OWNER_PASSWORD")

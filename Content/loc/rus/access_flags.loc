@@ -12,3 +12,6 @@ desc-change_access = Дает возможность изменять права
 
 text-change_password = Смена пароля  
 desc-change_password = Позволяет пользователю изменить пароль для своего аккаунта.
+
+text-access_admin_chat = Доступ админ чата
+desc-access_admin_chat = Позволяет отправлять и принимать сообщения админ чата

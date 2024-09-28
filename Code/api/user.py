@@ -4,7 +4,14 @@ from DMBotNetwork import ClUnit, Server, ServerDB, require_access
 class UserServerModule:
     @staticmethod
     async def net_get_access(cl_unit: ClUnit, login: str):
-        return await ServerDB.get_access(login)
+        access = await ServerDB.get_access(login)
+        base_access = ServerDB.get_base_access()
+        
+        for key, value in base_access.items():
+            if key not in access: # type: ignore
+                access[key] = value # type: ignore
+        
+        return access
 
     @staticmethod
     async def net_get_all_users(cl_unit: ClUnit):
